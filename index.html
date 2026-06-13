@@ -158,7 +158,7 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 #videoContainerWrapper{
   position:absolute; bottom:0; right:0;
   /* Expands seamlessly across both columns */
-  width:calc(200% + 12px); height:0; border-radius:14px;
+  width:calc(200% + 12px); padding-bottom: 0; height:0; border-radius:14px;
   overflow:hidden; z-index:60; background-color: #000;
   transition: width 0.35s cubic-bezier(0.25, 1, 0.4, 1), height 0.35s cubic-bezier(0.25, 1, 0.4, 1), opacity 0.25s ease, transform 0.35s cubic-bezier(0.25, 1, 0.4, 1);
   transform-origin:bottom right; opacity:0; pointer-events:none;
@@ -166,7 +166,8 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
   -webkit-mask-image: -webkit-radial-gradient(white, black); 
 }
 #videoContainerWrapper.expanded{
-  height:330px;
+  /* Ensures a perfect square bounded by the container paddings maxing out at 356px */
+  height:calc(100vw - 68px); max-height:356px;
   pointer-events:auto; opacity:1; transform: scale(1);
   box-shadow: 0 15px 35px rgba(0,0,0,0.4);
 }
@@ -507,7 +508,19 @@ function handleStaffInput() {
     var todayKey = new Date().toDateString();
     var historyRaw = Storage.get('local_history_' + currentTerminal);
     var history = historyRaw ? JSON.parse(historyRaw) : {};
-    var lastAction = history[match.id + '_' + todayKey] || match.status;
+    
+    var historyEntry = history[match.id + '_' + todayKey];
+    var lastAction = match.status; // Fallback to server sync state
+    var lastTime = null;
+
+    if (historyEntry) {
+      if (typeof historyEntry === 'string') {
+        lastAction = historyEntry;
+      } else {
+        lastAction = historyEntry.action;
+        lastTime = historyEntry.time;
+      }
+    }
 
     // Immediately stop user at Staff ID step if they've already clocked out today
     if (lastAction === 'Clock Out') {
@@ -516,7 +529,31 @@ function handleStaffInput() {
       return;
     }
     
-    currentAction = (lastAction === 'Clock In') ? 'Clock Out' : 'Clock In';
+    // Validate 6-hour minimum if they are trying to Clock Out
+    if (lastAction === 'Clock In') {
+      if (lastTime) {
+        var elapsed = Date.now() - lastTime;
+        var sixHours = 6 * 60 * 60 * 1000;
+        
+        if (elapsed < sixHours) {
+          var remaining = sixHours - elapsed;
+          var remHrs = Math.floor(remaining / (1000 * 60 * 60));
+          var remMins = Math.ceil((remaining % (1000 * 60 * 60)) / (1000 * 60));
+          if (remMins === 60) { remHrs++; remMins = 0; }
+          
+          var waitText = "";
+          if (remHrs > 0) waitText += remHrs + 'h ';
+          if (remMins > 0 || remHrs === 0) waitText += remMins + 'm';
+          
+          showError('staffMsg', 'Minimum 6 hours required. Wait ' + waitText + '.');
+          resetStepsFrom(3);
+          return;
+        }
+      }
+      currentAction = 'Clock Out';
+    } else {
+      currentAction = 'Clock In';
+    }
     
     showSuccess('staffMsg','Welcome '+staffName);
     if (document.getElementById('step4').classList.contains('activeStep')) resetStepsFrom(4);
@@ -608,19 +645,31 @@ function startCamera() {
 function capturePhoto() {
   var video = document.getElementById('cameraVideo');
   var vw = video.videoWidth || 1280, vh = video.videoHeight || 720;
-  var maxDim = 1280, scale = (vw > maxDim || vh > maxDim) ? (maxDim / Math.max(vw, vh)) : 1;
+  
+  // Calculate a center square crop to perfectly match the UI preview
+  var minDim = Math.min(vw, vh);
+  var startX = (vw - minDim) / 2;
+  var startY = (vh - minDim) / 2;
+  
+  // Scale output resolution to max 720x720 for efficiency
+  var maxOutput = 720;
+  var scale = minDim > maxOutput ? (maxOutput / minDim) : 1;
+  var outputSize = Math.round(minDim * scale);
   
   var canvas = document.createElement('canvas');
-  canvas.width = Math.round(vw * scale); canvas.height = Math.round(vh * scale);
+  canvas.width = outputSize; 
+  canvas.height = outputSize;
   var ctx = canvas.getContext('2d');
   
   // Mirror the canvas context so the saved photo matches the mirrored video preview perfectly
   ctx.translate(canvas.width, 0);
   ctx.scale(-1, 1);
   
-  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.imageSmoothingEnabled = true; 
+  ctx.imageSmoothingQuality = 'high';
+  
+  // Draw ONLY the center square portion
+  ctx.drawImage(video, startX, startY, minDim, minDim, 0, 0, canvas.width, canvas.height);
   
   // Save as high-quality JPEG (85% compression)
   photo = canvas.toDataURL('image/jpeg', 0.85);
@@ -665,7 +714,12 @@ function submitAttendance() {
   var todayKey = new Date().toDateString();
   var histRaw = Storage.get('local_history_' + currentTerminal);
   var history = histRaw ? JSON.parse(histRaw) : {};
-  history[staffID + '_' + todayKey] = currentAction;
+  
+  // Store object with action AND time reference
+  history[staffID + '_' + todayKey] = {
+    action: currentAction,
+    time: Date.now()
+  };
   Storage.set('local_history_' + currentTerminal, JSON.stringify(history));
   
   var payload = {
