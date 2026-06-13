@@ -32,9 +32,8 @@
   --modal-overlay:rgba(0,0,0,0.65); --shadow-color:rgba(0,0,0,0.1);
   --label-text:#6b7280;
   
-  /* Beautiful Solid Colors */
-  --theme-chan:#10b981; /* Emerald Green */
-  --theme-carr:#3b82f6; /* Royal Blue */
+  --theme-chan:#10b981; 
+  --theme-carr:#3b82f6; 
   --dynamic-primary:var(--theme-chan);
 }
 
@@ -72,10 +71,9 @@ body {
 body.theme-chandarana{--dynamic-primary:var(--theme-chan)}
 body.theme-carrefour {--dynamic-primary:var(--theme-carr);--success-color:#3b82f6}
 
-/* Hanging Sign ("Key Holder" effect) */
 .hanging-sign-wrapper {
   position: relative;
-  margin-bottom: 48px; /* Doubled space between sign and square */
+  margin-bottom: 48px; 
   perspective: 800px;
   z-index: 10;
   width: 240px; 
@@ -91,12 +89,13 @@ body.theme-carrefour {--dynamic-primary:var(--theme-carr);--success-color:#3b82f
   z-index: 1; 
 }
 .chain::before {
-  content: ''; position: absolute; top: -6px; left: -2.5px;
-  width: 10px; height: 10px; border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #e5e7eb, #9ca3af);
-  border: 1px solid #6b7280;
-  /* Strong wall shadow simulating physical attachment to the background */
-  box-shadow: 0 8px 12px rgba(0,0,0,0.6), 0 3px 6px rgba(0,0,0,0.4);
+  content: ''; position: absolute; top: -6px; left: -3.5px;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--dynamic-primary); 
+  border: 3.5px solid #d1d5db; 
+  box-shadow: 0 8px 12px rgba(0,0,0,0.6), 0 3px 6px rgba(0,0,0,0.4), inset 0 2px 4px rgba(0,0,0,0.7);
+  box-sizing: border-box;
+  transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .left-chain { left: 40px; }
 .right-chain { right: 40px; }
@@ -129,25 +128,15 @@ body.theme-carrefour {--dynamic-primary:var(--theme-carr);--success-color:#3b82f
   80%  { transform: rotateX(-3deg) rotateZ(0deg); }
   100% { transform: rotateX(0deg) rotateZ(0deg); }
 }
-.hanging-sign.nudge {
-  animation: swing 0.7s cubic-bezier(0.25, 1, 0.5, 1);
-}
+.hanging-sign.nudge { animation: swing 0.7s cubic-bezier(0.25, 1, 0.5, 1); }
 
-/* Main Container - Perfect Square */
 .container{
-  max-width:400px;
-  width:100%;
-  aspect-ratio: 1 / 1; 
-  margin:0 auto;
-  background:var(--bg-primary);
-  padding:24px 22px;
-  border-radius:24px;
+  max-width:400px; width:100%; aspect-ratio: 1 / 1; 
+  margin:0 auto; background:var(--bg-primary);
+  padding:24px 22px; border-radius:24px;
   box-shadow:0 15px 35px var(--shadow-color);
-  position:relative; 
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
-  justify-content:center; 
+  position:relative; overflow:hidden;
+  display:flex; flex-direction:column; justify-content:center; 
 }
 
 #mainForm { width: 100%; }
@@ -212,12 +201,10 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 
 .btn-spinner {
   border: 2px solid rgba(0,0,0,0.1); 
-  border-top-color: currentColor;
-  border-radius: 50%; 
+  border-top-color: currentColor; border-radius: 50%; 
   animation: spin 0.6s linear infinite;
 }
 
-/* Perfect Overlay Camera */
 #videoContainerWrapper{
   position:absolute; top:0; left:0; right:0; bottom:0;
   width:100%; height:100%; border-radius:24px;
@@ -225,9 +212,7 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
   transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.25, 1, 0.4, 1);
   transform: scale(0.95); opacity:0; pointer-events:none;
 }
-#videoContainerWrapper.expanded{
-  pointer-events:auto; opacity:1; transform: scale(1);
-}
+#videoContainerWrapper.expanded{ pointer-events:auto; opacity:1; transform: scale(1); }
 
 #cameraVideo{ 
   position:absolute; top:0; left:0; width:100%; height:100%;
@@ -260,23 +245,18 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
   z-index:4; -webkit-tap-highlight-color:transparent;
 }
 
-/* Messages (Now with fixed min-height to prevent jumping) */
 .msg{ 
   font-size:12px;font-weight:600;margin-top:6px;
-  min-height:38px; /* Fixed space to hold a 2-line warning perfectly */
-  align-items:flex-start; /* Keeps single-line text at the top */
-  line-height:1.4;
+  min-height:38px; align-items:flex-start; line-height:1.4;
   color:var(--text-tertiary);display:flex; 
-  transition: opacity 0.3s ease, color 0.3s ease;
-  opacity: 1;
+  transition: opacity 0.3s ease, color 0.3s ease; opacity: 1;
 }
 .msg.success{color:var(--success-color);font-size:13px}
 .msg.error  {color:var(--error-color)}
 .msg .dot{
   display:inline-flex;justify-content:center;align-items:center;
   width:16px;height:16px;background:var(--success-color);border-radius:50%;
-  margin-right:6px;flex-shrink:0;position:relative;
-  margin-top: 1px; /* Align dot perfectly with first line of text */
+  margin-right:6px;flex-shrink:0;position:relative; margin-top: 1px; 
 }
 .msg .dot::after{
   content:'';position:absolute;top:45%;left:50%; width:3.5px;height:7px;
@@ -284,7 +264,6 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
   transform:translate(-50%,-50%) rotate(45deg);
 }
 
-/* Success Screen & Zoomable Photo */
 #successScreen{ display:none;flex-direction:column;align-items:center; justify-content:center; padding:10px 4px;text-align:center;width:100%; }
 
 .success-photo{
@@ -292,26 +271,20 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
   box-shadow: 0 0 0 4px var(--success-color); margin-bottom: 16px;
   animation: bounceIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
   transition: transform 0.4s cubic-bezier(0.25, 1, 0.4, 1), border-radius 0.4s cubic-bezier(0.25, 1, 0.4, 1), box-shadow 0.4s ease;
-  cursor: zoom-in;
-  position: relative; z-index: 20000;
-  -webkit-tap-highlight-color: transparent;
+  cursor: zoom-in; position: relative; z-index: 20000; -webkit-tap-highlight-color: transparent;
 }
 .success-photo.zoomed {
-  transform: scale(2.6);
-  border-radius: 8%;
+  transform: scale(2.6); border-radius: 8%;
   box-shadow: 0 0 0 1.5px var(--success-color), 0 10px 30px rgba(0,0,0,0.3);
   cursor: zoom-out;
 }
 
-/* Photo Backdrop */
 #photoBackdrop {
   position: fixed; inset: 0; background: rgba(0,0,0,0.6);
   z-index: 19999; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
   opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
 }
-#photoBackdrop.show {
-  opacity: 1; pointer-events: auto;
-}
+#photoBackdrop.show { opacity: 1; pointer-events: auto; }
 
 .success-badge{
   background:var(--dynamic-primary);color:#fff;font-size:13px;font-weight:800;
@@ -332,7 +305,6 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
   font-size:15px;font-weight:700;cursor:pointer;
 }
 
-/* Modal */
 #guideModal{
   display:none;position:fixed;inset:0;background:var(--modal-overlay);
   z-index:19999;flex-direction:column;align-items:center;justify-content:center;
@@ -361,11 +333,15 @@ var Storage={
 (function(){document.body.className='theme-'+(Storage.get('selected_terminal')||'chandarana')})();
 </script>
 
-<!-- General Backdrops -->
 <div id="cameraBackdrop" onclick="stopCamera()"></div>
 <div id="photoBackdrop" onclick="toggleZoom()"></div>
 
-<!-- External Hanging Store Sign -->
+<!-- Floating Testing Widget -->
+<div style="position:fixed; bottom:10px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.7); padding:10px 15px; border-radius:12px; color:#fff; z-index:99999; display:flex; align-items:center; font-size:13px; gap:10px;">
+  <label style="margin:0;color:#fff;">Mock Time:</label>
+  <input type="time" id="testTime" style="height:32px; width:110px; background:#fff; color:#000; padding:4px 8px; border:none; margin:0;" onchange="handleStaffInput.call(document.getElementById('staffID'))">
+</div>
+
 <div class="hanging-sign-wrapper" id="signWrapper">
   <div class="chain left-chain"></div>
   <div class="chain right-chain"></div>
@@ -425,7 +401,6 @@ var Storage={
     <button class="success-back" onclick="resetToStart()">← Submit Another</button>
   </div>
 
-  <!-- Camera overlay perfectly matches container -->
   <div id="videoContainerWrapper">
     <video id="cameraVideo" autoplay playsinline muted></video>
     <button id="closeCameraBtn" onclick="stopCamera()" aria-label="Close camera">&#x2715;</button>
@@ -455,11 +430,22 @@ var staff = [], branches = [], coords = null, staffName = "", photo = null;
 var activeFetchId = 0, currentAction = "", videoStream = null;
 
 var staffRestrictionError = null; 
-var isAfternoonShift = false;
 var warningTimer = null; 
 
+// Mock Time Helper
+function getNow() {
+  var override = document.getElementById('testTime').value;
+  if(override) {
+    var d = new Date();
+    var parts = override.split(':');
+    d.setHours(parseInt(parts[0], 10), parseInt(parts[1], 10), 0);
+    return d;
+  }
+  return new Date();
+}
+
 function cleanOldHistory() {
-  var today = new Date().toDateString();
+  var today = getNow().toDateString();
   var histRaw = Storage.get('local_history_' + currentTerminal);
   if (histRaw) {
     try {
@@ -618,10 +604,11 @@ function resetToStart() {
   document.getElementById('successPhoto').classList.remove('zoomed');
   document.getElementById('photoBackdrop').classList.remove('show');
   
-  resetStepsFrom(3); 
+  // Wipe saved Staff ID so you can easily test multiple users
+  Storage.remove('last_staff_id_' + currentTerminal);
+  
+  resetStepsFrom(2); 
   handleBranchChange();
-  var staffEl = document.getElementById('staffID');
-  if (staffEl.value) { handleStaffInput.call(staffEl); }
 }
 
 function showSuccess(id,txt){ var e=document.getElementById(id); e.innerHTML='<span class="dot"></span> '+txt; e.className='msg success'; }
@@ -651,6 +638,7 @@ function handleBranchChange() {
 document.getElementById('branch').onchange = handleBranchChange;
 
 function handleStaffInput() {
+  if (!this.value) return;
   var val = this.value.trim();
   staffRestrictionError = null; 
   if (val.length < 2) { resetStepsFrom(3); clearMsg('staffMsg'); return; }
@@ -660,7 +648,7 @@ function handleStaffInput() {
   
   if (match) {
     staffName = match.name;
-    var todayKey = new Date().toDateString();
+    var todayKey = getNow().toDateString();
     var historyRaw = Storage.get('local_history_' + currentTerminal);
     var history = historyRaw ? JSON.parse(historyRaw) : {};
     
@@ -685,11 +673,10 @@ function handleStaffInput() {
       if (lastTime) {
         var inDate = new Date(lastTime);
         var inHour = inDate.getHours() + (inDate.getMinutes() / 60);
-        var now = new Date();
+        var now = getNow();
         var currentHour = now.getHours() + (now.getMinutes() / 60);
         
         var isMorningShift = (inHour < 12.0); 
-        isAfternoonShift = !isMorningShift; 
         
         if (isMorningShift) {
           if (currentHour < 14.0) { 
@@ -703,8 +690,6 @@ function handleStaffInput() {
       }
       currentAction = 'Clock Out';
     } else {
-      var nowHour = new Date().getHours() + (new Date().getMinutes() / 60);
-      isAfternoonShift = (nowHour >= 12.0); 
       currentAction = 'Clock In';
     }
     
@@ -727,7 +712,8 @@ function showGuideModal(type) {
     icon.textContent='📍'; title.textContent='Location Blocked'; title.style.color='var(--error-color)';
     text.innerHTML='<p>We need your location to verify you are at the branch.</p>'
       +'<p style="margin-top:8px"><strong>🍎 iPhone:</strong><br>Settings → Privacy & Security → Location Services → Allow Safari/Chrome.</p>'
-      +'<p style="margin-top:8px"><strong>🤖 Android:</strong><br>⋮ Menu → Settings → Site settings → Location → Allow.</p>';
+      +'<p style="margin-top:8px"><strong>🤖 Android:</strong><br>⋮ Menu → Settings → Site settings → Location → Allow.</p>'
+      +'<p style="margin-top:12px; color:var(--error-color); font-weight:bold;">After allowing, please clear the browser from your recent apps and reopen.</p>';
   } else if (type==='gps_signal') {
     icon.textContent='📡'; title.textContent='Weak GPS Signal'; title.style.color='var(--warning-text)';
     text.innerHTML='<p>We couldn\'t get an accurate location reading.</p>'
@@ -736,7 +722,8 @@ function showGuideModal(type) {
     icon.textContent='📸'; title.textContent='Camera Access Denied'; title.style.color='var(--error-color)';
     text.innerHTML='<p>Camera permission is required to capture your identity securely.</p>'
       +'<p style="margin-top:8px"><strong>🍎 iPhone:</strong> Settings → Safari/Chrome → Camera → Allow.</p>'
-      +'<p style="margin-top:8px"><strong>🤖 Android:</strong> Site settings → Camera → Allow.</p>';
+      +'<p style="margin-top:8px"><strong>🤖 Android:</strong> Site settings → Camera → Allow.</p>'
+      +'<p style="margin-top:12px; color:var(--error-color); font-weight:bold;">After allowing, please clear the browser from your recent apps and reopen.</p>';
   }
   modal.style.display = 'flex';
 }
@@ -883,20 +870,20 @@ function submitAttendance() {
   
   Storage.set('last_staff_id_' + currentTerminal, staffID);
   
-  var todayKey = new Date().toDateString();
+  var todayKey = getNow().toDateString();
   var histRaw = Storage.get('local_history_' + currentTerminal);
   var history = histRaw ? JSON.parse(histRaw) : {};
   
   history[staffID + '_' + todayKey] = {
     action: currentAction,
-    time: Date.now()
+    time: getNow().getTime()
   };
   Storage.set('local_history_' + currentTerminal, JSON.stringify(history));
   
   var payload = {
     name: staffName, id: staffID, branch: branch, action: currentAction, image: photo,
     lat: coords ? coords.latitude : 0, lng: coords ? coords.longitude : 0,
-    clientTimestamp: new Date().toISOString()
+    clientTimestamp: getNow().toISOString()
   };
   
   queueSubmission(payload);
@@ -905,21 +892,21 @@ function submitAttendance() {
 
 function finishSubmission(action) {
   var firstName = staffName.split(' ')[0] || staffName;
-  var hrs = new Date().getHours(), mins = new Date().getMinutes(), timeVal = hrs + (mins / 60.0);
+  var hrs = getNow().getHours(), mins = getNow().getMinutes(), timeVal = hrs + (mins / 60.0);
   var msg='';
 
   if (action === 'Clock In') {
     if (timeVal < 6.5)      { msg="Fantastic start — you're early today! Keep it up."; }
     else if (timeVal <= 7.66) { msg="Great, you are on time for the morning shift."; }
-    else if (timeVal < 11.0){ msg="Note:You're Late, consistent latenes will be reviewed by management."; }
+    else if (timeVal < 11.0){ msg="Note: Late for morning shift."; }
     else if (timeVal < 14.0){ msg="Early for the second shift. Great job!"; }
     else if (timeVal <= 14.66){ msg="On time for the second shift. Have a productive afternoon!"; }
-    else                    { msg="Clocked in. Note: Late for afternoon shift."; }
+    else                    { msg="Note: Late for afternoon shift."; }
   } else {
-    if (hrs < 16) { msg="Have a wonderful afternoon!"; }
+    if (hrs < 16) { msg="Have a wonderful day!"; }
     else          { msg="Have a restful night!"; }
     
-    if (isAfternoonShift) {
+    if (hrs >= 18) {
       msg += " And remember to place your order.";
     }
   }
