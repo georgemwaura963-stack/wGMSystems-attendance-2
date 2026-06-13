@@ -3,9 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Stentor Ent Ltd.</title>
+<title>Stentor Operations</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;900&display=swap');
 
@@ -14,146 +12,150 @@
   --text-primary:#111827; --text-secondary:#4b5563; --text-tertiary:#9ca3af;
   --border-color:#e5e7eb; --input-bg:#f9fafb; --input-border:#d1d5db;
   --success-color:#10b981; --error-color:#ef4444;
-  --theme-chan:#10b981;
-  --theme-carr:#3b82f6;
+  --theme-chan:#10b981; --theme-carr:#3b82f6;
+  --dynamic-primary: var(--theme-chan);
   --shadow-color:rgba(0,0,0,0.1);
-  --label-text:#6b7280;
 }
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  color:var(--text-primary); 
+  font-family: 'Nunito', -apple-system, sans-serif; color:var(--text-primary); 
   min-height:100vh; min-height:100dvh; display:flex; flex-direction:column; align-items:center; justify-content:center;
   padding: env(safe-area-inset-top, 16px) 12px env(safe-area-inset-bottom, 16px);
   overflow-y:auto; -webkit-overflow-scrolling:touch; transition: background 0.6s ease;
 }
 
-body.theme-hub { background: linear-gradient(135deg, #059669 0%, #2563eb 100%); font-family: 'Nunito', sans-serif; }
-body.theme-chandarana { background-color: var(--theme-chan); }
-body.theme-carrefour { background-color: var(--theme-carr); --success-color:#3b82f6; }
+body.theme-hub { background: linear-gradient(135deg, #059669 0%, #2563eb 100%); }
+body.theme-chandarana { background-color: var(--theme-chan); --dynamic-primary: var(--theme-chan); }
+body.theme-carrefour { background-color: var(--theme-carr); --dynamic-primary: var(--theme-carr); --success-color:#3b82f6; }
 
 .view-section { display: none; width: 100%; max-width: 440px; flex-direction: column; align-items: center; }
 .view-section.active { display: flex; animation: fadeIn 0.4s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
 .container {
-  width: 100%; background:var(--bg-primary); padding:24px 22px;
-  border-radius:24px; box-shadow:0 15px 35px var(--shadow-color); position:relative; overflow:hidden;
+  width: 100%; background:var(--bg-primary); padding:20px;
+  border-radius:24px; box-shadow:0 15px 35px var(--shadow-color); overflow:hidden;
 }
 .scrollable-container { max-height: 85vh; overflow-y: auto; overflow-x: hidden; padding-bottom: 30px; }
 
-.hub-logo { font-size: 34px; font-weight: 900; color: #fff; margin-bottom: 40px; letter-spacing: 1px; text-transform: uppercase; text-align: center; text-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+/* Diagonal Dancing Menu */
+.hub-logo { font-size: 34px; font-weight: 900; color: #fff; margin-bottom: 20px; text-transform: uppercase; text-align: center; text-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+.menu-btn-container { display: flex; flex-direction: column; gap: 20px; width: 100%; align-items: center; margin-top: 30px; }
 .menu-btn {
-  width: 100%; background: var(--bg-primary); color: var(--text-primary);
-  border: none; border-radius: 20px; padding: 30px 20px; margin-bottom: 20px;
+  width: 85%; background: var(--bg-primary); color: var(--text-primary);
+  border: none; border-radius: 20px; padding: 25px 20px;
   display: flex; align-items: center; justify-content: center; gap: 15px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15); cursor: pointer; transition: transform 0.1s;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2); cursor: pointer;
+  animation: dance 4s infinite ease-in-out;
 }
-.menu-btn:active { transform: scale(0.96); }
+.menu-btn.btn-order { transform: translateX(-20px); --tx: -20px; }
+.menu-btn.btn-att { transform: translateX(20px); --tx: 20px; animation-delay: 2s; }
 .menu-btn .icon { font-size: 36px; }
-.menu-btn .text { font-size: 24px; font-weight: 900; font-family: 'Nunito', sans-serif;}
-
-.back-bar { width: 100%; display: flex; align-items: center; margin-bottom: 20px; color: #fff; font-weight: 700; cursor: pointer; font-size: 16px; font-family: 'Nunito', sans-serif;}
-
-label { font-weight:800; font-size:12px; display:block; margin-bottom:6px; margin-top:12px; color:var(--label-text); text-transform:uppercase; letter-spacing:0.5px; }
-input:not([type="checkbox"]):not([type="radio"]),select,textarea {
-  width:100%; padding:14px; border-radius:12px; border:1px solid var(--input-border); font-size:15px; background:var(--input-bg);
-  color:var(--text-primary); transition:all 0.2s; -webkit-appearance:none; outline:none; font-family: inherit; font-weight: 600;
+.menu-btn .text { font-size: 22px; font-weight: 900; }
+@keyframes dance {
+  0%   { transform: translateX(var(--tx)) rotate(0deg); }
+  33%  { transform: translateX(var(--tx)) rotate(-3deg) scale(1.02); }
+  66%  { transform: translateX(var(--tx)) rotate(3deg) scale(0.98); }
+  100% { transform: translateX(var(--tx)) rotate(0deg); }
 }
-input:read-only { background: #e5e7eb; color: var(--text-secondary); cursor: not-allowed; }
-input:focus,select:focus,textarea:focus { border-color:#111827; box-shadow:0 0 0 3px rgba(0,0,0,0.05); }
+
+.back-bar { width: 100%; display: flex; align-items: center; margin-bottom: 16px; color: #fff; font-weight: 700; cursor: pointer; font-size: 16px; }
+
+label { font-weight:800; font-size:11px; display:block; margin-bottom:4px; margin-top:10px; color:var(--label-text); text-transform:uppercase; }
+input:not([type="checkbox"]):not([type="radio"]):not([type="number"]), select, textarea {
+  width:100%; padding:12px; border-radius:10px; border:1px solid var(--input-border); font-size:14px; background:var(--input-bg);
+  color:var(--text-primary); outline:none; font-family: inherit; font-weight: 700; transition: border-color 0.2s;
+}
+input:read-only { background: #e5e7eb; color: var(--text-secondary); }
+input:focus,select:focus,textarea:focus { border-color:var(--dynamic-primary); }
 
 .btn-primary {
   width:100%; height:50px; border-radius:12px; border:none; font-size:16px; font-weight:800; margin-top: 24px;
-  background:#111827; color:#fff; cursor:pointer; transition:transform 0.1s; display:flex; align-items:center; justify-content:center; gap:8px;
+  background:#111827; color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center;
 }
 .btn-primary:active { transform:scale(0.97); }
-.btn-primary:disabled { opacity:0.6; cursor:not-allowed; }
 
-.section-title { font-size: 15px; font-weight: 800; color: var(--text-primary); margin: 28px 0 12px 0; border-bottom: 2px solid var(--border-color); padding-bottom: 4px; }
-.table-container { 
-  width: 100%; max-height: 380px; overflow: auto; 
-  border: 1px solid var(--border-color); border-radius: 12px; -webkit-overflow-scrolling: touch; background: var(--bg-primary); 
+/* Dynamic Borders */
+.section-title { 
+  font-size: 14px; font-weight: 900; color: var(--text-primary); margin: 24px 0 10px 0; 
+  border-bottom: 2px solid var(--border-color); 
+  border-left: 5px solid var(--dynamic-primary); 
+  padding-left: 8px; border-radius: 2px;
+  transition: border-left-color 0.4s ease;
 }
+
+/* Juice Grid - Wider columns, tighter rows */
+.table-container { width: 100%; max-height: 480px; overflow: auto; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-primary); }
 table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: center; }
-th, td { padding: 8px 4px; border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); }
-th { 
-  background: var(--bg-secondary); font-weight: 800; color: var(--text-secondary); font-size: 11px;
-  position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 2px rgba(0,0,0,0.05);
-}
-td.flavor-name { 
-  text-align: left; font-weight: 800; font-size: 11px; padding-left: 10px; white-space: nowrap;
-  position: sticky; left: 0; background: var(--bg-primary); z-index: 11; border-right: 2px solid var(--border-color);
-}
-th:first-child { position: sticky; left: 0; top: 0; z-index: 12; background: var(--bg-secondary); border-right: 2px solid var(--border-color); }
+th, td { padding: 4px 2px; border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); }
+th { background: var(--bg-secondary); font-weight: 800; color: var(--text-secondary); font-size: 11px; position: sticky; top: 0; z-index: 10; width: 35%; }
+th:first-child { width: 30%; position: sticky; left: 0; z-index: 12; border-right: 2px solid var(--border-color); }
+td.flavor-name { text-align: left; font-weight: 800; font-size: 11px; padding-left: 6px; white-space: nowrap; position: sticky; left: 0; background: var(--bg-primary); z-index: 11; border-right: 2px solid var(--border-color); }
 
-/* Tappable Square-Circles (Squircles) */
-.square-select {
+/* Tappable Input Squircles (Allows explicit typing and deleting) */
+.square-input {
   appearance: none; -webkit-appearance: none;
-  width: 42px; height: 42px; border-radius: 12px;
+  width: 44px; height: 38px; border-radius: 10px;
   background: var(--input-bg); border: 2px solid var(--input-border);
   color: var(--text-tertiary); font-weight: 900; font-size: 16px;
-  display: inline-flex; align-items: center; justify-content: center;
-  cursor: pointer; user-select: none; transition: 0.1s transform, 0.2s background;
-  -webkit-tap-highlight-color: transparent;
+  text-align: center; display: block; margin: 0 auto; outline: none;
+  transition: 0.2s all;
 }
-.square-select:active { transform: scale(0.85); }
-.square-select.has-value { background: var(--theme-chan); color: #fff; border-color: var(--theme-chan); }
-body.theme-carrefour .square-select.has-value { background: var(--theme-carr); border-color: var(--theme-carr); }
+/* Hide native arrows */
+.square-input::-webkit-inner-spin-button, .square-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.square-input:focus { border-color: var(--dynamic-primary); box-shadow: 0 0 0 3px rgba(0,0,0,0.05); }
+.square-input.has-value { background: var(--dynamic-primary); color: #fff; border-color: var(--dynamic-primary); }
 
 .chip-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-.chip-label { cursor: pointer; display: inline-block; -webkit-tap-highlight-color: transparent; }
+.chip-label { cursor: pointer; }
 .chip-label input { display: none; }
-.chip-span { display: inline-flex; align-items: center; background: var(--input-bg); border: 1px solid var(--input-border); padding: 10px 14px; border-radius: 50px; font-size: 13px; font-weight: 700; color: var(--text-secondary); transition: 0.2s; }
-.chip-label input:checked + .chip-span { background: #111827; color: #fff; border-color: #111827; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+.chip-span { display: inline-flex; background: var(--input-bg); border: 1px solid var(--input-border); padding: 8px 14px; border-radius: 50px; font-size: 12px; font-weight: 800; color: var(--text-secondary); transition: 0.2s; }
+.chip-label input:checked + .chip-span { background: #111827; color: #fff; border-color: #111827; }
 
-.msg{ font-size:12px; font-weight:800; margin-top:6px; min-height:24px; color:var(--text-tertiary); display:flex; align-items:center;}
-.msg.success{ color:var(--success-color); font-size:13px; } 
+.msg { font-size:12px; font-weight:800; margin-top:4px; min-height:20px; color:var(--text-tertiary); display:flex; align-items:center;}
+.msg.success { color:var(--success-color); } 
 .msg.error { color:var(--error-color); }
-.msg .dot{ display:inline-flex; justify-content:center; align-items:center; width:16px; height:16px; background:var(--success-color); border-radius:50%; margin-right:6px; flex-shrink:0; position:relative; }
-.msg .dot::after{ content:''; position:absolute; top:45%; left:50%; width:3.5px; height:7px; border-right:2px solid #fff; border-bottom:2px solid #fff; transform:translate(-50%,-50%) rotate(45deg); }
 
-.top-bar{display:flex;justify-content:center;margin-bottom:10px}
-.terminal-pill-wrapper{ position:relative;display:inline-flex;background:var(--input-bg); border:1px solid var(--border-color);border-radius:50px;padding:4px;height:44px; box-shadow:inset 0 2px 4px rgba(0,0,0,0.04);align-items:center; }
-.pill-slider{ position:absolute;top:4px;bottom:4px;left:4px;border-radius:50px; background:var(--dynamic-primary);box-shadow:0 2px 6px rgba(0,0,0,0.15); transition:all 0.35s cubic-bezier(0.25,1,0.5,1);z-index:1; }
-.pill-btn{ position:relative;z-index:2;background:transparent;border:none; padding:0 18px;height:100%;font-size:14px;font-weight:800; color:var(--text-secondary);cursor:pointer;transition:color 0.2s ease; display:flex;align-items:center;justify-content:center; outline:none; -webkit-tap-highlight-color:transparent; }
-.pill-btn.active{color:#fff;} 
+/* Tab Switcher */
+.top-bar { display:flex; justify-content:center; margin-bottom:10px; }
+.terminal-pill-wrapper { position:relative; display:inline-flex; background:var(--input-bg); border:1px solid var(--border-color); border-radius:50px; padding:4px; height:44px; align-items:center; }
+.pill-slider { position:absolute; top:4px; bottom:4px; left:4px; border-radius:50px; background:var(--dynamic-primary); transition:all 0.4s cubic-bezier(0.25,1,0.5,1); z-index:1; }
+.pill-btn { position:relative; z-index:2; background:transparent; border:none; padding:0 18px; height:100%; font-size:14px; font-weight:900; color:var(--text-secondary); cursor:pointer; display:flex; align-items:center; outline:none; }
+.pill-btn.active { color:#fff; }
+
+/* Nudge Animation for Switcher */
+@keyframes tabNudge { 0%{transform:scale(1);} 50%{transform:scale(1.1) rotate(-3deg);} 100%{transform:scale(1);} }
+.nudge-anim { animation: tabNudge 0.4s ease; }
 
 .success-screen { text-align: center; padding: 20px 0; display: none; flex-direction: column; align-items: center; }
-.success-screen.active { display: flex; animation: bounceIn 0.4s ease; }
-.circle-check { width: 80px; height: 80px; background: var(--success-color); color: #fff; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 16px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);}
-@keyframes bounceIn{ 0%{transform:scale(0.9);opacity:0} 60%{transform:scale(1.05)} 100%{transform:scale(1);opacity:1} }
-
-#videoContainerWrapper{ position:absolute; top:0; left:0; right:0; bottom:0; width:100%; height:100%; border-radius:24px; overflow:hidden; z-index:60; background-color: #000; transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.25, 1, 0.4, 1); transform: scale(0.95); opacity:0; pointer-events:none; }
-#videoContainerWrapper.expanded{ pointer-events:auto; opacity:1; transform: scale(1); }
-#cameraVideo{ position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; display:block; transform: scaleX(-1); opacity: 0; transition: opacity 0.4s ease; }
-#cameraVideo.live { opacity: 1; }
-#cameraBackdrop{ display:none;position:fixed;inset:0;z-index:59; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
-#cameraBackdrop.show{ display:block; }
-.camera-ui{ position:absolute;bottom:0;left:0;right:0; padding:20px; background:linear-gradient(to top,rgba(0,0,0,0.7) 0%,transparent 100%); display:flex;align-items:center;justify-content:center; z-index:4; }
-#captureBtn{ width:64px;height:64px;border-radius:50%; background:rgba(255,255,255,0.3);border:4px solid rgba(255,255,255,0.95); cursor:pointer;display:flex;align-items:center;justify-content:center; transition:transform 0.1s; opacity: 1; }
-#captureBtn::after{content:'';width:48px;height:48px;background:#fff;border-radius:50%;transition:transform 0.1s}
-#captureBtn:active{transform:scale(0.88)}
-#closeCameraBtn{ position:absolute;top:16px;right:16px; width:36px;height:36px;border-radius:50%; background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.3); color:#fff;font-size:16px; cursor:pointer; display:flex;align-items:center;justify-content:center; z-index:6; }
+.success-screen.active { display: flex; animation: fadeIn 0.4s ease; }
+.circle-check { width: 80px; height: 80px; background: var(--success-color); color: #fff; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 16px; }
 .success-photo { width: 96px; height: 96px; object-fit: cover; border-radius: 50%; box-shadow: 0 0 0 4px var(--success-color); margin-bottom: 15px; }
+
+/* Camera UI */
+#videoContainerWrapper{ position:absolute; inset:0; border-radius:24px; overflow:hidden; z-index:60; background:#000; transform:scale(0.95); opacity:0; pointer-events:none; transition:0.3s; }
+#videoContainerWrapper.expanded{ pointer-events:auto; opacity:1; transform:scale(1); }
+#cameraVideo{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform:scaleX(-1); opacity:0; transition:0.4s; }
+#cameraVideo.live { opacity: 1; }
+.camera-ui{ position:absolute; bottom:0; left:0; right:0; padding:20px; display:flex; justify-content:center; z-index:4; }
+#captureBtn{ width:64px; height:64px; border-radius:50%; border:4px solid rgba(255,255,255,0.9); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+#captureBtn::after{ content:''; width:48px; height:48px; background:#fff; border-radius:50%; }
+#closeCameraBtn{ position:absolute; top:16px; right:16px; width:36px; height:36px; border-radius:50%; background:rgba(0,0,0,0.5); color:#fff; border:none; font-size:16px; z-index:6; }
 </style>
 </head>
-
 <body class="theme-hub">
 
 <script>
-// 🛑 PASTE YOUR APPS SCRIPT URLS HERE 🛑
-const ORDERS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwVy7MbFQmI6fVQM0ti52y05c0rc7-KvqUsU3Uq3WXzJ1CEqYP3vF0noIJbNtuL4nOT/exec";
-const ATTENDANCE_SCRIPT_URL = "https://georgemwaura963-stack.github.io/wGMSystems-attendance-2/";
+// 🛑 PASTE YOUR WEB APP URL HERE - THIS SINGLE LINK POWERS BOTH ATTENDANCE AND ORDERS
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwVy7MbFQmI6fVQM0ti52y05c0rc7-KvqUsU3Uq3WXzJ1CEqYP3vF0noIJbNtuL4nOT/exec";
+
+let activeStore = 'chandarana'; 
 
 // ==========================================
-// DATA FETCHING LOGIC
+// UNIFIED DATA FETCHING
 // ==========================================
-let activeStore = 'Chandarana'; 
-
-// For Orders: Database search directly from Orders Google Sheet
 let typingTimer;
 function fetchOrderStaffDetails(idVal) {
   clearTimeout(typingTimer);
@@ -163,48 +165,32 @@ function fetchOrderStaffDetails(idVal) {
   const phoneInp = document.getElementById('o-phone');
 
   if(idVal.length < 2) {
-     msgDiv.innerHTML = ''; msgDiv.className = 'msg';
-     nameInp.value = ''; branchInp.value = ''; phoneInp.value = '';
-     return;
+     msgDiv.innerHTML = ''; nameInp.value = ''; branchInp.value = ''; phoneInp.value = ''; return;
   }
 
-  msgDiv.innerHTML = 'Searching Database...';
-  msgDiv.className = 'msg';
+  msgDiv.innerHTML = 'Searching Database...'; msgDiv.className = 'msg';
 
-  // Debounce typing so we don't spam the server
   typingTimer = setTimeout(() => {
-    fetch(ORDERS_SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify({ action: 'fetchUser', id: idVal })
-    })
-    .then(r => r.json())
-    .then(res => {
+    fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'fetchUser', id: idVal }) })
+    .then(r => r.json()).then(res => {
        if(res.found) {
-         nameInp.value = res.name || '';
-         branchInp.value = res.branch || '';
-         phoneInp.value = res.phone || '';
-         msgDiv.innerHTML = `<span class="dot"></span> ID Matched: ${res.name}`;
-         msgDiv.className = 'msg success';
+         nameInp.value = res.name || ''; branchInp.value = res.branch || ''; phoneInp.value = res.phone || '';
+         msgDiv.innerHTML = `✓ ID Matched: ${res.name}`; msgDiv.className = 'msg success';
        } else {
          nameInp.value = ''; branchInp.value = ''; phoneInp.value = '';
-         msgDiv.innerHTML = 'ID not found in database';
-         msgDiv.className = 'msg error';
+         msgDiv.innerHTML = 'ID not found in database'; msgDiv.className = 'msg error';
        }
-    }).catch(e => {
-       msgDiv.innerHTML = 'Error checking database. Try again.';
-       msgDiv.className = 'msg error';
-    });
-  }, 600); 
+    }).catch(e => { msgDiv.innerHTML = 'Error checking database. Try again.'; msgDiv.className = 'msg error'; });
+  }, 1000); // 1-second debounce prevents lag
 }
 
-// For Attendance
-let PORTAL_DATA = { Chandarana: { staff: [], branches: [], loaded: false }, Carrefour:  { staff: [], branches: [], loaded: false } };
-function fetchSheetData(store) {
+let PORTAL_DATA = { chandarana: { staff: [], branches: [], loaded: false }, carrefour:  { staff: [], branches: [], loaded: false } };
+function fetchAttendanceData(store) {
   if (PORTAL_DATA[store].loaded) { populateDropdowns(store); return; }
   document.getElementById('a-branch').innerHTML = '<option value="">Loading Data...</option>';
-  fetch(ATTENDANCE_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getPortalData', terminal: store.toLowerCase() }) })
-  .then(r => r.json())
-  .then(res => {
+  
+  fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getPortalData', terminal: store }) })
+  .then(r => r.json()).then(res => {
     if (res.ok) { PORTAL_DATA[store].staff = res.data.staff || []; PORTAL_DATA[store].branches = res.data.branches || []; PORTAL_DATA[store].loaded = true; if (activeStore === store) populateDropdowns(store); }
   }).catch(err => { document.getElementById('a-branch').innerHTML = '<option value="">Offline</option>'; });
 }
@@ -212,194 +198,56 @@ function fetchSheetData(store) {
 function populateDropdowns(store) {
   let options = '<option value="">Select Branch...</option>';
   PORTAL_DATA[store].branches.forEach(b => { if (b[0]) options += `<option value="${b[0]}">${b[0]}</option>`; });
-  let attBranch = document.getElementById('a-branch');
-  if(attBranch) attBranch.innerHTML = options;
+  document.getElementById('a-branch').innerHTML = options;
 }
 
-function lookupStaffId(val, msgId, store) {
+function lookupAttStaffId(val, msgId, store) {
   const msgDiv = document.getElementById(msgId);
-  if (val.length < 2) { msgDiv.innerHTML = ''; msgDiv.className = 'msg'; return null; }
+  if (val.length < 2) { msgDiv.innerHTML = ''; return null; }
   const match = PORTAL_DATA[store].staff.find(s => String(s.id).trim() === val.trim());
-  if (match) { msgDiv.innerHTML = `<span class="dot"></span> Welcome ${match.name}`; msgDiv.className = 'msg success'; return match;
+  if (match) { msgDiv.innerHTML = `✓ Welcome ${match.name}`; msgDiv.className = 'msg success'; return match;
   } else { msgDiv.innerHTML = 'ID not found in database'; msgDiv.className = 'msg error'; return null; }
 }
-</script>
 
-
-<!-- ==========================================
-     VIEW 1: MAIN HUB MENU
-=========================================== -->
-<div id="view-menu" class="view-section active">
-  <div class="hub-logo">Stentor Ent Ltd.</div>
-  
-  <button class="menu-btn" onclick="openOrder('Chandarana')">
-    <div class="icon">🛒</div>
-    <div class="text">Place Order</div>
-  </button>
-
-  <button class="menu-btn" onclick="openAttendance('Chandarana')">
-    <div class="icon">⏰</div>
-    <div class="text">Clock In / Out</div>
-  </button>
-</div>
-
-
-<!-- ==========================================
-     VIEW 2: UNIFIED ORDER FORM
-=========================================== -->
-<div id="view-orders" class="view-section">
-  <div class="back-bar" onclick="goHome()"><span class="back-icon">←</span> Back to Hub</div>
-  
-  <div class="container scrollable-container">
-    <div class="top-bar">
-      <div class="terminal-pill-wrapper">
-        <div class="pill-slider" id="o-pillSlider"></div>
-        <button class="pill-btn active" id="o-btn-Chandarana" type="button" onclick="switchTerminal('Chandarana', 'order')">Chandarana</button>
-        <button class="pill-btn" id="o-btn-Carrefour" type="button" onclick="switchTerminal('Carrefour', 'order')">Carrefour</button>
-      </div>
-    </div>
-
-    <form id="orderForm" onsubmit="submitOrder(event)">
-      <div class="section-title">Staff Details</div>
-      
-      <!-- Side-by-side: ID & Name -->
-      <div style="display:flex; gap:10px;">
-        <div style="width: 50%;">
-          <label>Staff ID</label>
-          <input type="tel" id="o-id" placeholder="Enter ID" required autocomplete="off" oninput="fetchOrderStaffDetails(this.value)">
-        </div>
-        <div style="width: 50%;">
-          <label>Full Name</label>
-          <input type="text" id="o-name" placeholder="Auto-fills" required readonly>
-        </div>
-      </div>
-      <div id="o-staffMsg" class="msg"></div>
-
-      <!-- Side-by-side: Branch & Phone -->
-      <div style="display:flex; gap:10px; margin-top:8px;">
-        <div style="width: 50%;">
-          <label>Branch / Shop</label>
-          <input type="text" id="o-branch" placeholder="Auto-fills" required readonly>
-        </div>
-        <div style="width: 50%;">
-          <label>Phone No.</label>
-          <input type="tel" id="o-phone" placeholder="Auto-fills" required readonly>
-        </div>
-      </div>
-
-      <div id="dynamicOrderContent"></div>
-
-      <div class="section-title">Additional Notes</div>
-      <textarea id="o-notes" rows="2" placeholder="Any special instructions..."></textarea>
-
-      <button type="submit" class="btn-primary" id="orderSubmitBtn">Submit Order</button>
-    </form>
-
-    <div class="success-screen" id="orderSuccessScreen">
-      <div class="circle-check">✓</div>
-      <h2 style="margin-bottom:8px; font-weight:800;">Order Sent!</h2>
-      <p style="color:var(--text-secondary); font-size:14px; margin-bottom:24px; font-weight:600;">Your order has been logged successfully.</p>
-      <button class="btn-primary" onclick="goHome()">Back to Hub</button>
-    </div>
-  </div>
-</div>
-
-
-<!-- ==========================================
-     VIEW 3: ATTENDANCE SYSTEM
-=========================================== -->
-<div id="view-attendance" class="view-section">
-  <div class="back-bar" onclick="goHome()"><span class="back-icon">←</span> Back to Hub</div>
-
-  <div class="container scrollable-container">
-    <div id="mainForm">
-      <div class="top-bar">
-        <div class="terminal-pill-wrapper">
-          <div class="pill-slider" id="pillSlider"></div>
-          <button class="pill-btn active" id="btn-Chandarana" type="button" onclick="switchTerminal('Chandarana', 'attendance')">Chandarana</button>
-          <button class="pill-btn" id="btn-Carrefour" type="button" onclick="switchTerminal('Carrefour', 'attendance')">Carrefour</button>
-        </div>
-      </div>
-
-      <label>Branch</label>
-      <select id="a-branch"><option value="">Select Branch...</option></select>
-      
-      <label>Staff ID</label>
-      <input id="a-staffID" type="tel" placeholder="Enter ID" autocomplete="off" oninput="window.currentAttStaff = lookupStaffId(this.value, 'a-staffMsg', activeStore)">
-      <div id="a-staffMsg" class="msg"></div>
-
-      <div style="display:flex; gap:10px; margin-top:20px;">
-        <button type="button" class="btn-primary" style="margin-top:0;" onclick="verifyGPS()">📍 Verify Location</button>
-        <button type="button" class="btn-primary" style="margin-top:0; background:var(--text-secondary);" onclick="startCamera()">📸 Take Selfie</button>
-      </div>
-      <div id="gpsMsg" class="msg" style="justify-content:center;"></div>
-      <div id="cameraMsg" class="msg" style="justify-content:center;"></div>
-
-      <button type="button" class="btn-primary" style="margin-top:20px;" id="attSubmitBtn" onclick="submitAttendance()">Submit Attendance</button>
-    </div>
-
-    <div class="success-screen" id="attSuccessScreen">
-      <img id="successPhoto" class="success-photo" src="">
-      <h2 style="margin-bottom:8px; font-weight:800; color:var(--success-color);" id="attSuccessBadge">CLOCKED IN</h2>
-      <p style="color:var(--text-secondary); font-size:14px; margin-bottom:24px; font-weight:800;" id="attSuccessName"></p>
-      <button class="btn-primary" onclick="goHome()">Back to Hub</button>
-    </div>
-  </div>
-</div>
-
-<!-- Camera overlay -->
-<div id="videoContainerWrapper">
-  <video id="cameraVideo" autoplay playsinline muted></video>
-  <button id="closeCameraBtn" onclick="stopCamera()">&#x2715;</button>
-  <div class="camera-ui"><div id="captureBtn" onclick="capturePhoto()"></div></div>
-</div>
-<div id="cameraBackdrop" onclick="stopCamera()"></div>
-
-
-<script>
+// ==========================================
+// NAVIGATION & MODULE SWITCHING
+// ==========================================
 function hideAllViews() { document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active')); }
+function goHome() { hideAllViews(); document.body.className = 'theme-hub'; document.getElementById('view-menu').classList.add('active'); stopCamera(); }
 
-function goHome() {
-  hideAllViews();
-  document.body.className = 'theme-hub';
-  document.getElementById('view-menu').classList.add('active');
-  stopCamera();
+function openOrder() {
+  hideAllViews(); document.getElementById('view-orders').classList.add('active');
+  document.getElementById('orderForm').reset(); document.getElementById('orderForm').style.display = 'block';
+  document.getElementById('orderSuccessScreen').classList.remove('active'); document.getElementById('o-staffMsg').innerHTML = '';
+  switchTerminal('chandarana', 'order');
 }
 
-function openOrder(store) {
-  hideAllViews();
-  document.getElementById('view-orders').classList.add('active');
-  document.getElementById('orderForm').reset();
-  document.getElementById('orderForm').style.display = 'block';
-  document.getElementById('orderSuccessScreen').classList.remove('active');
-  document.getElementById('o-staffMsg').innerHTML = '';
-  switchTerminal(store, 'order');
-}
-
-function openAttendance(store) {
-  hideAllViews();
-  document.getElementById('view-attendance').classList.add('active');
-  document.getElementById('mainForm').style.display = 'block';
-  document.getElementById('attSuccessScreen').classList.remove('active');
-  document.getElementById('a-staffID').value = '';
-  document.getElementById('a-staffMsg').innerHTML = '';
-  document.getElementById('gpsMsg').innerHTML = '';
+function openAttendance() {
+  hideAllViews(); document.getElementById('view-attendance').classList.add('active');
+  document.getElementById('mainForm').style.display = 'block'; document.getElementById('attSuccessScreen').classList.remove('active');
+  document.getElementById('a-staffID').value = ''; document.getElementById('a-staffMsg').innerHTML = ''; document.getElementById('gpsMsg').innerHTML = '';
   window.currentAttStaff = null; window.coords = null; window.photo = null;
-  switchTerminal(store, 'attendance');
+  switchTerminal('chandarana', 'attendance');
 }
 
 function switchTerminal(store, module) {
   activeStore = store;
-  document.body.className = store === 'Chandarana' ? 'theme-chandarana' : 'theme-carrefour';
+  document.body.className = store === 'chandarana' ? 'theme-chandarana' : 'theme-carrefour';
   
   const prefix = module === 'order' ? 'o-' : '';
-  document.getElementById(prefix + 'btn-Chandarana').classList.toggle('active', store === 'Chandarana');
-  document.getElementById(prefix + 'btn-Carrefour').classList.toggle('active',  store === 'Carrefour');
+  const btnChan = document.getElementById(prefix + 'btn-chandarana');
+  const btnCarr = document.getElementById(prefix + 'btn-carrefour');
+  
+  btnChan.classList.toggle('active', store === 'chandarana');
+  btnCarr.classList.toggle('active', store === 'carrefour');
+  
+  // Trigger Nudge animation
+  const activeBtn = store === 'chandarana' ? btnChan : btnCarr;
+  activeBtn.classList.remove('nudge-anim'); void activeBtn.offsetWidth; activeBtn.classList.add('nudge-anim');
   
   setTimeout(() => {
-    const ab = document.querySelector(`.view-section.active .pill-btn.active`);
     const sl = document.getElementById(prefix + 'pillSlider');
-    if (ab && sl) { sl.style.width = ab.offsetWidth + 'px'; sl.style.left = ab.offsetLeft + 'px'; }
+    if (activeBtn && sl) { sl.style.width = activeBtn.offsetWidth + 'px'; sl.style.left = activeBtn.offsetLeft + 'px'; }
   }, 50);
 
   if (module === 'order') {
@@ -407,18 +255,23 @@ function switchTerminal(store, module) {
     renderDynamicOrderContent();
   } else {
     document.getElementById('a-staffID').value = ''; document.getElementById('a-staffMsg').innerHTML = ''; window.currentAttStaff = null;
-    fetchSheetData(store);
+    fetchAttendanceData(store);
   }
 }
 
 // ==========================================
-// DYNAMIC ORDER RENDERING (Only 5L & 3L Squircles)
+// DYNAMIC ORDER RENDERING
 // ==========================================
 const JUICES = {
-  Chandarana: ["ORANGE", "TROPICAL MIX", "MANGO", "PASSION", "APPLE GINGER", "TREE TOMATO", "PINEAPPLE MINT", "LIME & GINGER", "APPLEJUICE", "LIMEJUICE", "HIBISCUS", "TAMARIND", "ALOE VERA", "BEETROOT", "TANGERINE", "GINGER PLAIN", "CARROT"],
-  Carrefour: ["ORANGE", "TROPICAL MIX", "MANGO", "PASSION", "APPLE GINGER", "TREE TOMATO", "PINEAPPLE MINT", "LIME & GINGER", "TAMARIND", "CARROT", "BEETROOT"]
+  chandarana: ["ORANGE", "TROPICAL MIX", "MANGO", "PASSION", "APPLE GINGER", "TREE TOMATO", "PINEAPPLE MINT", "LIME & GINGER", "APPLEJUICE", "LIMEJUICE", "HIBISCUS", "TAMARIND", "ALOE VERA", "BEETROOT", "TANGERINE", "GINGER PLAIN", "CARROT"],
+  carrefour: ["ORANGE", "TROPICAL MIX", "MANGO", "PASSION", "APPLE GINGER", "TREE TOMATO", "PINEAPPLE MINT", "LIME & GINGER", "TAMARIND", "CARROT", "BEETROOT"]
 };
 const VOLUMES = ["5L", "3L"];
+
+function handleJuiceInput(input) {
+  if(input.value && parseInt(input.value) > 0) input.classList.add('has-value');
+  else input.classList.remove('has-value');
+}
 
 function renderDynamicOrderContent() {
   let html = `<div class="section-title">Juice Quantities</div>`;
@@ -429,15 +282,15 @@ function renderDynamicOrderContent() {
   JUICES[activeStore].forEach(flavor => {
     html += `<tr><td class="flavor-name">${flavor}</td>`;
     VOLUMES.forEach(v => {
-      let step = parseInt(v); // Grabs 5 or 3 based on the string
-      html += `<td><div class="square-select juice-input" data-flavor="${flavor}" data-vol="${v}" data-val="0" onclick="incrementJuice(this, ${step})">-</div></td>`;
+      let step = parseInt(v); 
+      html += `<td><input type="number" step="${step}" min="0" placeholder="-" class="square-input juice-input" data-flavor="${flavor}" data-vol="${v}" oninput="handleJuiceInput(this)"></td>`;
     });
     html += `</tr>`;
   });
   html += `</tbody></table></div>`;
 
   html += `<div class="section-title">Fresh Inputs</div><div class="chip-group">`;
-  if(activeStore === 'Chandarana') {
+  if(activeStore === 'chandarana') {
     html += `<label class="chip-label"><input type="checkbox" class="inp-fresh" value="Ginger"><span class="chip-span">Ginger</span></label>`;
     html += `<label class="chip-label"><input type="checkbox" class="inp-fresh" value="Lime"><span class="chip-span">Lime</span></label>`;
     html += `<label class="chip-label"><input type="radio" name="sg_chan" class="inp-fresh" value="Sugarcane (Full)"><span class="chip-span">Sugarcane (Full)</span></label>`;
@@ -452,12 +305,12 @@ function renderDynamicOrderContent() {
   html += `<div class="section-title">Bottles</div><div class="chip-group">`;
   html += `<label class="chip-label"><input type="checkbox" class="inp-bottle" value="1 Litre"><span class="chip-span">1 Litre</span></label>`;
   html += `<label class="chip-label"><input type="checkbox" class="inp-bottle" value="500ml"><span class="chip-span">500ml</span></label>`;
-  if(activeStore === 'Carrefour') html += `<label class="chip-label"><input type="checkbox" class="inp-bottle" value="250ml"><span class="chip-span">250ml</span></label>`;
+  if(activeStore === 'carrefour') html += `<label class="chip-label"><input type="checkbox" class="inp-bottle" value="250ml"><span class="chip-span">250ml</span></label>`;
   html += `</div>`;
 
   html += `<div class="section-title">HACCP Supplies</div><div class="chip-group">`;
   html += `<label class="chip-label"><input type="checkbox" class="inp-haccp" value="Sampling Cups"><span class="chip-span">Sampling Cups</span></label>`;
-  if(activeStore === 'Chandarana') {
+  if(activeStore === 'chandarana') {
     html += `<label class="chip-label"><input type="checkbox" class="inp-haccp" value="Gloves"><span class="chip-span">Gloves</span></label>`;
     html += `<label class="chip-label"><input type="checkbox" class="inp-haccp" value="Hairnets"><span class="chip-span">Hairnets</span></label>`;
     html += `<label class="chip-label"><input type="checkbox" class="inp-haccp" value="Towels"><span class="chip-span">Towels</span></label>`;
@@ -465,24 +318,6 @@ function renderDynamicOrderContent() {
   html += `</div>`;
 
   document.getElementById('dynamicOrderContent').innerHTML = html;
-}
-
-// Tap behavior to increase by 5 or 3 
-function incrementJuice(btn, step) {
-  let currentVal = parseInt(btn.getAttribute('data-val')) || 0;
-  currentVal += step;
-  
-  // If they tap too much and want to restart (resets after hitting 60)
-  if(currentVal > 60) currentVal = 0;
-
-  btn.setAttribute('data-val', currentVal);
-  btn.innerText = currentVal === 0 ? '-' : currentVal;
-
-  if (currentVal > 0) {
-    btn.classList.add('has-value');
-  } else {
-    btn.classList.remove('has-value');
-  }
 }
 
 // ==========================================
@@ -495,38 +330,35 @@ async function submitOrder(e) {
   const btn = document.getElementById('orderSubmitBtn');
   btn.disabled = true; btn.innerText = 'Submitting...';
 
-  const freshVals = Array.from(document.querySelectorAll('.inp-fresh:checked')).map(el => el.value).join(', ');
-  const bottleVals = Array.from(document.querySelectorAll('.inp-bottle:checked')).map(el => el.value).join(', ');
-  const haccpVals = Array.from(document.querySelectorAll('.inp-haccp:checked')).map(el => el.value).join(', ');
-
   const payload = {
     "SHOP": document.getElementById('o-branch').value,
-    [activeStore === 'Chandarana' ? "FULL NAME" : "FULL NAME (2 Names)"]: document.getElementById('o-name').value,
+    [activeStore === 'chandarana' ? "FULL NAME" : "FULL NAME (2 Names)"]: document.getElementById('o-name').value,
     "ID NO.": document.getElementById('o-id').value,
     "PHONE NO.": document.getElementById('o-phone').value,
-    "FRESH INPUTS": freshVals,
-    "BOTTLES": bottleVals,
-    "HACCP SUPPLIES": haccpVals,
+    "FRESH INPUTS": Array.from(document.querySelectorAll('.inp-fresh:checked')).map(el => el.value).join(', '),
+    "BOTTLES": Array.from(document.querySelectorAll('.inp-bottle:checked')).map(el => el.value).join(', '),
+    "HACCP SUPPLIES": Array.from(document.querySelectorAll('.inp-haccp:checked')).map(el => el.value).join(', '),
     "NOTES": document.getElementById('o-notes').value
   };
 
-  const juicePrefix = activeStore === 'Chandarana' ? "JUICE (5 LITRES/3 LITRES)" : "JUICE (5 ITRES / 3 LITRES)";
+  const juicePrefix = activeStore === 'chandarana' ? "JUICE (5 LITRES/3 LITRES)" : "JUICE (5 ITRES / 3 LITRES)";
   JUICES[activeStore].forEach(flavor => {
     let flavorKey = flavor;
     if (["TREE TOMATO", "HIBISCUS", "TAMARIND", "BEETROOT", "TANGERINE", "CARROT"].includes(flavor)) {
-       flavorKey = activeStore === 'Chandarana' ? `${flavor} ` : flavor; 
+       flavorKey = activeStore === 'chandarana' ? `${flavor} ` : flavor; 
     }
     let quantities = [];
     VOLUMES.forEach(v => {
       const input = document.querySelector(`.juice-input[data-flavor="${flavor}"][data-vol="${v}"]`);
-      let val = input ? input.getAttribute('data-val') : "0";
-      if(val && val !== "0") quantities.push(`${v}: ${val}`);
+      if(input && input.value && parseInt(input.value) > 0) quantities.push(`${v}: ${input.value}`);
     });
     if(quantities.length > 0) payload[`${juicePrefix} [${flavorKey}]`] = quantities.join(', ');
   });
 
   try {
-    await fetch(ORDERS_SCRIPT_URL, { method: "POST", body: JSON.stringify({ store: activeStore, payload: payload }) });
+    // Note: To match how the script separates logic, we pass action: 'saveOrder' and store formatted as Capitalized
+    const storeCap = activeStore === 'chandarana' ? 'Chandarana' : 'Carrefour';
+    await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: 'saveOrder', store: storeCap, data: payload }) });
     document.getElementById('orderForm').style.display = 'none';
     document.getElementById('orderSuccessScreen').classList.add('active');
   } catch (error) {
@@ -543,7 +375,7 @@ window.coords = null; window.photo = null; window.currentAttStaff = null; window
 function verifyGPS() {
   document.getElementById('gpsMsg').innerHTML = 'Locating...'; document.getElementById('gpsMsg').className = 'msg';
   navigator.geolocation.getCurrentPosition(
-    pos => { window.coords = pos.coords; document.getElementById('gpsMsg').innerHTML = '<span class="dot"></span> Location Verified'; document.getElementById('gpsMsg').className = 'msg success'; },
+    pos => { window.coords = pos.coords; document.getElementById('gpsMsg').innerHTML = '✓ Location Verified'; document.getElementById('gpsMsg').className = 'msg success'; },
     err => { document.getElementById('gpsMsg').innerHTML = 'GPS Failed - Enable Location'; document.getElementById('gpsMsg').className = 'msg error'; },
     {enableHighAccuracy:true, timeout:10000}
   );
@@ -552,10 +384,7 @@ function verifyGPS() {
 function startCamera() {
   navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false }).then(stream => {
     window.videoStream = stream; const video = document.getElementById('cameraVideo'); video.srcObject = stream;
-    video.onloadedmetadata = () => {
-      video.play(); document.getElementById('videoContainerWrapper').classList.add('expanded');
-      document.getElementById('cameraBackdrop').classList.add('show'); video.classList.add('live');
-    };
+    video.onloadedmetadata = () => { video.play(); document.getElementById('videoContainerWrapper').classList.add('expanded'); video.classList.add('live'); };
   }).catch(err => { document.getElementById('cameraMsg').innerHTML = 'Camera blocked'; document.getElementById('cameraMsg').className = 'msg error'; });
 }
 
@@ -566,13 +395,12 @@ function capturePhoto() {
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
   window.photo = canvas.toDataURL('image/jpeg', 0.7);
   document.getElementById('successPhoto').src = window.photo;
-  document.getElementById('cameraMsg').innerHTML = '<span class="dot"></span> Selfie Captured'; document.getElementById('cameraMsg').className = 'msg success';
+  document.getElementById('cameraMsg').innerHTML = '✓ Selfie Captured'; document.getElementById('cameraMsg').className = 'msg success';
   stopCamera();
 }
 
 function stopCamera() {
   document.getElementById('videoContainerWrapper').classList.remove('expanded');
-  document.getElementById('cameraBackdrop').classList.remove('show');
   if (window.videoStream) { window.videoStream.getTracks().forEach(t => t.stop()); window.videoStream = null; }
 }
 
@@ -591,7 +419,7 @@ function submitAttendance() {
   const btn = document.getElementById('attSubmitBtn');
   btn.disabled = true; btn.innerText = 'Sending...';
 
-  fetch(ATTENDANCE_SCRIPT_URL, { method:'POST', body:JSON.stringify({action:'recordAttendance', data:payload, terminal:activeStore.toLowerCase()}) })
+  fetch(SCRIPT_URL, { method:'POST', body:JSON.stringify({action:'recordAttendance', data:payload, terminal:activeStore}) })
   .then(r => r.json()).then(res => {
     if(!res.ok) throw new Error(res.error);
     document.getElementById('mainForm').style.display = 'none';
@@ -605,5 +433,124 @@ function submitAttendance() {
   });
 }
 </script>
+
+<!-- MENU VIEW -->
+<div id="view-menu" class="view-section active">
+  <div class="hub-logo">Stentor Ent Ltd.</div>
+  <div class="menu-btn-container">
+    <button class="menu-btn btn-order" onclick="openOrder()">
+      <div class="icon">🛒</div>
+      <div class="text">Place Order</div>
+    </button>
+    <button class="menu-btn btn-att" onclick="openAttendance()">
+      <div class="icon">⏰</div>
+      <div class="text">Clock In / Out</div>
+    </button>
+  </div>
+</div>
+
+<!-- ORDERS VIEW -->
+<div id="view-orders" class="view-section">
+  <div class="back-bar" onclick="goHome()">← Back to Menu</div>
+  <div class="container scrollable-container">
+    <div class="top-bar">
+      <div class="terminal-pill-wrapper">
+        <div class="pill-slider" id="o-pillSlider"></div>
+        <button class="pill-btn active" id="o-btn-chandarana" type="button" onclick="switchTerminal('chandarana', 'order')">Chandarana</button>
+        <button class="pill-btn" id="o-btn-carrefour" type="button" onclick="switchTerminal('carrefour', 'order')">Carrefour</button>
+      </div>
+    </div>
+
+    <form id="orderForm" onsubmit="submitOrder(event)">
+      <div class="section-title">Staff Details</div>
+      <div style="display:flex; gap:10px;">
+        <div style="width: 50%;">
+          <label>Staff ID</label>
+          <input type="tel" id="o-id" placeholder="Enter ID" required autocomplete="off" oninput="fetchOrderStaffDetails(this.value)">
+        </div>
+        <div style="width: 50%;">
+          <label>Full Name</label>
+          <input type="text" id="o-name" placeholder="Auto-fills" required readonly>
+        </div>
+      </div>
+      <div id="o-staffMsg" class="msg"></div>
+
+      <div style="display:flex; gap:10px; margin-top:4px;">
+        <div style="width: 50%;">
+          <label>Branch / Shop</label>
+          <input type="text" id="o-branch" placeholder="Auto-fills" required readonly>
+        </div>
+        <div style="width: 50%;">
+          <label>Phone No.</label>
+          <input type="tel" id="o-phone" placeholder="Auto-fills" required readonly>
+        </div>
+      </div>
+
+      <div id="dynamicOrderContent"></div>
+
+      <div class="section-title">Additional Notes</div>
+      <textarea id="o-notes" rows="2" placeholder="Any special instructions..."></textarea>
+      <button type="submit" class="btn-primary" id="orderSubmitBtn">Submit Order</button>
+    </form>
+
+    <div class="success-screen" id="orderSuccessScreen">
+      <div class="circle-check">✓</div>
+      <h2 style="margin-bottom:8px; font-weight:800;">Order Sent!</h2>
+      <p style="color:var(--text-secondary); font-size:14px; margin-bottom:24px;">Your order has been logged successfully.</p>
+      <button class="btn-primary" onclick="goHome()">Back to Menu</button>
+    </div>
+  </div>
+</div>
+
+<!-- ATTENDANCE VIEW -->
+<div id="view-attendance" class="view-section">
+  <div class="back-bar" onclick="goHome()">← Back to Menu</div>
+  <div class="container scrollable-container">
+    <div id="mainForm">
+      <div class="top-bar">
+        <div class="terminal-pill-wrapper">
+          <div class="pill-slider" id="a-pillSlider"></div>
+          <button class="pill-btn active" id="a-btn-chandarana" type="button" onclick="switchTerminal('chandarana', 'attendance')">Chandarana</button>
+          <button class="pill-btn" id="a-btn-carrefour" type="button" onclick="switchTerminal('carrefour', 'attendance')">Carrefour</button>
+        </div>
+      </div>
+
+      <div class="section-title">Log Details</div>
+      <label>Branch</label>
+      <select id="a-branch"><option value="">Select Branch...</option></select>
+      
+      <label>Staff ID</label>
+      <input id="a-staffID" type="tel" placeholder="Enter ID" autocomplete="off" oninput="window.currentAttStaff = lookupAttStaffId(this.value, 'a-staffMsg', activeStore)">
+      <div id="a-staffMsg" class="msg"></div>
+
+      <div class="section-title">Verification</div>
+      <div style="display:flex; gap:10px;">
+        <div style="width: 50%; display:flex; flex-direction:column;">
+          <button type="button" class="btn-primary" style="margin-top:0; height: 44px; font-size:13px;" onclick="verifyGPS()">📍 Verify GPS</button>
+          <div id="gpsMsg" class="msg"></div>
+        </div>
+        <div style="width: 50%; display:flex; flex-direction:column;">
+          <button type="button" class="btn-primary" style="margin-top:0; height: 44px; font-size:13px; background:var(--text-secondary);" onclick="startCamera()">📸 Take Selfie</button>
+          <div id="cameraMsg" class="msg"></div>
+        </div>
+      </div>
+
+      <button type="button" class="btn-primary" style="margin-top:16px;" id="attSubmitBtn" onclick="submitAttendance()">Submit Attendance</button>
+    </div>
+
+    <div class="success-screen" id="attSuccessScreen">
+      <img id="successPhoto" class="success-photo" src="">
+      <h2 style="margin-bottom:8px; font-weight:800; color:var(--success-color);" id="attSuccessBadge">CLOCKED IN</h2>
+      <p style="color:var(--text-secondary); font-size:14px; margin-bottom:24px; font-weight:800;" id="attSuccessName"></p>
+      <button class="btn-primary" onclick="goHome()">Back to Menu</button>
+    </div>
+  </div>
+</div>
+
+<div id="videoContainerWrapper">
+  <video id="cameraVideo" autoplay playsinline muted></video>
+  <button id="closeCameraBtn" onclick="stopCamera()">&#x2715;</button>
+  <div class="camera-ui"><div id="captureBtn" onclick="capturePhoto()"></div></div>
+</div>
 </body>
 </html>
