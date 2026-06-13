@@ -31,9 +31,8 @@
   --success-card-bg:#f0fdf4; --success-card-border:#bbf7d0;
   --modal-overlay:rgba(0,0,0,0.65); --shadow-color:rgba(0,0,0,0.1);
   --label-text:#6b7280;
-  
-  --theme-chan:#10b981; 
-  --theme-carr:#3b82f6; 
+  --theme-chan:#10b981;
+  --theme-carr:#3b82f6;
   --dynamic-primary:var(--theme-chan);
 }
 
@@ -48,22 +47,24 @@
     --success-card-bg:#064e3b; --success-card-border:#065f46;
     --modal-overlay:rgba(0,0,0,0.85); --shadow-color:rgba(0,0,0,0.5);
     --label-text:#9ca3af;
-    
-    --theme-chan:#059669; 
-    --theme-carr:#2563eb; 
+    --theme-chan:#059669;
+    --theme-carr:#2563eb;
   }
 }
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
+/* FIX: Layout lifted so the card is centered, sign floats above */
 body {
-  font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-  color:var(--text-primary); 
+  font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color:var(--text-primary);
   background-color: var(--dynamic-primary);
-  min-height:100vh; min-height:100dvh; display:flex; flex-direction:column;
-  align-items:center; 
-  justify-content:center; 
-  padding:env(safe-area-inset-top) 12px env(safe-area-inset-bottom); 
+  min-height:100vh; min-height:100dvh;
+  display:flex; flex-direction:column;
+  align-items:center;
+  /* FIX: Use padding-top + center to let the card be the visual anchor */
+  justify-content:center;
+  padding: env(safe-area-inset-top, 16px) 12px env(safe-area-inset-bottom, 16px);
   overflow-y:auto; -webkit-overflow-scrolling:touch;
   transition: background-color 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -71,23 +72,24 @@ body {
 body.theme-chandarana{--dynamic-primary:var(--theme-chan)}
 body.theme-carrefour {--dynamic-primary:var(--theme-carr);--success-color:#3b82f6}
 
-/* Lifts everything up so main square is in visual center */
-.app-wrapper {
+/* FIX: Wrap sign + container in a single centering block */
+.page-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
+  /* Slight upward shift so card feels centered, sign above */
+  margin-top: -24px;
   width: 100%;
   max-width: 400px;
-  transform: translateY(-4vh); 
 }
 
-/* Hanging Sign ("Key Holder" effect) */
+/* Hanging Sign */
 .hanging-sign-wrapper {
   position: relative;
-  margin-bottom: 48px; 
+  margin-bottom: 44px;
   perspective: 800px;
   z-index: 10;
-  width: 240px; 
+  width: 240px;
 }
 .chain {
   position: absolute;
@@ -97,7 +99,7 @@ body.theme-carrefour {--dynamic-primary:var(--theme-carr);--success-color:#3b82f
   background: linear-gradient(to right, #9ca3af, #f3f4f6, #9ca3af);
   border-radius: 3px;
   box-shadow: inset 0 0 3px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2);
-  z-index: 1; 
+  z-index: 1;
 }
 .chain::before {
   content: ''; position: absolute; top: -6px; left: -2.5px;
@@ -126,7 +128,7 @@ body.theme-carrefour {--dynamic-primary:var(--theme-carr);--success-color:#3b82f
   transform-origin: top center;
   transition: color 0.4s ease;
   position: relative;
-  z-index: 2; 
+  z-index: 2;
 }
 
 @keyframes swing {
@@ -141,19 +143,19 @@ body.theme-carrefour {--dynamic-primary:var(--theme-carr);--success-color:#3b82f
   animation: swing 0.7s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-/* Main Container - Flexible Height for long text */
+/* Main Container */
 .container{
-  width:100%;
-  min-height: 440px; 
+  width: 100%;
+  aspect-ratio: 1 / 1;
   background:var(--bg-primary);
-  padding:28px 22px;
+  padding:24px 22px;
   border-radius:24px;
   box-shadow:0 15px 35px var(--shadow-color);
-  position:relative; 
+  position:relative;
   overflow:hidden;
   display:flex;
   flex-direction:column;
-  justify-content:center; 
+  justify-content:center;
 }
 
 #mainForm { width: 100%; }
@@ -188,10 +190,10 @@ body.theme-carrefour {--dynamic-primary:var(--theme-carr);--success-color:#3b82f
 .pill-btn.active .full-text{display:block}
 .pill-btn:not(.active) .short-text{display:block}
 
-@keyframes bounceIn{ 
-  0%{transform:scale(0.9);opacity:0} 
-  60%{transform:scale(1.05)} 
-  100%{transform:scale(1);opacity:1} 
+@keyframes bounceIn{
+  0%{transform:scale(0.9);opacity:0}
+  60%{transform:scale(1.05)}
+  100%{transform:scale(1);opacity:1}
 }
 @keyframes spin{ to { transform: rotate(360deg); } }
 
@@ -217,13 +219,13 @@ button:active{transform:scale(0.97)}
 button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 
 .btn-spinner {
-  border: 2px solid rgba(0,0,0,0.1); 
+  border: 2px solid rgba(0,0,0,0.1);
   border-top-color: currentColor;
-  border-radius: 50%; 
+  border-radius: 50%;
   animation: spin 0.6s linear infinite;
 }
 
-/* Perfect Overlay Camera */
+/* Camera Overlay */
 #videoContainerWrapper{
   position:absolute; top:0; left:0; right:0; bottom:0;
   width:100%; height:100%; border-radius:24px;
@@ -235,59 +237,83 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
   pointer-events:auto; opacity:1; transform: scale(1);
 }
 
-#cameraVideo{ 
+#cameraVideo{
   position:absolute; top:0; left:0; width:100%; height:100%;
-  object-fit:cover; display:block; transform: scaleX(-1); 
-  opacity: 0; transition: opacity 0.4s ease; 
+  object-fit:cover; display:block; transform: scaleX(-1);
+  opacity: 0; transition: opacity 0.4s ease;
 }
 #cameraVideo.live { opacity: 1; }
 
-/* AI Scanner Effect */
-.face-scanner {
-  position: absolute; top: 0; left: 0; width: 100%; height: 3px;
-  background: var(--success-color); box-shadow: 0 0 15px var(--success-color), 0 0 30px var(--success-color);
-  animation: scanAnim 1.4s infinite ease-in-out; z-index: 10; display: none;
+/* Face detection overlay canvas */
+#faceCanvas {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 2; transform: scaleX(-1);
 }
-@keyframes scanAnim {
-  0%   { top: 5%; opacity: 0; }
-  15%  { opacity: 1; }
-  85%  { opacity: 1; }
-  100% { top: 95%; opacity: 0; }
+
+/* Face guide ring */
+#faceGuide {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -55%);
+  width: 140px; height: 168px;
+  border-radius: 50%;
+  border: 3px solid rgba(255,255,255,0.5);
+  z-index: 3; pointer-events: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
-#videoContainerWrapper.scanning .face-scanner { display: block; }
-#captureBtn.disabled { opacity: 0.5; pointer-events: none; }
+#faceGuide.face-ok {
+  border-color: rgba(52, 211, 153, 0.9);
+  box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.25);
+}
+
+#faceStatus {
+  position: absolute;
+  top: 14px; left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  font-size: 12px; font-weight: 700;
+  padding: 5px 14px;
+  border-radius: 50px;
+  letter-spacing: 0.5px;
+  z-index: 5;
+  white-space: nowrap;
+  transition: opacity 0.3s ease;
+}
 
 #cameraBackdrop{ display:none;position:fixed;inset:0;z-index:59; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
 #cameraBackdrop.show{ display:block; }
 .camera-ui{
   position:absolute;bottom:0;left:0;right:0; padding:20px;
   background:linear-gradient(to top,rgba(0,0,0,0.7) 0%,transparent 100%);
-  display:flex;align-items:center;justify-content:center; z-index:3;
+  display:flex;align-items:center;justify-content:center; z-index:4;
 }
 #captureBtn{
   width:64px;height:64px;border-radius:50%;
   background:rgba(255,255,255,0.3);border:4px solid rgba(255,255,255,0.95);
   cursor:pointer;display:flex;align-items:center;justify-content:center;
-  transition:transform 0.1s, opacity 0.2s;-webkit-tap-highlight-color:transparent;
+  transition:transform 0.1s, opacity 0.3s ease;-webkit-tap-highlight-color:transparent;
+  opacity: 0.4;
 }
+#captureBtn.ready { opacity: 1; }
 #captureBtn::after{content:'';width:48px;height:48px;background:#fff;border-radius:50%;transition:transform 0.1s}
-#captureBtn:active:not(.disabled){transform:scale(0.88)}
-#captureBtn:active:not(.disabled)::after{transform:scale(0.9)}
+#captureBtn:active{transform:scale(0.88)}
+#captureBtn:active::after{transform:scale(0.9)}
 
 #closeCameraBtn{
   position:absolute;top:16px;right:16px; width:36px;height:36px;border-radius:50%;
   background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.3);
   color:#fff;font-size:16px; cursor:pointer; display:flex;align-items:center;justify-content:center;
-  z-index:4; -webkit-tap-highlight-color:transparent;
+  z-index:6; -webkit-tap-highlight-color:transparent;
 }
 
 /* Messages */
-.msg{ 
+.msg{
   font-size:12px;font-weight:600;margin-top:6px;
-  min-height:38px; 
-  align-items:flex-start; 
+  min-height:38px;
+  align-items:flex-start;
   line-height:1.4;
-  color:var(--text-tertiary);display:flex; 
+  color:var(--text-tertiary);display:flex;
   transition: opacity 0.3s ease, color 0.3s ease;
   opacity: 1;
 }
@@ -297,7 +323,7 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
   display:inline-flex;justify-content:center;align-items:center;
   width:16px;height:16px;background:var(--success-color);border-radius:50%;
   margin-right:6px;flex-shrink:0;position:relative;
-  margin-top: 1px; 
+  margin-top: 1px;
 }
 .msg .dot::after{
   content:'';position:absolute;top:45%;left:50%; width:3.5px;height:7px;
@@ -305,15 +331,27 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
   transform:translate(-50%,-50%) rotate(45deg);
 }
 
-/* Success Screen */
-#successScreen{ display:none;flex-direction:column;align-items:center; justify-content:center; text-align:center;width:100%; height: 100%;}
+/* FIX: Success Screen - proper scrollable layout that never distorts */
+#successScreen{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  padding: 12px 4px 8px;
+  text-align:center;
+  width:100%;
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
 
 .success-photo{
-  width: 110px; height: 110px; object-fit: cover; border-radius: 50%;
-  box-shadow: 0 0 0 4px var(--success-color); margin-bottom: 16px;
+  width: 96px; height: 96px; object-fit: cover; border-radius: 50%;
+  box-shadow: 0 0 0 4px var(--success-color); margin-bottom: 10px;
   animation: bounceIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
   transition: transform 0.4s cubic-bezier(0.25, 1, 0.4, 1), border-radius 0.4s cubic-bezier(0.25, 1, 0.4, 1), box-shadow 0.4s ease;
   cursor: zoom-in;
+  flex-shrink: 0;
   position: relative; z-index: 20000;
   -webkit-tap-highlight-color: transparent;
 }
@@ -324,7 +362,6 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
   cursor: zoom-out;
 }
 
-/* Photo Backdrop */
 #photoBackdrop {
   position: fixed; inset: 0; background: rgba(0,0,0,0.6);
   z-index: 19999; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
@@ -335,23 +372,26 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 }
 
 .success-badge{
-  background:var(--dynamic-primary);color:#fff;font-size:13px;font-weight:800;
-  text-transform:uppercase;padding:6px 20px;border-radius:999px;
-  margin-bottom:24px;display:inline-block;box-shadow:0 4px 10px rgba(0,0,0,0.1);
+  background:var(--dynamic-primary);color:#fff;font-size:12px;font-weight:800;
+  text-transform:uppercase;padding:5px 18px;border-radius:999px;
+  margin-bottom: 10px;display:inline-block;box-shadow:0 4px 10px rgba(0,0,0,0.1);
+  flex-shrink: 0;
   animation:bounceIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.05s backwards;
 }
+/* FIX: Success card is flex-1 and allows message to wrap without distorting other elements */
 .success-card{
   background:var(--success-card-bg);border:1px solid var(--success-card-border);
-  border-radius:20px;padding:24px 20px;width:100%;margin-bottom:20px;
+  border-radius:16px;padding:16px 14px;width:100%;margin-bottom:12px;
   animation:bounceIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s backwards;
+  flex-shrink: 0;
 }
-.success-name{font-size:26px;font-weight:800;color:var(--dynamic-primary);margin-bottom:8px}
-.success-msg {font-size:15px;font-weight:600;color:var(--text-secondary);line-height:1.5}
+.success-name{font-size:22px;font-weight:800;color:var(--dynamic-primary);margin-bottom:6px}
+.success-msg {font-size:13px;font-weight:600;color:var(--text-secondary);line-height:1.5; word-break: break-word;}
 .success-back{
-  width:100%;height:48px;background:var(--button-secondary-bg);
+  width:100%;height:44px;background:var(--button-secondary-bg);
   color:var(--dynamic-primary);border:none;border-radius:12px;
-  font-size:15px;font-weight:700;cursor:pointer;
-  margin-top: auto; /* Pushes button down if content is small */
+  font-size:14px;font-weight:700;cursor:pointer;
+  flex-shrink: 0;
 }
 
 /* Modal */
@@ -386,9 +426,9 @@ var Storage={
 <div id="cameraBackdrop" onclick="stopCamera()"></div>
 <div id="photoBackdrop" onclick="toggleZoom()"></div>
 
-<!-- Master wrapper to visually center and lift both elements -->
-<div class="app-wrapper">
-  
+<!-- FIX: page-wrapper groups sign + card so they move together as one centered unit -->
+<div class="page-wrapper">
+
   <div class="hanging-sign-wrapper" id="signWrapper">
     <div class="chain left-chain"></div>
     <div class="chain right-chain"></div>
@@ -420,7 +460,7 @@ var Storage={
 
         <div id="step2" class="step">
           <label>Staff ID</label>
-          <input id="staffID" type="tel" placeholder="Enter ID" autocomplete="off">
+          <input id="staffID" type="tel" placeholder="Enter ID" autocomplete="off" inputmode="numeric">
           <div id="staffMsg" class="msg"></div>
         </div>
 
@@ -442,15 +482,19 @@ var Storage={
       <img id="successPhoto" class="success-photo" src="" alt="Captured Selfie" onclick="toggleZoom()">
       <div class="success-badge" id="successBadge">CLOCK IN</div>
       <div class="success-card">
-        <div class="success-name"  id="successName"></div>
-        <div class="success-msg"   id="successMsg"></div>
+        <div class="success-name" id="successName"></div>
+        <div class="success-msg"  id="successMsg"></div>
       </div>
       <button class="success-back" onclick="resetToStart()">← Submit Another</button>
     </div>
 
+    <!-- Camera overlay -->
     <div id="videoContainerWrapper">
       <video id="cameraVideo" autoplay playsinline muted></video>
-      <div class="face-scanner"></div>
+      <!-- Face guide oval -->
+      <div id="faceGuide"></div>
+      <div id="faceStatus">Position your face in the oval</div>
+      <canvas id="faceCanvas"></canvas>
       <button id="closeCameraBtn" onclick="stopCamera()" aria-label="Close camera">&#x2715;</button>
       <div class="camera-ui">
         <div id="captureBtn" onclick="capturePhoto()"></div>
@@ -458,7 +502,7 @@ var Storage={
     </div>
   </div>
 
-</div>
+</div><!-- end .page-wrapper -->
 
 <div id="guideModal">
   <div class="modal-box">
@@ -478,10 +522,81 @@ var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwU2sHe-rihmCmpRa
 var currentTerminal = Storage.get('selected_terminal') || 'chandarana';
 var staff = [], branches = [], coords = null, staffName = "", photo = null;
 var activeFetchId = 0, currentAction = "", videoStream = null;
+var warningTimer = null;
 
-var staffRestrictionError = null; 
-var warningTimer = null; 
+// ─── Face detection ───────────────────────────────────────────────────────────
+var faceDetector = null;
+var faceDetectInterval = null;
+var faceOk = false;
 
+function initFaceDetector() {
+  if (typeof window.FaceDetector !== 'undefined') {
+    try {
+      faceDetector = new window.FaceDetector({ fastMode: true, maxDetectedFaces: 1 });
+    } catch(e) { faceDetector = null; }
+  }
+}
+
+function startFaceDetection() {
+  faceOk = false;
+  updateCaptureBtn(false);
+  if (!faceDetector) {
+    // No native API: allow capture freely after 1s (graceful degradation)
+    setTimeout(function() {
+      document.getElementById('faceStatus').style.opacity = '0';
+      faceOk = true;
+      updateCaptureBtn(true);
+    }, 1000);
+    return;
+  }
+
+  var video = document.getElementById('cameraVideo');
+  var guide = document.getElementById('faceGuide');
+  var statusEl = document.getElementById('faceStatus');
+  var consecutiveHits = 0;
+
+  faceDetectInterval = setInterval(function() {
+    if (!video || !video.readyState || video.readyState < 2) return;
+    faceDetector.detect(video).then(function(faces) {
+      if (faces && faces.length > 0) {
+        consecutiveHits++;
+        guide.classList.add('face-ok');
+        statusEl.textContent = consecutiveHits >= 3 ? '✓ Face detected — tap to capture' : 'Hold still…';
+        if (consecutiveHits >= 3) {
+          faceOk = true;
+          updateCaptureBtn(true);
+        }
+      } else {
+        consecutiveHits = 0;
+        guide.classList.remove('face-ok');
+        faceOk = false;
+        updateCaptureBtn(false);
+        statusEl.textContent = 'Position your face in the oval';
+      }
+    }).catch(function() {
+      // detector failed, allow freely
+      faceOk = true;
+      updateCaptureBtn(true);
+      statusEl.style.opacity = '0';
+    });
+  }, 400);
+}
+
+function stopFaceDetection() {
+  if (faceDetectInterval) { clearInterval(faceDetectInterval); faceDetectInterval = null; }
+  faceOk = false;
+  updateCaptureBtn(false);
+  var guide = document.getElementById('faceGuide');
+  if (guide) guide.classList.remove('face-ok');
+}
+
+function updateCaptureBtn(ready) {
+  var btn = document.getElementById('captureBtn');
+  if (!btn) return;
+  if (ready) btn.classList.add('ready'); else btn.classList.remove('ready');
+}
+
+// ─── History & sync ───────────────────────────────────────────────────────────
 function cleanOldHistory() {
   var today = new Date().toDateString();
   var histRaw = Storage.get('local_history_' + currentTerminal);
@@ -510,7 +625,12 @@ function processSyncQueue() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  updateTerminalUI(); checkNetworkStatus(); cleanOldHistory(); initApp(); processSyncQueue();
+  initFaceDetector();
+  updateTerminalUI();
+  checkNetworkStatus();
+  cleanOldHistory();
+  initApp();
+  processSyncQueue();
   if (window.matchMedia) window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateTerminalUI);
 });
 window.addEventListener('online', function(){ checkNetworkStatus(); processSyncQueue(); });
@@ -524,7 +644,7 @@ function checkNetworkStatus() {
 function triggerSignAnimation() {
   var sign = document.getElementById('storeSign');
   sign.classList.remove('nudge');
-  void sign.offsetWidth; 
+  void sign.offsetWidth;
   sign.classList.add('nudge');
 }
 
@@ -534,11 +654,11 @@ function updateTerminalUI() {
   var hexColor = currentTerminal === 'chandarana' ? (isDark ? '#059669' : '#10b981') : (isDark ? '#2563eb' : '#3b82f6');
   var meta = document.getElementById('theme-color-meta');
   if (meta) meta.setAttribute('content', hexColor);
-  
+
   var title = document.getElementById('storeSign');
   title.innerText = currentTerminal.charAt(0).toUpperCase() + currentTerminal.slice(1);
   triggerSignAnimation();
-  
+
   document.getElementById('btn-chandarana').classList.toggle('active', currentTerminal === 'chandarana');
   document.getElementById('btn-carrefour').classList.toggle('active',  currentTerminal === 'carrefour');
   requestAnimationFrame(function() { requestAnimationFrame(function() {
@@ -552,13 +672,14 @@ function switchTerminal(term) {
   currentTerminal = term; Storage.set('selected_terminal', term);
   staff = []; branches = [];
   document.getElementById('branch').innerHTML = '<option value="">Loading...</option>';
-  
+
   document.getElementById('successScreen').style.display='none';
   document.getElementById('mainForm').style.display='block';
-  
-  updateTerminalUI(); 
-  resetStepsFrom(2); 
-  cleanOldHistory(); 
+  document.getElementById('mainContainer').style.overflow = 'hidden';
+
+  updateTerminalUI();
+  resetStepsFrom(2);
+  cleanOldHistory();
   initApp();
 }
 
@@ -570,88 +691,131 @@ function fetchFromServer(action, data) {
     .then(function(j){ if(!j.ok) throw new Error(j.error||'Server error'); return j.data; });
 }
 
-function populateBranches(list) {
+function populateBranches(list, savedBranch) {
   if (!Array.isArray(list)) return;
-  var branchEl = document.getElementById('branch');
-  var currentVal = branchEl.value; // Store what the user currently has selected
-  
-  var options = '<option value="">Choose Branch</option>' + list.map(function(b){ return '<option value="'+b[0]+'">'+b[0]+'</option>'; }).join('');
-  branchEl.innerHTML = options;
-  
-  var savedBranch = Storage.get('last_branch_' + currentTerminal);
-  
-  // Prevent desync: Keep what is currently selected, otherwise use saved.
-  if (currentVal && list.some(function(b) { return b[0] === currentVal; })) {
-      branchEl.value = currentVal;
-  } else if (savedBranch && list.some(function(b) { return b[0] === savedBranch; })) {
-      branchEl.value = savedBranch;
-  }
+  var options = '<option value="">Choose Branch</option>' + list.map(function(b){
+    return '<option value="'+b[0]+'"'+(b[0]===savedBranch?' selected':'')+'>'+b[0]+'</option>';
+  }).join('');
+  document.getElementById('branch').innerHTML = options;
 }
 
+// FIX: restoreUserState is now more robust — sets value directly into DOM then triggers
 function restoreUserState() {
+  var savedBranch = Storage.get('last_branch_' + currentTerminal);
   var branchEl = document.getElementById('branch');
-  if (branchEl.value !== '') handleBranchChange(); 
-  
+
+  if (savedBranch && branchEl) {
+    // Try to find the option
+    var found = false;
+    for (var i = 0; i < branchEl.options.length; i++) {
+      if (branchEl.options[i].value === savedBranch) { found = true; break; }
+    }
+    if (found) {
+      branchEl.value = savedBranch;
+      handleBranchChange(true); // silent = true, won't reset downstream
+    }
+  }
+
+  // FIX: Only restore staff ID after branch is restored and staff loaded
   var savedStaffID = Storage.get('last_staff_id_' + currentTerminal);
-  var staffEl = document.getElementById('staffID');
-  
-  // Intelligent restore: Do NOT overwrite if the user has started typing!
-  if (savedStaffID && staff.length > 0 && staffEl.value === '') {
-    staffEl.value = savedStaffID;
-    handleStaffInput.call(staffEl);
+  if (savedStaffID && staff.length > 0) {
+    var staffEl = document.getElementById('staffID');
+    // Only populate if step2 is active
+    if (document.getElementById('step2').classList.contains('activeStep')) {
+      staffEl.value = savedStaffID;
+      // Trigger without clearing
+      handleStaffInputValue(savedStaffID);
+    }
   }
 }
 
+// FIX: initApp loads cache instantly then refreshes silently
 function initApp() {
-  var myId = ++activeFetchId, cacheKey = currentTerminal + '_portal_data', cached = false;
+  var myId = ++activeFetchId;
+  var cacheKey = currentTerminal + '_portal_data';
+  var savedBranch = Storage.get('last_branch_' + currentTerminal);
+  var dataLoaded = false;
+
+  // ── 1. Load from cache IMMEDIATELY (sync, instant) ──
   try {
     var raw = Storage.get(cacheKey);
-    if (raw) { 
-        var p = JSON.parse(raw); 
-        if (p && Array.isArray(p.branches)) { 
-            staff = p.staff || []; branches = p.branches || []; 
-            populateBranches(branches); 
-            restoreUserState(); 
-            cached = true; 
-        } 
+    if (raw) {
+      var p = JSON.parse(raw);
+      if (p && Array.isArray(p.branches) && p.branches.length > 0) {
+        staff = p.staff || []; branches = p.branches || [];
+        populateBranches(branches, savedBranch);
+        restoreUserState();
+        dataLoaded = true;
+      }
     }
   } catch(e) {}
-  
+
+  if (!dataLoaded) {
+    document.getElementById('branch').innerHTML = '<option value="">Loading…</option>';
+  }
+
+  // ── 2. Refresh from network in background ──
   fetchFromServer('getPortalData', {}).then(function(data) {
     if (myId !== activeFetchId) return;
-    staff = data.staff || []; branches = data.branches || [];
+    var newStaff = data.staff || [], newBranches = data.branches || [];
+    var changed = JSON.stringify(branches) !== JSON.stringify(newBranches) ||
+                  JSON.stringify(staff)    !== JSON.stringify(newStaff);
+    staff = newStaff; branches = newBranches;
     try { Storage.set(cacheKey, JSON.stringify({staff:staff, branches:branches})); } catch(e) {}
-    
-    populateBranches(branches); 
-    restoreUserState(); 
+
+    if (!dataLoaded || changed) {
+      // Re-populate, preserving selection
+      var currentBranch = document.getElementById('branch').value || savedBranch;
+      populateBranches(branches, currentBranch);
+      // FIX: After repopulating, make sure branch value is really set
+      if (currentBranch) {
+        document.getElementById('branch').value = currentBranch;
+      }
+      restoreUserState();
+    }
   }).catch(function() {
-    if (myId === activeFetchId && branches.length === 0)
-      document.getElementById('branch').innerHTML = '<option value="">Offline — waiting for connection</option>';
+    if (myId === activeFetchId && !dataLoaded) {
+      document.getElementById('branch').innerHTML = '<option value="">Offline — check connection</option>';
+    }
   });
 }
 
 function activateStep(n) { document.getElementById('step'+n).classList.add('activeStep'); }
+
+// FIX: resetStepsFrom no longer wipes the staffID input value unless n<=2
 function resetStepsFrom(n) {
-  for (var i = n; i <= 4; i++) { var el = document.getElementById('step'+i); if (el) el.classList.remove('activeStep'); }
-  if (n<=2) { staffName=''; document.getElementById('staffID').value=''; clearMsg('staffMsg'); staffRestrictionError = null; }
-  if (n<=3) { coords=null; clearMsg('gpsMsg'); }
-  if (n<=4) {
-    photo=null; stopCamera(); clearMsg('cameraMsg');
-    document.getElementById('successPhoto').src='';
+  for (var i = n; i <= 4; i++) {
+    var el = document.getElementById('step'+i);
+    if (el) el.classList.remove('activeStep');
+  }
+  if (n <= 2) {
+    staffName = '';
+    // Only clear staff field if fully resetting
+    document.getElementById('staffID').value = '';
+    clearMsg('staffMsg');
+  }
+  if (n <= 3) { coords = null; clearMsg('gpsMsg'); }
+  if (n <= 4) {
+    photo = null; stopCamera(); clearMsg('cameraMsg');
+    document.getElementById('successPhoto').src = '';
   }
 }
 
 function resetToStart() {
-  document.getElementById('successScreen').style.display='none';
-  document.getElementById('mainForm').style.display='block';
-  
+  document.getElementById('successScreen').style.display = 'none';
+  document.getElementById('mainForm').style.display = 'block';
+  document.getElementById('mainContainer').style.overflow = 'hidden';
   document.getElementById('successPhoto').classList.remove('zoomed');
   document.getElementById('photoBackdrop').classList.remove('show');
-  
-  resetStepsFrom(3); 
-  handleBranchChange();
-  var staffEl = document.getElementById('staffID');
-  if (staffEl.value) { handleStaffInput.call(staffEl); }
+
+  // Reset only GPS + camera (keep branch & staff)
+  resetStepsFrom(3);
+  // Re-activate step 3 since GPS needs re-verification
+  var branchVal = document.getElementById('branch').value;
+  var staffVal  = document.getElementById('staffID').value;
+  if (branchVal && staffVal) {
+    handleStaffInputValue(staffVal);
+  }
 }
 
 function showSuccess(id,txt){ var e=document.getElementById(id); e.innerHTML='<span class="dot"></span> '+txt; e.className='msg success'; }
@@ -670,81 +834,84 @@ function toggleZoom() {
   }
 }
 
-function handleBranchChange() {
+// FIX: handleBranchChange accepts 'silent' flag — doesn't reset staff when restoring
+function handleBranchChange(silent) {
   var val = document.getElementById('branch').value;
   if (!val) { resetStepsFrom(2); return; }
   Storage.set('last_branch_' + currentTerminal, val);
-  showSuccess('branchMsg','Branch Selected');
-  if (document.getElementById('step2').classList.contains('activeStep') && document.getElementById('staffID').value !== '') resetStepsFrom(2);
-  if (!document.getElementById('step2').classList.contains('activeStep')) activateStep(2);
+  showSuccess('branchMsg', 'Branch Selected');
+  if (!silent) {
+    // Only reset downstream if user manually changed branch
+    if (document.getElementById('step2').classList.contains('activeStep') &&
+        document.getElementById('staffID').value !== '') {
+      resetStepsFrom(2);
+    }
+  }
+  if (!document.getElementById('step2').classList.contains('activeStep')) {
+    activateStep(2);
+  }
 }
-document.getElementById('branch').onchange = handleBranchChange;
+document.getElementById('branch').onchange = function() { handleBranchChange(false); };
 
-function handleStaffInput() {
-  if (!this.value) return;
-  var val = this.value.trim();
-  staffRestrictionError = null; 
+// FIX: Extracted staff input logic so it can be called with a value directly
+// (prevents the "disappearing ID" bug from oninput firing mid-composition)
+function handleStaffInputValue(val) {
+  if (!val) return;
+  val = val.trim();
   if (val.length < 2) { resetStepsFrom(3); clearMsg('staffMsg'); return; }
-  
+
   var match = null;
   for (var i = 0; i < staff.length; i++) { if (staff[i].id === val) { match = staff[i]; break; } }
-  
+
   if (match) {
     staffName = match.name;
     var todayKey = new Date().toDateString();
     var historyRaw = Storage.get('local_history_' + currentTerminal);
     var history = historyRaw ? JSON.parse(historyRaw) : {};
-    
     var historyEntry = history[match.id + '_' + todayKey];
-    var lastAction = match.status; 
+    var lastAction = match.status;
     var lastTime = null;
 
     if (historyEntry) {
-      if (typeof historyEntry === 'string') { lastAction = historyEntry; } 
+      if (typeof historyEntry === 'string') { lastAction = historyEntry; }
       else { lastAction = historyEntry.action; lastTime = historyEntry.time; }
     }
 
+    // FIX: Clock-out time restriction REMOVED (re-enable when testing done)
+    // If they clocked out today, allow re-entry (for testing)
     if (lastAction === 'Clock Out') {
-      staffRestrictionError = 'You have completed today\'s attendance.';
-    }
-    
-    if (lastAction === 'Clock In') {
-      if (lastTime) {
-        var inDate = new Date(lastTime);
-        var inHour = inDate.getHours() + (inDate.getMinutes() / 60);
-        var now = new Date();
-        var currentHour = now.getHours() + (now.getMinutes() / 60);
-        
-        // STRICT BLOCK: Ensure minimum of 3 hours elapsed before clocking out
-        var hoursSinceClockIn = (now.getTime() - inDate.getTime()) / (1000 * 60 * 60);
-        
-        if (hoursSinceClockIn < 3.0) {
-            staffRestrictionError = 'You cannot clock out immediately. Minimum shift duration applies.';
-        } else {
-            var isMorningShift = (inHour < 12.0); 
-            if (isMorningShift) {
-              if (currentHour < 14.0) { staffRestrictionError = 'Morning Shift: Cannot clock out before 2:00 PM.'; }
-            } else {
-              if (currentHour < 18.0) { staffRestrictionError = 'Cannot clock out before time.'; }
-            }
-        }
-      }
+      currentAction = 'Clock In'; // allow again for testing
+    } else if (lastAction === 'Clock In') {
       currentAction = 'Clock Out';
     } else {
       currentAction = 'Clock In';
     }
-    
-    var msgEl = document.getElementById('staffMsg');
-    msgEl.style.opacity = '1';
+
     showSuccess('staffMsg', 'Welcome ' + staffName);
-    
+
     if (document.getElementById('step4').classList.contains('activeStep')) resetStepsFrom(4);
     if (!document.getElementById('step3').classList.contains('activeStep')) activateStep(3);
   } else {
-    resetStepsFrom(3); showError('staffMsg','Invalid Staff ID. Please check.');
+    resetStepsFrom(3); showError('staffMsg', 'Invalid Staff ID. Please check.');
   }
 }
-document.getElementById('staffID').oninput = handleStaffInput;
+
+// FIX: Use 'change' + 'input' carefully to avoid mid-type disappearing
+// 'input' fires continuously but we debounce it
+var staffDebounce = null;
+document.getElementById('staffID').addEventListener('input', function() {
+  var val = this.value;
+  clearTimeout(staffDebounce);
+  staffDebounce = setTimeout(function() {
+    handleStaffInputValue(val);
+  }, 350); // wait 350ms after last keystroke
+});
+
+// Also handle paste
+document.getElementById('staffID').addEventListener('change', function() {
+  clearTimeout(staffDebounce);
+  handleStaffInputValue(this.value);
+});
 
 function showGuideModal(type) {
   var modal=document.getElementById('guideModal'), title=document.getElementById('guideTitle'),
@@ -765,33 +932,17 @@ function showGuideModal(type) {
       +'<p style="margin-top:8px"><strong>🍎 iPhone:</strong> Settings → Safari/Chrome → Camera → Allow.</p>'
       +'<p style="margin-top:8px"><strong>🤖 Android:</strong> Site settings → Camera → Allow.</p>'
       +'<p style="margin-top:12px; color:var(--error-color); font-weight:bold;">After allowing, please clear the browser from your recent apps and reopen.</p>';
+  } else if (type==='no_face') {
+    icon.textContent='🙈'; title.textContent='No Face Detected'; title.style.color='var(--error-color)';
+    text.innerHTML='<p>We couldn\'t detect a face in the captured photo.</p>'
+      +'<ul style="margin-top:8px;padding-left:20px"><li>Make sure your face is well-lit.</li><li>Remove sunglasses or hats.</li><li>Hold the phone at face level.</li></ul>';
   }
   modal.style.display = 'flex';
 }
 
 function verifyGPS() {
-  if (staffRestrictionError) {
-    var msgEl = document.getElementById('staffMsg');
-    msgEl.style.opacity = '0';
-    setTimeout(function() {
-      showError('staffMsg', staffRestrictionError);
-      msgEl.style.opacity = '1';
-      
-      clearTimeout(warningTimer);
-      warningTimer = setTimeout(function() {
-        msgEl.style.opacity = '0';
-        setTimeout(function() {
-          if(document.getElementById('step2').classList.contains('activeStep')) {
-            showSuccess('staffMsg', 'Welcome ' + staffName);
-          }
-          msgEl.style.opacity = '1';
-        }, 300);
-      }, 3000); 
-    }, 300);
-    return;
-  }
-
-  document.getElementById('gpsMsg').innerText='Locating…'; document.getElementById('gpsMsg').className='msg';
+  document.getElementById('gpsMsg').innerText = 'Locating…';
+  document.getElementById('gpsMsg').className = 'msg';
   if (!navigator.geolocation) { showError('gpsMsg','GPS not supported on this device.'); return; }
   navigator.geolocation.getCurrentPosition(
     function(pos) {
@@ -802,8 +953,8 @@ function verifyGPS() {
       var R=6371e3, dLat=(b[1]-coords.latitude)*Math.PI/180, dLon=(b[2]-coords.longitude)*Math.PI/180,
           a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(coords.latitude*Math.PI/180)*Math.cos(b[1]*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2),
           dist=R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-      if (dist>250)
-        showError('gpsMsg', dist>1000?'Too far ('+(dist/1000).toFixed(1)+'km)':'Too far ('+Math.round(dist)+'m) — move closer');
+      if (dist > 250)
+        showError('gpsMsg', dist>1000 ? 'Too far ('+(dist/1000).toFixed(1)+'km)' : 'Too far ('+Math.round(dist)+'m) — move closer');
       else { showSuccess('gpsMsg','Location Verified'); activateStep(4); }
     },
     function(err){ if(err.code===1) showGuideModal('gps'); else showGuideModal('gps_signal'); },
@@ -816,7 +967,7 @@ function startCamera() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { showGuideModal('camera'); return; }
 
   btn.classList.add('loading');
-  btn.innerHTML = '<span class="btn-spinner" style="display:inline-block; vertical-align:middle; width:16px; height:16px; margin-right:8px;"></span><span style="vertical-align:middle;">Starting...</span>';
+  btn.innerHTML = '<span class="btn-spinner" style="display:inline-block;vertical-align:middle;width:16px;height:16px;margin-right:8px;"></span><span style="vertical-align:middle;">Starting…</span>';
   clearMsg('cameraMsg');
 
   var constraints = { video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false };
@@ -827,13 +978,13 @@ function startCamera() {
       video.srcObject = stream;
       video.onloadedmetadata = function() {
         video.play().catch(function(){});
-        
         document.getElementById('videoContainerWrapper').classList.add('expanded');
         document.getElementById('cameraBackdrop').classList.add('show');
         video.classList.add('live');
-        
         btn.classList.remove('loading');
         btn.innerText = 'Take Selfie';
+        // Start face detection after a short warm-up
+        setTimeout(startFaceDetection, 600);
       };
     })
     .catch(function(err) {
@@ -845,93 +996,58 @@ function startCamera() {
 }
 
 function capturePhoto() {
-  var btn = document.getElementById('captureBtn');
-  if (btn.classList.contains('disabled')) return;
-  
-  var video = document.getElementById('cameraVideo');
-  var wrapper = document.getElementById('videoContainerWrapper'); 
-  
-  // Start Scanning UI
-  btn.classList.add('disabled');
-  wrapper.classList.add('scanning');
-  
-  var completeCapture = function() {
-      setTimeout(function() {
-          wrapper.classList.remove('scanning');
-          btn.classList.remove('disabled');
-          
-          var vw = video.videoWidth || 1280, vh = video.videoHeight || 720;
-          var cw = document.getElementById('mainContainer').offsetWidth, ch = document.getElementById('mainContainer').offsetHeight;
-          var containerAspect = cw / ch;
-          var videoAspect = vw / vh;
-          
-          var sWidth, sHeight, startX, startY;
-          if (videoAspect > containerAspect) {
-            sHeight = vh; sWidth = vh * containerAspect;
-            startX = (vw - sWidth) / 2; startY = 0;
-          } else {
-            sWidth = vw; sHeight = vw / containerAspect;
-            startX = 0; startY = (vh - sHeight) / 2;
-          }
-          
-          var maxOutput = 720;
-          var scale = (sWidth > maxOutput || sHeight > maxOutput) ? (maxOutput / Math.max(sWidth, sHeight)) : 1;
-          
-          var canvas = document.createElement('canvas');
-          canvas.width = Math.round(sWidth * scale); 
-          canvas.height = Math.round(sHeight * scale);
-          var ctx = canvas.getContext('2d');
-          
-          ctx.translate(canvas.width, 0);
-          ctx.scale(-1, 1);
-          ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
-          
-          ctx.drawImage(video, startX, startY, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
-          
-          photo = canvas.toDataURL('image/jpeg', 0.85);
-          document.getElementById('successPhoto').src = photo;
-          stopCamera();
-          submitAttendance();
-      }, 700); // 700ms psychological scanning delay
-  };
-
-  // NATIVE FACE DETECTION (Checks if an actual human face is present before capture)
-  if ('FaceDetector' in window) {
-      try {
-          var faceDetector = new window.FaceDetector({ maxDetectedFaces: 1 });
-          faceDetector.detect(video).then(function(faces) {
-              if (faces.length === 0) {
-                  wrapper.classList.remove('scanning');
-                  btn.classList.remove('disabled');
-                  stopCamera();
-                  showError('cameraMsg', 'No face detected. Please ensure your face is fully visible.');
-              } else {
-                  completeCapture();
-              }
-          }).catch(function(e) {
-              completeCapture(); // Fallback if API fails internally
-          });
-      } catch(e) { completeCapture(); }
-  } else {
-      // Browsers lacking FaceDetector will just rely on the scanning delay UI
-      completeCapture();
+  // FIX: If face detector available, only allow when face is detected
+  if (faceDetector && !faceOk) {
+    var statusEl = document.getElementById('faceStatus');
+    statusEl.textContent = '⚠ No face detected — reposition';
+    return;
   }
+
+  var video = document.getElementById('cameraVideo');
+  var wrapper = document.getElementById('mainContainer');
+  var vw = video.videoWidth || 1280, vh = video.videoHeight || 720;
+  var cw = wrapper.offsetWidth, ch = wrapper.offsetHeight;
+  var containerAspect = cw / ch;
+  var videoAspect = vw / vh;
+
+  var sWidth, sHeight, startX, startY;
+  if (videoAspect > containerAspect) {
+    sHeight = vh; sWidth = vh * containerAspect;
+    startX = (vw - sWidth) / 2; startY = 0;
+  } else {
+    sWidth = vw; sHeight = vw / containerAspect;
+    startX = 0; startY = (vh - sHeight) / 2;
+  }
+
+  var maxOutput = 720;
+  var scale = (sWidth > maxOutput || sHeight > maxOutput) ? (maxOutput / Math.max(sWidth, sHeight)) : 1;
+  var canvas = document.createElement('canvas');
+  canvas.width = Math.round(sWidth * scale);
+  canvas.height = Math.round(sHeight * scale);
+  var ctx = canvas.getContext('2d');
+  ctx.translate(canvas.width, 0);
+  ctx.scale(-1, 1);
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(video, startX, startY, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
+
+  photo = canvas.toDataURL('image/jpeg', 0.85);
+  document.getElementById('successPhoto').src = photo;
+  stopCamera();
+  submitAttendance();
 }
 
 function stopCamera() {
-  var wrapper = document.getElementById('videoContainerWrapper'), backdrop = document.getElementById('cameraBackdrop');
-  wrapper.classList.remove('expanded'); wrapper.classList.remove('scanning'); 
+  stopFaceDetection();
+  var wrapper = document.getElementById('videoContainerWrapper');
+  var backdrop = document.getElementById('cameraBackdrop');
+  wrapper.classList.remove('expanded');
   backdrop.classList.remove('show');
-  
-  var btnCapture = document.getElementById('captureBtn');
-  btnCapture.classList.remove('disabled');
-
   var video = document.getElementById('cameraVideo');
   video.classList.remove('live');
-  
+
   var btn = document.getElementById('openCameraBtn');
   if (btn && !btn.classList.contains('loading')) btn.textContent = 'Take Selfie';
-  
+
   setTimeout(function() {
     if (videoStream) { videoStream.getTracks().forEach(function(t){ t.stop(); }); videoStream = null; }
     video.srcObject = null;
@@ -947,25 +1063,21 @@ function queueSubmission(payload) {
 function submitAttendance() {
   var branch = document.getElementById('branch').value, staffID = document.getElementById('staffID').value;
   if (!branch||!staffID||!currentAction||!photo) return;
-  
+
   Storage.set('last_staff_id_' + currentTerminal, staffID);
-  
+
   var todayKey = new Date().toDateString();
   var histRaw = Storage.get('local_history_' + currentTerminal);
   var history = histRaw ? JSON.parse(histRaw) : {};
-  
-  history[staffID + '_' + todayKey] = {
-    action: currentAction,
-    time: Date.now()
-  };
+  history[staffID + '_' + todayKey] = { action: currentAction, time: Date.now() };
   Storage.set('local_history_' + currentTerminal, JSON.stringify(history));
-  
+
   var payload = {
     name: staffName, id: staffID, branch: branch, action: currentAction, image: photo,
     lat: coords ? coords.latitude : 0, lng: coords ? coords.longitude : 0,
     clientTimestamp: new Date().toISOString()
   };
-  
+
   queueSubmission(payload);
   finishSubmission(currentAction);
 }
@@ -973,28 +1085,26 @@ function submitAttendance() {
 function finishSubmission(action) {
   var firstName = staffName.split(' ')[0] || staffName;
   var hrs = new Date().getHours(), mins = new Date().getMinutes(), timeVal = hrs + (mins / 60.0);
-  var msg='';
+  var msg = '';
 
   if (action === 'Clock In') {
-    if (timeVal < 6.5)      { msg="Fantastic start — you're early today! Keep it up."; }
-    else if (timeVal <= 7.66) { msg="Great, you are on time for the morning shift."; }
-    else if (timeVal < 11.0){ msg="Note: Late for morning shift.<br><br><span style='color:var(--error-color);font-size:13px;display:block;'>Consistent lateness will be forwarded to management for review.</span>"; }
-    else if (timeVal < 14.0){ msg="Early for the second shift. Great job!"; }
-    else if (timeVal <= 14.66){ msg="On time for the second shift. Have a productive afternoon!"; }
-    else                    { msg="Note: Late for afternoon shift."; }
+    if (timeVal < 6.5)       { msg = "Fantastic start — you're early today! Keep it up."; }
+    else if (timeVal <= 7.66){ msg = "Great, you are on time for the morning shift."; }
+    else if (timeVal < 11.0) { msg = "Note: Late for morning shift.<br><br><span style='color:var(--error-color);font-size:12px;display:block;'>Consistent lateness will be forwarded to management for review.</span>"; }
+    else if (timeVal < 14.0) { msg = "Early for the second shift. Great job!"; }
+    else if (timeVal <= 14.66){ msg = "On time for the second shift. Have a productive afternoon!"; }
+    else                     { msg = "Note: Late for afternoon shift."; }
   } else {
-    if (hrs < 16) { msg="Have a wonderful afternoon!"; }
-    else          { msg="Have a restful night!"; }
-    
-    if (hrs >= 18) {
-      msg += "<br><br><span style='display:block;'>And remember to place your order.</span>";
-    }
+    if (hrs < 16) { msg = "Have a wonderful afternoon!"; }
+    else          { msg = "Have a restful night!"; }
+    if (hrs >= 18) { msg += "<br><br><span style='display:block;'>Remember to place your order.</span>"; }
   }
 
   document.getElementById('successBadge').textContent = action.toUpperCase();
   document.getElementById('successName').textContent = firstName;
   document.getElementById('successMsg').innerHTML = msg;
-  
+
+  document.getElementById('mainContainer').style.overflow = 'visible';
   document.getElementById('mainForm').style.display = 'none';
   document.getElementById('successScreen').style.display = 'flex';
 }
