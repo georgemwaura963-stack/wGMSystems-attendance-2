@@ -141,7 +141,7 @@ body.theme-carrefour {--dynamic-primary:var(--theme-carr);--success-color:#3b82f
   border-radius:24px;
   box-shadow:0 15px 35px var(--shadow-color);
   position:relative; 
-  overflow:hidden;
+  overflow:hidden; /* Keeps video corners rounded normally */
   display:flex;
   flex-direction:column;
   justify-content:center; 
@@ -179,7 +179,6 @@ body.theme-carrefour {--dynamic-primary:var(--theme-carr);--success-color:#3b82f
 .pill-btn.active .full-text{display:block}
 .pill-btn:not(.active) .short-text{display:block}
 
-/* Bouncy entrance animation for steps */
 @keyframes bounceIn{ 
   0%{transform:scale(0.9);opacity:0} 
   60%{transform:scale(1.05)} 
@@ -187,7 +186,6 @@ body.theme-carrefour {--dynamic-primary:var(--theme-carr);--success-color:#3b82f
 }
 @keyframes spin{ to { transform: rotate(360deg); } }
 
-/* 2x2 Square Grid Layout */
 .step-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 12px}
 .step{opacity:0.3;pointer-events:none;transition:opacity 0.4s ease}
 .step.activeStep{opacity:1;pointer-events:auto;animation:bounceIn 0.45s ease}
@@ -259,8 +257,13 @@ button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
   z-index:4; -webkit-tap-highlight-color:transparent;
 }
 
-/* Messages */
-.msg{ font-size:12px;font-weight:600;margin-top:6px;min-height:20px; color:var(--text-tertiary);display:flex;align-items:center; }
+/* Messages (Now smoothly transitions errors) */
+.msg{ 
+  font-size:12px;font-weight:600;margin-top:6px;min-height:20px; 
+  color:var(--text-tertiary);display:flex;align-items:center; 
+  transition: opacity 0.3s ease, color 0.3s ease;
+  opacity: 1;
+}
 .msg.success{color:var(--success-color);font-size:13px}
 .msg.error  {color:var(--error-color)}
 .msg .dot{
@@ -443,7 +446,11 @@ var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxTky1VV7nBm3bveH
 var currentTerminal = Storage.get('selected_terminal') || 'chandarana';
 var staff = [], branches = [], coords = null, staffName = "", photo = null;
 var activeFetchId = 0, currentAction = "", videoStream = null;
-var staffRestrictionError = null; // Stores delayed warning for auto-fill
+
+// Global tracker for smooth warnings and shift context
+var staffRestrictionError = null; 
+var isAfternoonShift = false;
+var warningTimer = null; 
 
 function cleanOldHistory() {
   var today = new Date().toDateString();
@@ -518,6 +525,7 @@ function switchTerminal(term) {
   
   document.getElementById('successScreen').style.display='none';
   document.getElementById('mainForm').style.display='block';
+  document.getElementById('mainContainer').style.overflow = 'hidden';
   
   updateTerminalUI(); 
   resetStepsFrom(2); 
@@ -600,6 +608,9 @@ function resetToStart() {
   document.getElementById('successScreen').style.display='none';
   document.getElementById('mainForm').style.display='block';
   
+  // Re-enable overflow hidden for camera bounds mapping
+  document.getElementById('mainContainer').style.overflow = 'hidden';
+  
   // Clean zoom state if open
   document.getElementById('successPhoto').classList.remove('zoomed');
   document.getElementById('photoBackdrop').classList.remove('show');
@@ -641,7 +652,7 @@ document.getElementById('branch').onchange = handleBranchChange;
 
 function handleStaffInput() {
   var val = this.value.trim();
-  staffRestrictionError = null; // Clear old silent warnings
+  staffRestrictionError = null; 
   if (val.length < 2) { resetStepsFrom(3); clearMsg('staffMsg'); return; }
   
   var match = null;
@@ -666,7 +677,6 @@ function handleStaffInput() {
       }
     }
 
-    // Assign silent warnings instead of immediately blocking UI
     if (lastAction === 'Clock Out') {
       staffRestrictionError = 'You have completed today\'s attendance.';
     }
@@ -679,6 +689,7 @@ function handleStaffInput() {
         var currentHour = now.getHours() + (now.getMinutes() / 60);
         
         var isMorningShift = (inHour < 12.0); 
+        isAfternoonShift = !isMorningShift; // Remember for finishSubmission
         
         if (isMorningShift) {
           if (currentHour < 14.0) { 
@@ -686,16 +697,20 @@ function handleStaffInput() {
           }
         } else {
           if (currentHour < 18.0) { 
-            staffRestrictionError = 'Afternoon Shift: Cannot clock out before 6:00 PM.';
+            staffRestrictionError = 'Cannot clock out before time.';
           }
         }
       }
       currentAction = 'Clock Out';
     } else {
+      var nowHour = new Date().getHours() + (new Date().getMinutes() / 60);
+      isAfternoonShift = (nowHour >= 12.0); // Track their new shift starting point
       currentAction = 'Clock In';
     }
     
-    // Always show a welcoming message initially to keep UI calm on auto-fill
+    // Always show a calm welcoming message initially to keep UI smooth on auto-fill
+    var msgEl = document.getElementById('staffMsg');
+    msgEl.style.opacity = '1';
     showSuccess('staffMsg', 'Welcome ' + staffName);
     
     if (document.getElementById('step4').classList.contains('activeStep')) resetStepsFrom(4);
@@ -728,9 +743,26 @@ function showGuideModal(type) {
 }
 
 function verifyGPS() {
-  // If the background validation found an error, reveal it NOW, stopping the process.
+  // Gracefully reveal delayed warning then slide back to normal
   if (staffRestrictionError) {
-    showError('staffMsg', staffRestrictionError);
+    var msgEl = document.getElementById('staffMsg');
+    msgEl.style.opacity = '0';
+    setTimeout(function() {
+      showError('staffMsg', staffRestrictionError);
+      msgEl.style.opacity = '1';
+      
+      clearTimeout(warningTimer);
+      warningTimer = setTimeout(function() {
+        msgEl.style.opacity = '0';
+        setTimeout(function() {
+          // Verify they are still looking at the same screen before re-welcoming
+          if(document.getElementById('step2').classList.contains('activeStep')) {
+            showSuccess('staffMsg', 'Welcome ' + staffName);
+          }
+          msgEl.style.opacity = '1';
+        }, 300);
+      }, 3000); // Wait 3 seconds then revert smoothly
+    }, 300);
     return;
   }
 
@@ -852,7 +884,6 @@ function submitAttendance() {
   var branch = document.getElementById('branch').value, staffID = document.getElementById('staffID').value;
   if (!branch||!staffID||!currentAction||!photo) return;
   
-  // Memory save to eliminate repetitive keyboard typing
   Storage.set('last_staff_id_' + currentTerminal, staffID);
   
   var todayKey = new Date().toDateString();
@@ -888,14 +919,22 @@ function finishSubmission(action) {
     else if (timeVal <= 14.66){ msg="On time for the second shift. Have a productive afternoon!"; }
     else                    { msg="Clocked in. Note: Late for afternoon shift."; }
   } else {
+    // Clock Out Logic
     if (hrs < 16) { msg="Have a wonderful afternoon!"; }
     else          { msg="Have a restful night!"; }
+    
+    // Explicit condition for second shift logic appended message
+    if (isAfternoonShift) {
+      msg += " And remember to place your order.";
+    }
   }
 
   document.getElementById('successBadge').textContent = action.toUpperCase();
   document.getElementById('successName').textContent = firstName;
   document.getElementById('successMsg').textContent = msg;
   
+  // Set overflow visible ONLY when hitting success so zoom escapes the bounds!
+  document.getElementById('mainContainer').style.overflow = 'visible';
   document.getElementById('mainForm').style.display = 'none';
   document.getElementById('successScreen').style.display = 'flex';
 }
