@@ -188,6 +188,7 @@ td.flavor-name { text-align: left; font-weight: 800; font-size: 11px; padding-le
 .step-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 12px}
 .step{opacity:0.3;pointer-events:none;transition:opacity 0.4s ease}
 @keyframes bounceIn{ 0%{transform:scale(0.9);opacity:0} 60%{transform:scale(1.05)} 100%{transform:scale(1);opacity:1} }
+@keyframes spin{ to { transform: rotate(360deg); } }
 .step.activeStep{opacity:1;pointer-events:auto;animation:bounceIn 0.45s ease}
 
 .att-label{font-weight:600;font-size:12px;display:block;margin-bottom:6px;color:var(--label-text);text-transform:uppercase;letter-spacing:0.5px}
@@ -197,6 +198,8 @@ body.theme-carrefour .att-input:focus, body.theme-carrefour .att-select:focus {b
 .att-button{ width:100%;height:46px;border-radius:12px;border:none; font-size:14px;font-weight:700; background:var(--button-secondary-bg);color:var(--dynamic-primary); cursor:pointer;transition:transform 0.1s, opacity 0.2s, background 0.2s; }
 .att-button:active{transform:scale(0.97)}
 .att-button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+
+.btn-spinner { border: 2px solid rgba(0,0,0,0.1); border-top-color: currentColor; border-radius: 50%; animation: spin 0.6s linear infinite; }
 
 .att-msg{ font-size:12px;font-weight:600;margin-top:6px; min-height:38px; align-items:flex-start; line-height:1.4; color:var(--text-tertiary);display:flex; transition: opacity 0.3s ease, color 0.3s ease; opacity: 1; }
 .att-msg.success{color:var(--success-color);font-size:13px} .att-msg.error{color:var(--error-color)}
@@ -223,15 +226,15 @@ body.theme-carrefour .att-input:focus, body.theme-carrefour .att-select:focus {b
 
 /* Att Success Screen */
 #attSuccessScreen{ display:none; flex-direction:column; align-items:center; justify-content:flex-start; padding: 12px 4px 8px; text-align:center; width:100%; height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-.success-photo{ width: 96px; height: 96px; object-fit: cover; border-radius: 50%; box-shadow: 0 0 0 4px var(--success-color); margin-bottom: 10px; animation: bounceIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); transition: transform 0.4s cubic-bezier(0.25, 1, 0.4, 1), border-radius 0.4s cubic-bezier(0.25, 1, 0.4, 1), box-shadow 0.4s ease; cursor: zoom-in; flex-shrink: 0; position: relative; z-index: 20000; -webkit-tap-highlight-color: transparent; }
+.success-photo{ width: 110px; height: 110px; object-fit: cover; border-radius: 50%; box-shadow: 0 0 0 4px var(--success-color); margin-bottom: 10px; animation: bounceIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); transition: transform 0.4s cubic-bezier(0.25, 1, 0.4, 1), border-radius 0.4s cubic-bezier(0.25, 1, 0.4, 1), box-shadow 0.4s ease; cursor: zoom-in; flex-shrink: 0; position: relative; z-index: 20000; -webkit-tap-highlight-color: transparent; }
 .success-photo.zoomed { transform: scale(2.6); border-radius: 8%; box-shadow: 0 0 0 1.5px var(--success-color), 0 10px 30px rgba(0,0,0,0.3); cursor: zoom-out; }
 #photoBackdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 19999; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
 #photoBackdrop.show { opacity: 1; pointer-events: auto; }
-.success-badge{ background:var(--dynamic-primary);color:#fff;font-size:12px;font-weight:800; text-transform:uppercase;padding:5px 18px;border-radius:999px; margin-bottom: 10px;display:inline-block;box-shadow:0 4px 10px rgba(0,0,0,0.1); flex-shrink: 0; animation:bounceIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.05s backwards; }
-.success-card{ background:var(--success-card-bg);border:1px solid var(--success-card-border); border-radius:16px;padding:16px 14px;width:100%;margin-bottom:12px; animation:bounceIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s backwards; flex-shrink: 0; }
-.success-name{font-size:22px;font-weight:800;color:var(--dynamic-primary);margin-bottom:6px}
-.success-msg {font-size:13px;font-weight:600;color:var(--text-secondary);line-height:1.5; word-break: break-word;}
-.success-back{ width:100%;height:44px;background:var(--button-secondary-bg); color:var(--dynamic-primary);border:none;border-radius:12px; font-size:14px;font-weight:700;cursor:pointer; flex-shrink: 0; }
+.success-badge{ background:var(--dynamic-primary);color:#fff;font-size:13px;font-weight:800; text-transform:uppercase;padding:6px 20px;border-radius:999px; margin-bottom: 24px;display:inline-block;box-shadow:0 4px 10px rgba(0,0,0,0.1); flex-shrink: 0; animation:bounceIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.05s backwards; }
+.success-card{ background:var(--success-card-bg);border:1px solid var(--success-card-border); border-radius:20px;padding:24px 20px;width:100%;margin-bottom:20px; animation:bounceIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s backwards; flex-shrink: 0; }
+.success-name{font-size:26px;font-weight:800;color:var(--dynamic-primary);margin-bottom:8px}
+.success-msg {font-size:15px;font-weight:600;color:var(--text-secondary);line-height:1.5; word-break: break-word;}
+.success-back{ width:100%;height:48px;background:var(--button-secondary-bg); color:var(--dynamic-primary);border:none;border-radius:12px; font-size:15px;font-weight:700;cursor:pointer; flex-shrink: 0; }
 
 #guideModal{ display:none;position:fixed;inset:0;background:var(--modal-overlay); z-index:19999;flex-direction:column;align-items:center;justify-content:center; padding:20px;backdrop-filter:blur(5px); -webkit-backdrop-filter:blur(5px); }
 #guideModal .modal-box{ background:var(--bg-primary);padding:28px;border-radius:20px; text-align:center;max-width:340px;width:100%; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
@@ -262,7 +265,6 @@ document.addEventListener('touchend', e => {
   const currentTime = new Date().getTime();
   const tapLength = currentTime - lastTapTime;
   
-  // Double tap check
   if (tapLength < 500 && tapLength > 0) {
     document.querySelectorAll('.menu-btn').forEach(btn => {
       btn.classList.remove('playful', 'excited');
@@ -273,7 +275,6 @@ document.addEventListener('touchend', e => {
   }
   lastTapTime = currentTime;
 
-  // Swipe check
   let touchEndX = e.changedTouches[0].screenX; let touchEndY = e.changedTouches[0].screenY;
   if(!e.target.closest('.menu-btn')) {
     if(Math.abs(touchEndX - touchStartX) > 40 || Math.abs(touchEndY - touchStartY) > 40) {
@@ -304,11 +305,8 @@ function goHome() {
   document.body.className = 'theme-hub'; 
   document.getElementById('view-menu').classList.add('active'); 
   
-  // Re-enable playful animation when returning to home if not settled
   document.querySelectorAll('.menu-btn').forEach(btn => {
-      if(!btn.classList.contains('settled')) {
-          btn.classList.add('playful');
-      }
+      if(!btn.classList.contains('settled')) btn.classList.add('playful');
   });
 
   if(typeof stopCamera === 'function') stopCamera(); 
@@ -327,7 +325,7 @@ function openOrder() {
 
 function openAttendance() {
   hideAllViews(); document.getElementById('view-attendance').classList.add('active');
-  attSwitchTerminal('chandarana'); // reset attendance form to fresh state
+  attSwitchTerminal('chandarana'); 
 }
 
 function switchTerminal(store, module) {
@@ -378,7 +376,6 @@ function fetchOrderStaffDetails(idVal) {
        if(res.found) { 
          nameInp.value = res.name || ''; branchInp.value = res.branch || ''; phoneInp.value = res.phone || ''; 
          msgDiv.innerHTML = `✓ ID Matched: ${res.name}`; msgDiv.className = 'msg success';
-         // Reveal user info and unlock form
          expFields.classList.add('revealed');
          lockedSec.classList.add('unlocked');
        } else { 
@@ -555,7 +552,6 @@ async function submitOrder(e) {
     </div>
 
     <form id="orderForm" onsubmit="submitOrder(event)">
-      <!-- UPPER SECTION -->
       <div class="section-card">
         <div style="width: 100%;">
           <label class="order-label">Staff ID</label>
@@ -581,7 +577,6 @@ async function submitOrder(e) {
         </div>
       </div>
 
-      <!-- LOCKED SECTION -->
       <div id="o-locked-section" class="locked-form">
         <div class="section-card" style="padding: 0;">
           <div id="dynamicOrderContent"></div>
@@ -698,12 +693,15 @@ async function submitOrder(e) {
 
 <script>
 // ==========================================
-// IDENTICAL ATTENDANCE SYSTEM JS
+// UNIFIED ATTENDANCE SYSTEM JS
 // ==========================================
 var Storage={ set:function(k,v){try{localStorage.setItem(k,v)}catch(e){}}, get:function(k){try{return localStorage.getItem(k)}catch(e){return null}}, remove:function(k){try{localStorage.removeItem(k)}catch(e){}} };
 var currentTerminal = Storage.get('selected_terminal') || 'chandarana';
 var staff = [], branches = [], coords = null, staffName = "", photo = null;
 var activeFetchId = 0, currentAction = "", videoStream = null;
+
+var staffRestrictionError = null; 
+var warningTimer = null;
 
 var faceDetector = null, faceDetectInterval = null, faceOk = false;
 function initFaceDetector() { if (typeof window.FaceDetector !== 'undefined') { try { faceDetector = new window.FaceDetector({ fastMode: true, maxDetectedFaces: 1 }); } catch(e) { faceDetector = null; } } }
@@ -788,7 +786,7 @@ function initApp() {
 function activateStep(n) { document.getElementById('step'+n).classList.add('activeStep'); }
 function resetStepsFrom(n) {
   for (var i = n; i <= 4; i++) { var el = document.getElementById('step'+i); if (el) el.classList.remove('activeStep'); }
-  if (n <= 2) { staffName = ''; document.getElementById('staffID').value = ''; clearMsg('staffMsg'); }
+  if (n <= 2) { staffName = ''; document.getElementById('staffID').value = ''; clearMsg('staffMsg'); staffRestrictionError = null; }
   if (n <= 3) { coords = null; clearMsg('gpsMsg'); }
   if (n <= 4) { photo = null; stopCamera(); clearMsg('cameraMsg'); document.getElementById('successPhoto').src = ''; }
 }
@@ -821,22 +819,63 @@ document.getElementById('branch').onchange = function() { handleBranchChange(fal
 
 function handleStaffInputValue(val) {
   if (!val) return; val = val.trim();
+  staffRestrictionError = null;
   if (val.length < 2) { resetStepsFrom(3); clearMsg('staffMsg'); return; }
-  var match = null; for (var i = 0; i < staff.length; i++) { if (staff[i].id === val) { match = staff[i]; break; } }
+  
+  var match = null; 
+  for (var i = 0; i < staff.length; i++) { if (staff[i].id === val) { match = staff[i]; break; } }
+  
   if (match) {
-    staffName = match.name; var todayKey = new Date().toDateString(); var historyRaw = Storage.get('local_history_' + currentTerminal);
-    var history = historyRaw ? JSON.parse(historyRaw) : {}; var historyEntry = history[match.id + '_' + todayKey];
-    var lastAction = match.status; if (historyEntry) { if (typeof historyEntry === 'string') lastAction = historyEntry; else lastAction = historyEntry.action; }
+    staffName = match.name; 
+    var todayKey = new Date().toDateString(); 
+    var historyRaw = Storage.get('local_history_' + currentTerminal);
+    var history = historyRaw ? JSON.parse(historyRaw) : {}; 
+    var historyEntry = history[match.id + '_' + todayKey];
     
-    // Auto toggle action
-    if (lastAction === 'Clock Out') currentAction = 'Clock In';
-    else if (lastAction === 'Clock In') currentAction = 'Clock Out';
-    else currentAction = 'Clock In';
+    var lastAction = match.status; 
+    var lastTime = null;
+
+    if (historyEntry) {
+      if (typeof historyEntry === 'string') {
+        lastAction = historyEntry;
+      } else {
+        lastAction = historyEntry.action;
+        lastTime = historyEntry.time;
+      }
+    }
+
+    if (lastAction === 'Clock Out') {
+      staffRestrictionError = 'You have completed today\'s attendance.';
+    }
     
+    if (lastAction === 'Clock In') {
+      if (lastTime) {
+        var inDate = new Date(lastTime);
+        var inHour = inDate.getHours() + (inDate.getMinutes() / 60);
+        var now = new Date();
+        var currentHour = now.getHours() + (now.getMinutes() / 60);
+        
+        var isMorningShift = (inHour < 12.0); 
+        if (isMorningShift) {
+          if (currentHour < 14.0) { staffRestrictionError = 'Morning Shift: Cannot clock out before 2:00 PM.'; }
+        } else {
+          if (currentHour < 18.0) { staffRestrictionError = 'Cannot clock out before time.'; }
+        }
+      }
+      currentAction = 'Clock Out';
+    } else {
+      currentAction = 'Clock In';
+    }
+    
+    var msgEl = document.getElementById('staffMsg');
+    msgEl.style.opacity = '1';
     showSuccess('staffMsg', 'Welcome ' + staffName);
+    
     if (document.getElementById('step4').classList.contains('activeStep')) resetStepsFrom(4);
     if (!document.getElementById('step3').classList.contains('activeStep')) activateStep(3);
-  } else { resetStepsFrom(3); showError('staffMsg', 'Invalid Staff ID. Please check.'); }
+  } else { 
+    resetStepsFrom(3); showError('staffMsg', 'Invalid Staff ID. Please check.'); 
+  }
 }
 
 var staffDebounce = null;
@@ -845,14 +884,47 @@ document.getElementById('staffID').addEventListener('change', function() { clear
 
 function showGuideModal(type) {
   var modal=document.getElementById('guideModal'), title=document.getElementById('guideTitle'), text=document.getElementById('guideText'), icon=document.getElementById('guideIcon');
-  if (type==='gps') { icon.textContent='📍'; title.textContent='Location Blocked'; title.style.color='var(--error-color)'; text.innerHTML='<p>We need your location to verify you are at the branch.</p><p style="margin-top:8px"><strong>🍎 iPhone:</strong> Settings → Privacy → Location Services → Allow Safari.</p><p style="margin-top:8px"><strong>🤖 Android:</strong> Site settings → Location → Allow.</p>'; }
-  else if (type==='gps_signal') { icon.textContent='📡'; title.textContent='Weak GPS Signal'; title.style.color='var(--warning-text)'; text.innerHTML='<p>We couldn\'t get an accurate location reading.</p><ul style="margin-top:8px;padding-left:20px"><li>Step outside or near a window.</li><li>Turn WiFi ON — it helps GPS lock faster.</li></ul>'; }
-  else if (type==='camera') { icon.textContent='📸'; title.textContent='Camera Access Denied'; title.style.color='var(--error-color)'; text.innerHTML='<p>Camera permission is required.</p><p style="margin-top:8px"><strong>🍎 iPhone:</strong> Settings → Safari → Camera → Allow.</p><p style="margin-top:8px"><strong>🤖 Android:</strong> Site settings → Camera → Allow.</p>'; }
-  else if (type==='no_face') { icon.textContent='🙈'; title.textContent='No Face Detected'; title.style.color='var(--error-color)'; text.innerHTML='<p>We couldn\'t detect a face in the captured photo.</p><ul style="margin-top:8px;padding-left:20px"><li>Make sure your face is well-lit.</li><li>Remove sunglasses or hats.</li><li>Hold the phone at face level.</li></ul>'; }
+  if (type==='gps') { 
+    icon.textContent='📍'; title.textContent='Location Blocked'; title.style.color='var(--error-color)'; 
+    text.innerHTML='<p>We need your location to verify you are at the branch.</p><p style="margin-top:8px"><strong>🍎 iPhone:</strong><br>Settings → Privacy & Security → Location Services → Allow Safari/Chrome.</p><p style="margin-top:8px"><strong>🤖 Android:</strong><br>⋮ Menu → Settings → Site settings → Location → Allow.</p><p style="margin-top:12px; color:var(--error-color); font-weight:bold;">After allowing, please clear the browser from your recent apps and reopen.</p>'; 
+  }
+  else if (type==='gps_signal') { 
+    icon.textContent='📡'; title.textContent='Weak GPS Signal'; title.style.color='var(--warning-text)'; 
+    text.innerHTML='<p>We couldn\'t get an accurate location reading.</p><ul style="margin-top:8px;padding-left:20px"><li>Step outside or near a window.</li><li>Turn WiFi ON — it helps GPS lock faster.</li></ul>'; 
+  }
+  else if (type==='camera') { 
+    icon.textContent='📸'; title.textContent='Camera Access Denied'; title.style.color='var(--error-color)'; 
+    text.innerHTML='<p>Camera permission is required to capture your identity securely.</p><p style="margin-top:8px"><strong>🍎 iPhone:</strong> Settings → Safari/Chrome → Camera → Allow.</p><p style="margin-top:8px"><strong>🤖 Android:</strong> Site settings → Camera → Allow.</p><p style="margin-top:12px; color:var(--error-color); font-weight:bold;">After allowing, please clear the browser from your recent apps and reopen.</p>'; 
+  }
+  else if (type==='no_face') { 
+    icon.textContent='🙈'; title.textContent='No Face Detected'; title.style.color='var(--error-color)'; 
+    text.innerHTML='<p>We couldn\'t detect a face in the captured photo.</p><ul style="margin-top:8px;padding-left:20px"><li>Make sure your face is well-lit.</li><li>Remove sunglasses or hats.</li><li>Hold the phone at face level.</li></ul>'; 
+  }
   modal.style.display = 'flex';
 }
 
 function verifyGPS() {
+  if (staffRestrictionError) {
+    var msgEl = document.getElementById('staffMsg');
+    msgEl.style.opacity = '0';
+    setTimeout(function() {
+      showError('staffMsg', staffRestrictionError);
+      msgEl.style.opacity = '1';
+      
+      clearTimeout(warningTimer);
+      warningTimer = setTimeout(function() {
+        msgEl.style.opacity = '0';
+        setTimeout(function() {
+          if(document.getElementById('step2').classList.contains('activeStep')) {
+            showSuccess('staffMsg', 'Welcome ' + staffName);
+          }
+          msgEl.style.opacity = '1';
+        }, 300);
+      }, 3000); 
+    }, 300);
+    return;
+  }
+
   document.getElementById('gpsMsg').innerText = 'Locating…'; document.getElementById('gpsMsg').className = 'att-msg';
   if (!navigator.geolocation) { showError('gpsMsg','GPS not supported.'); return; }
   navigator.geolocation.getCurrentPosition(
@@ -871,60 +943,107 @@ function verifyGPS() {
 function startCamera() {
   var btn = document.getElementById('openCameraBtn');
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { showGuideModal('camera'); return; }
-  btn.innerText = 'Starting…'; clearMsg('cameraMsg');
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false })
+
+  btn.classList.add('loading');
+  btn.innerHTML = '<span class="btn-spinner" style="display:inline-block; vertical-align:middle; width:16px; height:16px; margin-right:8px;"></span><span style="vertical-align:middle;">Starting...</span>';
+  clearMsg('cameraMsg');
+
+  var constraints = { video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false };
+  navigator.mediaDevices.getUserMedia(constraints)
     .then(function(stream) {
-      videoStream = stream; var video = document.getElementById('cameraVideo'); video.srcObject = stream;
+      videoStream = stream; 
+      var video = document.getElementById('cameraVideo'); 
+      video.srcObject = stream;
       video.onloadedmetadata = function() {
-        video.play().catch(function(){}); document.getElementById('videoContainerWrapper').classList.add('expanded'); document.getElementById('cameraBackdrop').classList.add('show');
-        video.classList.add('live'); btn.innerText = 'Take Selfie'; setTimeout(startFaceDetection, 600);
+        video.play().catch(function(){}); 
+        document.getElementById('videoContainerWrapper').classList.add('expanded'); 
+        document.getElementById('cameraBackdrop').classList.add('show');
+        video.classList.add('live'); 
+        btn.classList.remove('loading');
+        btn.innerText = 'Take Selfie'; 
+        setTimeout(startFaceDetection, 600);
       };
-    }).catch(function() { btn.innerText = 'Take Selfie'; showGuideModal('camera'); });
+    }).catch(function(err) { 
+      btn.classList.remove('loading');
+      btn.innerText = 'Take Selfie';
+      showGuideModal('camera'); 
+    });
 }
 
 function stopCamera() {
   if (videoStream) { videoStream.getTracks().forEach(function(t) { t.stop(); }); videoStream = null; }
   stopFaceDetection();
-  document.getElementById('videoContainerWrapper').classList.remove('expanded'); document.getElementById('cameraBackdrop').classList.remove('show');
-  document.getElementById('cameraVideo').classList.remove('live');
+  document.getElementById('videoContainerWrapper').classList.remove('expanded'); 
+  document.getElementById('cameraBackdrop').classList.remove('show');
+  
+  var video = document.getElementById('cameraVideo');
+  video.classList.remove('live');
+  var btn = document.getElementById('openCameraBtn');
+  if (btn && !btn.classList.contains('loading')) btn.textContent = 'Take Selfie';
 }
 
 function capturePhoto() {
   if (!faceOk && faceDetector) { showGuideModal('no_face'); return; }
   var video = document.getElementById('cameraVideo');
-  var canvas = document.createElement('canvas'); canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+  var wrapper = document.getElementById('mainContainer'); 
+  var vw = video.videoWidth || 1280, vh = video.videoHeight || 720;
+  
+  var cw = wrapper.offsetWidth, ch = wrapper.offsetHeight;
+  var containerAspect = cw / ch;
+  var videoAspect = vw / vh;
+  
+  var sWidth, sHeight, startX, startY;
+  
+  if (videoAspect > containerAspect) {
+    sHeight = vh; sWidth = vh * containerAspect;
+    startX = (vw - sWidth) / 2; startY = 0;
+  } else {
+    sWidth = vw; sHeight = vw / containerAspect;
+    startX = 0; startY = (vh - sHeight) / 2;
+  }
+  
+  var maxOutput = 720;
+  var scale = (sWidth > maxOutput || sHeight > maxOutput) ? (maxOutput / Math.max(sWidth, sHeight)) : 1;
+  
+  var canvas = document.createElement('canvas');
+  canvas.width = Math.round(sWidth * scale); 
+  canvas.height = Math.round(sHeight * scale);
   var ctx = canvas.getContext('2d');
-  ctx.translate(canvas.width, 0); ctx.scale(-1, 1); ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  photo = canvas.toDataURL('image/jpeg', 0.6);
-  stopCamera(); submitAttendance();
+  
+  ctx.translate(canvas.width, 0); 
+  ctx.scale(-1, 1); 
+  ctx.imageSmoothingEnabled = true; 
+  ctx.imageSmoothingQuality = 'high';
+  
+  ctx.drawImage(video, startX, startY, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
+  
+  photo = canvas.toDataURL('image/jpeg', 0.85);
+
+  document.getElementById('successPhoto').src = photo;
+  stopCamera(); 
+  submitAttendance();
 }
 
 function submitAttendance() {
   showSuccess('cameraMsg', 'Submitting...');
-  var payload = { id: document.getElementById('staffID').value, name: staffName, branch: document.getElementById('branch').value, action: currentAction, image: photo, lat: coords.latitude, lng: coords.longitude };
-  var payloadStr = JSON.stringify(payload);
+  var branch = document.getElementById('branch').value, staffID = document.getElementById('staffID').value;
+  if (!branch || !staffID || !currentAction || !photo) return;
   
-  // Immediately update local UI + History
+  Storage.set('last_staff_id_' + currentTerminal, staffID);
+  
   var todayKey = new Date().toDateString();
-  var historyRaw = Storage.get('local_history_' + currentTerminal);
-  var history = historyRaw ? JSON.parse(historyRaw) : {};
-  history[payload.id + '_' + todayKey] = { action: payload.action, time: new Date().getTime() };
+  var histRaw = Storage.get('local_history_' + currentTerminal);
+  var history = histRaw ? JSON.parse(histRaw) : {};
+  history[staffID + '_' + todayKey] = { action: currentAction, time: Date.now() };
   Storage.set('local_history_' + currentTerminal, JSON.stringify(history));
-  Storage.set('last_staff_id_' + currentTerminal, payload.id);
   
-  for (var i=0; i<staff.length; i++) { if (staff[i].id === payload.id) { staff[i].status = payload.action; break; } }
+  for (var i=0; i<staff.length; i++) { if (staff[i].id === staffID) { staff[i].status = currentAction; break; } }
   
-  document.getElementById('successBadge').innerText = payload.action;
-  document.getElementById('successBadge').style.background = payload.action === 'Clock In' ? var(--success-color) : var(--error-color);
-  document.getElementById('successName').innerText = payload.name;
-  var timeStr = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-  document.getElementById('successMsg').innerText = "Logged at " + timeStr + " for " + payload.branch;
-  document.getElementById('successPhoto').src = photo;
-  document.getElementById('mainFormAtt').style.display = 'none';
-  document.getElementById('attSuccessScreen').style.display = 'flex';
-  document.getElementById('mainContainer').style.overflow = 'auto';
-
-  // Background Sync
+  var payload = { 
+    id: staffID, name: staffName, branch: branch, action: currentAction, image: photo, 
+    lat: coords ? coords.latitude : 0, lng: coords ? coords.longitude : 0 
+  };
+  
   if (navigator.onLine) {
     fetchFromServer('recordAttendance', payload).catch(function() {
       var q = JSON.parse(Storage.get('sync_queue') || '[]'); q.push(payload); Storage.set('sync_queue', JSON.stringify(q));
@@ -932,6 +1051,39 @@ function submitAttendance() {
   } else {
     var q = JSON.parse(Storage.get('sync_queue') || '[]'); q.push(payload); Storage.set('sync_queue', JSON.stringify(q));
   }
+
+  finishSubmission(currentAction);
+}
+
+function finishSubmission(action) {
+  var firstName = staffName.split(' ')[0] || staffName;
+  var hrs = new Date().getHours(), mins = new Date().getMinutes(), timeVal = hrs + (mins / 60.0);
+  var msg = '';
+
+  if (action === 'Clock In') {
+    if (timeVal < 6.5)        { msg="Fantastic start — you're early today! Keep it up."; }
+    else if (timeVal <= 7.66) { msg="Great, you are on time for the morning shift."; }
+    else if (timeVal < 11.0)  { msg="Note: Late for morning shift.<br><br><span style='color:var(--error-color);font-size:13px;display:block;'>Consistent lateness will be forwarded to management for review.</span>"; }
+    else if (timeVal < 14.0)  { msg="Early for the second shift. Great job!"; }
+    else if (timeVal <= 14.66){ msg="On time for the second shift. Have a productive afternoon!"; }
+    else                      { msg="Note: Late for afternoon shift."; }
+  } else {
+    if (hrs < 16) { msg="Have a wonderful afternoon!"; }
+    else          { msg="Have a restful night!"; }
+    
+    if (hrs >= 18) {
+      msg += "<br><br><span style='display:block;'>And remember to place your order.</span>";
+    }
+  }
+
+  document.getElementById('successBadge').textContent = action.toUpperCase();
+  document.getElementById('successBadge').style.background = action === 'Clock In' ? 'var(--success-color)' : 'var(--error-color)';
+  document.getElementById('successName').textContent = firstName;
+  document.getElementById('successMsg').innerHTML = msg;
+  
+  document.getElementById('mainFormAtt').style.display = 'none';
+  document.getElementById('attSuccessScreen').style.display = 'flex';
+  document.getElementById('mainContainer').style.overflow = 'auto';
 }
 </script>
 </body>
