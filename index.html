@@ -223,27 +223,14 @@ td.flavor-name { text-align: left; font-weight: 800; font-size: 11px; padding-le
 #branchSelectModal .modal-box { background:var(--bg-primary); padding:24px; border-radius:20px; text-align:center; max-width:320px; width:100%; box-shadow: 0 20px 40px rgba(0,0,0,0.2); max-height: 80vh; display: flex; flex-direction: column; }
 
 
-/* ==========================================
-   PERFECT CAMERA AND ZOOM BLUR (STACKING CONTEXT FIX)
-   ========================================== */
-#attendanceOverlay {
-  position: fixed; inset: 0; width: 100vw; height: 100vh;
-  background: rgba(0,0,0,0.65);
-  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-  z-index: 900; opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
-  transform: translate3d(0, 0, 0); 
-  -webkit-transform: translate3d(0, 0, 0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  will-change: opacity;
+#cameraBackdrop{ display:none;position:fixed;inset:0;z-index:59; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+#cameraBackdrop.show{ display:block; }
+#photoBackdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  z-index: 19999; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
 }
-#attendanceOverlay.show {
-  opacity: 1; pointer-events: auto;
-}
-.elevated-container {
-  z-index: 1000 !important; 
-  position: relative;
-}
+#photoBackdrop.show { opacity: 1; pointer-events: auto; }
 
 /* Styles for the Zoomed Photo Clone Appended directly to Body */
 .success-photo-clone {
@@ -276,7 +263,7 @@ td.flavor-name { text-align: left; font-weight: 800; font-size: 11px; padding-le
 @keyframes swing { 0% { transform: rotateX(0deg) rotateZ(0deg); } 20% { transform: rotateX(25deg) rotateZ(-3deg); } 40% { transform: rotateX(-15deg) rotateZ(2deg); } 60% { transform: rotateX(8deg) rotateZ(-1deg); } 80% { transform: rotateX(-3deg) rotateZ(0deg); } 100% { transform: rotateX(0deg) rotateZ(0deg); } }
 .hanging-sign.nudge { animation: swing 0.7s cubic-bezier(0.25, 1, 0.5, 1); }
 
-.att-container { width: 100%; aspect-ratio: 1 / 1; background:var(--bg-primary); padding:24px 22px; border-radius:24px; box-shadow:0 15px 35px var(--shadow-color); position:relative; overflow:hidden; display:flex; flex-direction:column; justify-content:center; transition: background 0.4s ease; z-index: 1;}
+.att-container { width: 100%; aspect-ratio: 1 / 1; background:var(--bg-primary); padding:24px 22px; border-radius:24px; box-shadow:0 15px 35px var(--shadow-color); position:relative; overflow:hidden; display:flex; flex-direction:column; justify-content:center; transition: background 0.4s ease; }
 
 #mainFormAtt { width: 100%; }
 .network-indicator{ position:absolute;top:18px;left:18px;width:8px;height:8px;border-radius:50%; background:var(--success-color);opacity:0.8;transition:background 0.4s ease; box-shadow: 0 0 6px var(--success-color); }
@@ -985,9 +972,8 @@ function downloadReceipt(btn) {
 
 <!-- ATTENDANCE VIEW -->
 <div id="view-attendance" class="view-section">
-  <!-- The overlay lives inside the same stacking context as the white attendance square -->
-  <div id="attendanceOverlay" onclick="closeOverlays()"></div>
-
+  <div id="cameraBackdrop" onclick="stopCamera()"></div>
+  <div id="photoBackdrop" onclick="toggleZoom()"></div>
 
   <div class="page-wrapper">
     <div class="hanging-sign-wrapper" id="signWrapper">
@@ -1087,7 +1073,8 @@ function closeOverlays() {
   if (document.getElementById('videoContainerWrapper').classList.contains('expanded')) {
      stopCamera();
   }
-  if (document.getElementById('zoomedClone')) {
+  var photoBackdrop = document.getElementById('photoBackdrop');
+  if (photoBackdrop && photoBackdrop.classList.contains('show')) {
      toggleZoom();
   }
 }
@@ -1205,28 +1192,15 @@ function showSuccess(id,txt){ var e=document.getElementById(id); e.innerHTML='<s
 function showError(id,txt)  { var e=document.getElementById(id); e.innerText=txt; e.className='att-msg error'; }
 function clearMsg(id)       { var e=document.getElementById(id); e.innerText=''; e.className='att-msg'; }
 
-// Full-screen pop-out zoom to fix CSS stacking constraints
 function toggleZoom() {
-  var overlay = document.getElementById('attendanceOverlay');
-  var clone = document.getElementById('zoomedClone');
-  
-  if (clone) { 
-      clone.style.transform = 'translate(-50%, -50%) scale(1)';
-      clone.style.opacity = '0';
-      overlay.classList.remove('show');
-      setTimeout(() => clone.remove(), 400);
-  } else { 
-      var img = document.getElementById('successPhoto');
-      clone = document.createElement('img');
-      clone.src = img.src;
-      clone.id = 'zoomedClone';
-      clone.className = 'success-photo-clone';
-      clone.onclick = toggleZoom;
-      document.body.appendChild(clone);
-      
-      void clone.offsetWidth; // Trigger reflow for transition
-      clone.classList.add('zoomed');
-      overlay.classList.add('show');
+  var img = document.getElementById('successPhoto');
+  var backdrop = document.getElementById('photoBackdrop');
+  if (img.classList.contains('zoomed')) {
+    img.classList.remove('zoomed');
+    backdrop.classList.remove('show');
+  } else {
+    img.classList.add('zoomed');
+    backdrop.classList.add('show');
   }
 }
 
@@ -1395,12 +1369,10 @@ function startCamera() {
       video.onloadedmetadata = function() {
         video.play().catch(function(){}); 
         
-        // The stacking fix
-        document.getElementById('attendanceOverlay').classList.add('show');
-        document.getElementById('mainContainer').classList.add('elevated-container');
-        document.getElementById('videoContainerWrapper').classList.add('expanded'); 
-        
+        document.getElementById('videoContainerWrapper').classList.add('expanded');
+        document.getElementById('cameraBackdrop').classList.add('show');
         video.classList.add('live'); 
+        
         btn.classList.remove('loading');
         btn.innerText = 'Take Selfie'; 
       };
@@ -1412,18 +1384,8 @@ function startCamera() {
 }
 
 function stopCamera() {
-  var wrapper = document.getElementById('videoContainerWrapper');
-  var container = document.getElementById('mainContainer');
-  var overlay = document.getElementById('attendanceOverlay');
-  
-  wrapper.classList.remove('expanded'); 
-  container.classList.remove('elevated-container');
-  
-  // Only turn off overlay if zoomed clone is not active
-  if (!document.getElementById('zoomedClone')) {
-      overlay.classList.remove('show');
-  }
-  
+  var wrapper = document.getElementById('videoContainerWrapper'), backdrop = document.getElementById('cameraBackdrop');
+  wrapper.classList.remove('expanded'); backdrop.classList.remove('show');
   var video = document.getElementById('cameraVideo');
   video.classList.remove('live');
   
