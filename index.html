@@ -347,7 +347,7 @@ var Storage = {
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwVy7MbFQmI6fVQM0ti52y05c0rc7-KvqUsU3Uq3WXzJ1CEqYP3vF0noIJbNtuL4nOT/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyOHinnhI5ORDdxxm4pJuMvETZWfZm2PqN6w5bp-Kxn6YMwsr_mHzbu3js8v6kTVAHkCA/exec";
 
 // ==========================================
 // NAVIGATION & MODULE SWITCHING
@@ -985,7 +985,8 @@ function downloadReceipt(btn) {
 
 <!-- ATTENDANCE VIEW -->
 <div id="view-attendance" class="view-section">
-  
+  <!-- The overlay lives inside the same stacking context as the white attendance square -->
+  <div id="attendanceOverlay" onclick="closeOverlays()"></div>
 
 
   <div class="page-wrapper">
@@ -1537,6 +1538,6 @@ function finishSubmission(action) {
   document.getElementById('attSuccessScreen').style.display = 'flex';
 }
 </script>
-<div id="attendanceOverlay" onclick="closeOverlays()"></div>
 </body>
 </html>
+
