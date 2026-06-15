@@ -58,13 +58,13 @@ body.theme-carrefour { --dynamic-primary: var(--theme-carr); --success-color:#3b
 .view-section.active { display: flex; animation: fadeIn 0.4s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Floating Back Pill */
+/* Floating Back Pill (Outside view-sections to prevent animation jumps) */
 .back-pill {
     position: fixed; bottom: 24px; left: 24px; z-index: 9999;
-    background: var(--dynamic-primary); color: #fff;
-    font-weight: 800; font-size: 14px; padding: 10px 20px;
-    border-radius: 50px; box-shadow: 0 4px 15px var(--shadow-color);
-    cursor: pointer; display: flex; align-items: center; gap: 6px;
+    background: var(--text-primary); color: var(--bg-primary);
+    font-weight: 800; font-size: 14px; padding: 12px 24px;
+    border-radius: 50px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    cursor: pointer; display: flex; align-items: center; gap: 8px;
     transition: transform 0.2s, background 0.4s ease;
     -webkit-tap-highlight-color: transparent;
 }
@@ -73,18 +73,23 @@ body.theme-carrefour { --dynamic-primary: var(--theme-carr); --success-color:#3b
 /* ==========================================
    MAIN MENU UI
    ========================================== */
-.hub-logo { font-size: 34px; font-weight: 900; color: #fff; margin-bottom: 20px; text-transform: uppercase; text-align: center; text-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-.menu-btn-container { display: flex; flex-direction: row; gap: 24px; width: 100%; align-items: center; justify-content: center; margin-top: 30px; }
-.menu-btn { width: 140px; height: 140px; aspect-ratio: 1; background: var(--bg-primary); color: var(--text-primary); border: none; border-radius: 35px; padding: 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; -webkit-tap-highlight-color: transparent; outline: none; }
-.menu-btn:active { transform: scale(0.92); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-.menu-btn .icon { font-size: 42px; margin-bottom: -5px; }
-.menu-btn .text { font-size: 16px; font-weight: 900; text-align: center; line-height: 1.1; }
+.menu-container { width: 100%; display: flex; flex-direction: column; align-items: center; max-width: 340px; }
+.hub-logo { font-size: 32px; font-weight: 900; color: #fff; text-transform: uppercase; text-align: center; text-shadow: 0 4px 10px rgba(0,0,0,0.2); margin-bottom: 8px; }
+.menu-subtitle { text-align: center; color: rgba(255,255,255,0.9); font-weight: 600; font-size: 15px; }
 
-@keyframes playfulDance { 0% { transform: translateY(0) rotate(0); } 25% { transform: translateY(-4px) rotate(-2deg); } 50% { transform: translateY(0) rotate(0); } 75% { transform: translateY(-4px) rotate(2deg); } 100% { transform: translateY(0) rotate(0); } }
-@keyframes excitedDance { 0% { transform: translateY(0) rotate(0) scale(1); } 25% { transform: translateY(-10px) rotate(-4deg) scale(1.05); } 50% { transform: translateY(0) rotate(0) scale(1); } 75% { transform: translateY(-10px) rotate(4deg) scale(1.05); } 100% { transform: translateY(0) rotate(0) scale(1); } }
-.menu-btn.playful { animation: playfulDance 2.5s ease-in-out infinite; }
-.menu-btn.excited { animation: excitedDance 0.5s ease-in-out infinite; }
-.menu-btn.settled { animation: none !important; transform: none; }
+.menu-cards { display: flex; flex-direction: column; gap: 20px; width: 100%; margin-top: 40px; }
+.menu-card { 
+  display: flex; align-items: center; background: var(--bg-primary); 
+  border-radius: 24px; padding: 20px; gap: 20px; width: 100%;
+  box-shadow: 0 15px 35px var(--shadow-color); border: 1px solid var(--border-color);
+  cursor: pointer; transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s; 
+  -webkit-tap-highlight-color: transparent;
+}
+.menu-card:active { transform: scale(0.96); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+.mc-icon { font-size: 32px; background: var(--button-secondary-bg); width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 16px; flex-shrink: 0;}
+.mc-content { display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
+.mc-content h3 { margin: 0 0 4px; font-size: 18px; font-weight: 800; color: var(--text-primary); }
+.mc-content p { margin: 0; font-size: 14px; font-weight: 600; color: var(--text-secondary); }
 
 /* ==========================================
    ORDER SCREEN UI
@@ -102,11 +107,16 @@ body.theme-carrefour { --dynamic-primary: var(--theme-carr); --success-color:#3b
 .order-grid { display: flex; gap: 12px; width: 100%; align-items: flex-end; }
 .order-grid > div { flex: 1; min-width: 0; }
 
-.order-label { font-weight:800; font-size:11px; display:block; margin-bottom:6px; color:var(--dynamic-primary); text-transform:uppercase; transition: color 0.4s ease;}
-.order-input, .order-textarea { width:100%; padding:14px 12px; border-radius:12px; border:2px solid var(--input-border); font-size:15px; background:var(--input-bg); color:var(--text-primary); outline:none; font-family: inherit; font-weight: 700; transition: border-color 0.2s, background 0.2s; }
+.order-label { font-weight:800; font-size:11px; display:block; margin-bottom:6px; color:var(--text-primary); text-transform:uppercase; transition: color 0.4s ease;}
+.order-input, .order-textarea { width:100%; padding:14px 12px; border-radius:12px; border:2px solid var(--input-border); font-size:15px; background:var(--input-bg); color:var(--dynamic-primary); outline:none; font-family: inherit; font-weight: 800; transition: border-color 0.2s, background 0.2s; }
 .order-input:read-only { background: var(--bg-secondary); color: var(--text-secondary); border-color: transparent; }
 .order-input:focus, .order-textarea:focus { border-color:var(--dynamic-primary); background: var(--bg-primary); box-shadow:0 0 0 3px rgba(16,185,129,0.1); }
 body.theme-carrefour .order-input:focus, body.theme-carrefour .order-textarea:focus {box-shadow:0 0 0 3px rgba(59,130,246,0.1)}
+
+::-webkit-input-placeholder { color: var(--text-tertiary); font-weight: 600; }
+::-moz-placeholder { color: var(--text-tertiary); font-weight: 600; }
+:-ms-input-placeholder { color: var(--text-tertiary); font-weight: 600; }
+::placeholder { color: var(--text-tertiary); font-weight: 600; }
 
 .btn-primary { width:100%; height:54px; border-radius:14px; border:none; font-size:16px; font-weight:800; margin-top: 8px; background:var(--text-primary); color:var(--bg-primary); cursor:pointer; display:flex; align-items:center; justify-content:center; transition: transform 0.1s, box-shadow 0.2s; }
 .tap-effect:active { transform: translateY(2px) scale(0.97); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
@@ -120,10 +130,10 @@ body.theme-carrefour .order-input:focus, body.theme-carrefour .order-textarea:fo
 .order-group-content { padding: 14px; border-top: 1px solid var(--border-color); }
 
 /* Juice Grid */
-.table-container { width: 100%; max-height: 480px; overflow: auto; border-radius: 12px; background: var(--bg-primary); border: 2px solid var(--border-color); margin-bottom: 15px;}
+.table-container { width: 100%; overflow-x: auto; overflow-y: hidden; border-radius: 12px; background: var(--bg-primary); border: 2px solid var(--dynamic-primary); margin-bottom: 15px;}
 table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: center; }
 th, td { padding: 8px 4px; border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); }
-th { background: var(--bg-secondary); font-weight: 900; color: var(--text-secondary); font-size: 12px; position: sticky; top: 0; z-index: 10; width: 35%; text-transform: uppercase;}
+th { background: var(--bg-secondary); font-weight: 900; color: var(--text-secondary); font-size: 12px; width: 35%; text-transform: uppercase;}
 th:first-child { width: 30%; position: sticky; left: 0; z-index: 12; border-right: 2px solid var(--border-color); }
 td.flavor-name { text-align: left; font-weight: 800; font-size: 11px; padding-left: 8px; white-space: nowrap; position: sticky; left: 0; background: var(--bg-primary); z-index: 11; border-right: 2px solid var(--border-color); line-height: 1.1;}
 
@@ -168,7 +178,7 @@ td.flavor-name { text-align: left; font-weight: 800; font-size: 11px; padding-le
 .page-wrapper { display: flex; flex-direction: column; align-items: center; margin-top: -24px; width: 100%; max-width: 400px; }
 .hanging-sign-wrapper { position: relative; margin-bottom: 44px; perspective: 800px; z-index: 10; width: 240px; }
 .chain { position: absolute; top: -30px; width: 5px; height: 34px; background: linear-gradient(to right, #9ca3af, #f3f4f6, #9ca3af); border-radius: 3px; box-shadow: inset 0 0 3px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2); z-index: 1; }
-.chain::before { content: ''; position: absolute; top: -6px; left: -2.5px; width: 10px; height: 10px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #e5e7eb, #9ca3af); border: 1px solid #6b7280; box-shadow: 0 8px 12px rgba(0,0,0,0.6), 0 3px 6px rgba(0,0,0,0.4); }
+.chain::before { content: ''; position: absolute; top: -6px; left: -3.5px; width: 12px; height: 12px; border-radius: 50%; background: var(--dynamic-primary); border: 3.5px solid #d1d5db; box-shadow: 0 8px 12px rgba(0,0,0,0.6), 0 3px 6px rgba(0,0,0,0.4), inset 0 2px 4px rgba(0,0,0,0.7); box-sizing: border-box; transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
 .left-chain { left: 40px; } .right-chain { right: 40px; }
 .hanging-sign { background: var(--bg-primary); color: var(--dynamic-primary); padding: 12px 10px; border-radius: 12px; font-weight: 900; font-size: 20px; text-transform: uppercase; letter-spacing: 2px; text-align: center; width: 100%; display: block; box-sizing: border-box; box-shadow: 0 10px 25px var(--shadow-color), inset 0 -3px 0 rgba(0,0,0,0.05); transform-origin: top center; transition: color 0.4s ease; position: relative; z-index: 2; }
 @keyframes swing { 0% { transform: rotateX(0deg) rotateZ(0deg); } 20% { transform: rotateX(25deg) rotateZ(-3deg); } 40% { transform: rotateX(-15deg) rotateZ(2deg); } 60% { transform: rotateX(8deg) rotateZ(-1deg); } 80% { transform: rotateX(-3deg) rotateZ(0deg); } 100% { transform: rotateX(0deg) rotateZ(0deg); } }
@@ -184,8 +194,8 @@ td.flavor-name { text-align: left; font-weight: 800; font-size: 11px; padding-le
 @keyframes spin{ to { transform: rotate(360deg); } }
 .step.activeStep{opacity:1;pointer-events:auto;animation:bounceIn 0.45s ease}
 
-.att-label{font-weight:600;font-size:12px;display:block;margin-bottom:6px;color:var(--dynamic-primary);text-transform:uppercase;letter-spacing:0.5px; transition: color 0.4s ease;}
-.att-input, .att-select{ width:100%;height:46px;padding:0 14px;border-radius:12px; border:1px solid var(--input-border);font-size:15px;background:var(--input-bg); color:var(--text-primary);transition:all 0.2s; -webkit-appearance:none; outline:none; font-family:inherit; font-weight:700;}
+.att-label{font-weight:600;font-size:12px;display:block;margin-bottom:6px;color:var(--text-primary);text-transform:uppercase;letter-spacing:0.5px; transition: color 0.4s ease;}
+.att-input, .att-select{ width:100%;height:46px;padding:0 14px;border-radius:12px; border:1px solid var(--input-border);font-size:15px;background:var(--input-bg); color:var(--dynamic-primary);transition:all 0.2s; -webkit-appearance:none; outline:none; font-family:inherit; font-weight:800;}
 .att-input:focus, .att-select:focus{border-color:var(--dynamic-primary);background:var(--bg-primary);box-shadow:0 0 0 3px rgba(16, 185, 129, 0.1)}
 body.theme-carrefour .att-input:focus, body.theme-carrefour .att-select:focus {box-shadow:0 0 0 3px rgba(59, 130, 246, 0.1)}
 .att-button{ width:100%;height:46px;border-radius:12px;border:none; font-size:14px;font-weight:700; background:var(--button-secondary-bg);color:var(--dynamic-primary); cursor:pointer;transition:transform 0.1s, opacity 0.2s, background 0.2s; }
@@ -213,16 +223,16 @@ body.theme-carrefour .att-input:focus, body.theme-carrefour .att-select:focus {b
 #closeCameraBtn{ position:absolute;top:16px;right:16px; width:36px;height:36px;border-radius:50%; background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.3); color:#fff;font-size:16px; cursor:pointer; display:flex;align-items:center;justify-content:center; z-index:6; -webkit-tap-highlight-color:transparent; }
 
 /* Att Success Screen */
-#attSuccessScreen{ display:none; flex-direction:column; align-items:center; justify-content:flex-start; padding: 12px 4px 8px; text-align:center; width:100%; height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-.success-photo{ width: 110px; height: 110px; object-fit: cover; border-radius: 50%; box-shadow: 0 0 0 4px var(--success-color); margin-bottom: 10px; animation: bounceIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); transition: transform 0.4s cubic-bezier(0.25, 1, 0.4, 1), border-radius 0.4s cubic-bezier(0.25, 1, 0.4, 1), box-shadow 0.4s ease; cursor: zoom-in; flex-shrink: 0; position: relative; z-index: 20000; -webkit-tap-highlight-color: transparent; }
+#attSuccessScreen{ display:none; flex-direction:column; align-items:center; justify-content:center; padding: 10px 4px; text-align:center; width:100%; }
+.success-photo{ width: 110px; height: 110px; object-fit: cover; border-radius: 50%; box-shadow: 0 0 0 4px var(--success-color); margin-bottom: 16px; animation: bounceIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); transition: transform 0.4s cubic-bezier(0.25, 1, 0.4, 1), border-radius 0.4s cubic-bezier(0.25, 1, 0.4, 1), box-shadow 0.4s ease; cursor: zoom-in; position: relative; z-index: 20000; -webkit-tap-highlight-color: transparent; }
 .success-photo.zoomed { transform: scale(2.6); border-radius: 8%; box-shadow: 0 0 0 1.5px var(--success-color), 0 10px 30px rgba(0,0,0,0.3); cursor: zoom-out; }
 #photoBackdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 19999; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
 #photoBackdrop.show { opacity: 1; pointer-events: auto; }
-.success-badge{ background:var(--dynamic-primary);color:#fff;font-size:13px;font-weight:800; text-transform:uppercase;padding:6px 20px;border-radius:999px; margin-bottom: 24px;display:inline-block;box-shadow:0 4px 10px rgba(0,0,0,0.1); flex-shrink: 0; animation:bounceIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.05s backwards; }
-.success-card{ background:var(--success-card-bg);border:1px solid var(--success-card-border); border-radius:20px;padding:24px 20px;width:100%;margin-bottom:20px; animation:bounceIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s backwards; flex-shrink: 0; }
+.success-badge{ background:var(--dynamic-primary);color:#fff;font-size:13px;font-weight:800; text-transform:uppercase;padding:6px 20px;border-radius:999px; margin-bottom: 24px;display:inline-block;box-shadow:0 4px 10px rgba(0,0,0,0.1); animation:bounceIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.05s backwards; }
+.success-card{ background:var(--success-card-bg);border:1px solid var(--success-card-border); border-radius:20px;padding:24px 20px;width:100%;margin-bottom:20px; animation:bounceIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s backwards; }
 .success-name{font-size:26px;font-weight:800;color:var(--dynamic-primary);margin-bottom:8px}
 .success-msg {font-size:15px;font-weight:600;color:var(--text-secondary);line-height:1.5; word-break: break-word;}
-.success-back{ width:100%;height:48px;background:var(--button-secondary-bg); color:var(--dynamic-primary);border:none;border-radius:12px; font-size:15px;font-weight:700;cursor:pointer; flex-shrink: 0; }
+.success-back{ width:100%;height:48px;background:var(--button-secondary-bg); color:var(--dynamic-primary);border:none;border-radius:12px; font-size:15px;font-weight:700;cursor:pointer; }
 
 #guideModal{ display:none;position:fixed;inset:0;background:var(--modal-overlay); z-index:19999;flex-direction:column;align-items:center;justify-content:center; padding:20px;backdrop-filter:blur(5px); -webkit-backdrop-filter:blur(5px); }
 #guideModal .modal-box{ background:var(--bg-primary);padding:28px;border-radius:20px; text-align:center;max-width:340px;width:100%; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
@@ -232,93 +242,116 @@ body.theme-carrefour .att-input:focus, body.theme-carrefour .att-select:focus {b
 </head>
 <body class="theme-hub">
 
+<!-- Floating Back Pill (Global) -->
+<div class="back-pill" id="globalBackBtn" onclick="goHome()" style="display: none;">
+  <span style="font-size: 16px; margin-right: 4px;">←</span> Menu
+</div>
+
 <script>
-// 🛑 PASTE YOUR WEB APP URL HERE
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwVy7MbFQmI6fVQM0ti52y05c0rc7-KvqUsU3Uq3WXzJ1CEqYP3vF0noIJbNtuL4nOT/exec";
-
-// ==========================================
-// SWIPE & DOUBLE TAP ANIMATION LOGIC (MAIN MENU)
-// ==========================================
-let touchStartX = 0, touchStartY = 0;
-let lastTapTime = 0;
-
-document.addEventListener('touchstart', e => {
-  touchStartX = e.changedTouches[0].screenX; touchStartY = e.changedTouches[0].screenY;
-}, {passive: true});
-
-document.addEventListener('touchend', e => {
-  const isMenu = document.getElementById('view-menu').classList.contains('active');
-  if(!isMenu) return;
-
-  const currentTime = new Date().getTime();
-  const tapLength = currentTime - lastTapTime;
-  
-  if (tapLength < 500 && tapLength > 0) {
-    document.querySelectorAll('.menu-btn').forEach(btn => {
-      btn.classList.remove('playful', 'excited');
-      btn.classList.add('settled');
-    });
-    lastTapTime = currentTime;
-    return;
-  }
-  lastTapTime = currentTime;
-
-  let touchEndX = e.changedTouches[0].screenX; let touchEndY = e.changedTouches[0].screenY;
-  if(!e.target.closest('.menu-btn')) {
-    if(Math.abs(touchEndX - touchStartX) > 40 || Math.abs(touchEndY - touchStartY) > 40) {
-      document.querySelectorAll('.menu-btn').forEach(btn => {
-        btn.classList.remove('playful', 'settled');
-        btn.classList.add('excited');
-      });
-      clearTimeout(window.swipeExcitement);
-      window.swipeExcitement = setTimeout(() => {
-        document.querySelectorAll('.menu-btn').forEach(btn => {
-           if(btn.classList.contains('excited')) {
-             btn.classList.remove('excited'); 
-             btn.classList.add('playful');
-           }
-        });
-      }, 2500);
-    }
-  }
-}, {passive: true});
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyOHinnhI5ORDdxxm4pJuMvETZWfZm2PqN6w5bp-Kxn6YMwsr_mHzbu3js8v6kTVAHkCA/exec";
 
 // ==========================================
 // NAVIGATION & MODULE SWITCHING
 // ==========================================
 let activeStore = 'chandarana'; 
+
+// Tracks order inputs so users don't lose progress when switching tabs
+let orderState = {
+  chandarana: { id: '', notes: '', juices: {}, fresh: [], bottles: [], haccp: [] },
+  carrefour: { id: '', notes: '', juices: {}, fresh: [], bottles: [], haccp: [] }
+};
+
 function hideAllViews() { document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active')); }
+
 function goHome() { 
   hideAllViews(); 
   document.body.className = 'theme-hub'; 
   document.getElementById('view-menu').classList.add('active'); 
-  
-  document.querySelectorAll('.menu-btn').forEach(btn => {
-      if(!btn.classList.contains('settled')) btn.classList.add('playful');
-  });
-
+  document.getElementById('globalBackBtn').style.display = 'none';
   if(typeof stopCamera === 'function') stopCamera(); 
   var meta = document.getElementById('theme-color-meta');
   if (meta) meta.setAttribute('content', '#059669');
 }
 
+function resetOrderState() {
+  orderState = {
+    chandarana: { id: '', notes: '', juices: {}, fresh: [], bottles: [], haccp: [] },
+    carrefour: { id: '', notes: '', juices: {}, fresh: [], bottles: [], haccp: [] }
+  };
+}
+
+function saveOrderState() {
+  if (!activeStore) return;
+  const s = orderState[activeStore];
+  const idEl = document.getElementById('o-id');
+  if(idEl) s.id = idEl.value;
+  const noteEl = document.getElementById('o-notes');
+  if(noteEl) s.notes = noteEl.value;
+  
+  s.juices = {};
+  document.querySelectorAll('.juice-input').forEach(el => {
+    s.juices[`${el.getAttribute('data-flavor')}_${el.getAttribute('data-vol')}`] = el.getAttribute('data-val');
+  });
+  
+  s.fresh = Array.from(document.querySelectorAll('.inp-fresh')).map(el => ({val: el.value, checked: el.checked}));
+  s.bottles = Array.from(document.querySelectorAll('.inp-bottle')).map(el => ({val: el.value, checked: el.checked}));
+  s.haccp = Array.from(document.querySelectorAll('.inp-haccp')).map(el => ({val: el.value, checked: el.checked}));
+}
+
+function restoreOrderState() {
+  if (!activeStore) return;
+  const s = orderState[activeStore];
+  document.getElementById('o-id').value = s.id || '';
+  document.getElementById('o-notes').value = s.notes || '';
+  
+  Object.keys(s.juices).forEach(key => {
+    const parts = key.split('_');
+    const el = document.querySelector(`.juice-input[data-flavor="${parts[0]}"][data-vol="${parts[1]}"]`);
+    if(el) {
+       el.setAttribute('data-val', s.juices[key]);
+       el.innerText = s.juices[key] === '0' ? '-' : s.juices[key];
+       el.classList.toggle('has-value', s.juices[key] > 0);
+    }
+  });
+  
+  s.fresh.forEach(item => { const el = document.querySelector(`.inp-fresh[value="${item.val}"]`); if(el) el.checked = item.checked; });
+  s.bottles.forEach(item => { const el = document.querySelector(`.inp-bottle[value="${item.val}"]`); if(el) el.checked = item.checked; });
+  s.haccp.forEach(item => { const el = document.querySelector(`.inp-haccp[value="${item.val}"]`); if(el) el.checked = item.checked; });
+  
+  instantOrderStaffCheck(s.id || ''); 
+}
+
 function openOrder() {
-  hideAllViews(); document.getElementById('view-orders').classList.add('active');
-  document.getElementById('orderForm').reset(); document.getElementById('orderForm').style.display = 'block';
-  document.getElementById('orderSuccessScreen').classList.remove('active'); document.getElementById('o-staffMsg').innerHTML = '';
+  hideAllViews(); 
+  document.getElementById('view-orders').classList.add('active');
+  document.getElementById('globalBackBtn').style.display = 'flex';
+  
+  document.getElementById('orderForm').reset(); 
+  document.getElementById('orderForm').style.display = 'block';
+  document.getElementById('orderSuccessScreen').classList.remove('active'); 
+  document.getElementById('o-staffMsg').innerHTML = '';
   document.getElementById('o-expanded-fields').classList.remove('revealed');
   document.getElementById('o-locked-section').classList.remove('unlocked');
   document.getElementById('o-name-container').style.opacity = '0';
   document.getElementById('o-name-container').style.pointerEvents = 'none';
+  
+  resetOrderState();
+  activeStore = 'chandarana';
   switchTerminal('chandarana', 'order');
 }
 
 function openAttendance() {
-  hideAllViews(); document.getElementById('view-attendance').classList.add('active');
+  hideAllViews(); 
+  document.getElementById('view-attendance').classList.add('active');
+  document.getElementById('globalBackBtn').style.display = 'flex';
   attSwitchTerminal('chandarana'); 
 }
 
 function switchTerminal(store, module) {
+  if (module === 'order' && document.getElementById('view-orders').classList.contains('active')) {
+    saveOrderState();
+  }
+  
   activeStore = store;
   document.body.className = store === 'chandarana' ? 'theme-chandarana' : 'theme-carrefour';
   var isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -334,12 +367,8 @@ function switchTerminal(store, module) {
     activeBtn.classList.remove('nudge-anim'); void activeBtn.offsetWidth; activeBtn.classList.add('nudge-anim');
     setTimeout(() => { const sl = document.getElementById('o-pillSlider'); if (activeBtn && sl) { sl.style.width = activeBtn.offsetWidth + 'px'; sl.style.left = activeBtn.offsetLeft + 'px'; } }, 50);
 
-    document.getElementById('o-id').value = ''; document.getElementById('o-name').value = ''; document.getElementById('o-branch').value = ''; document.getElementById('o-phone').value = ''; document.getElementById('o-staffMsg').innerHTML = '';
-    document.getElementById('o-expanded-fields').classList.remove('revealed');
-    document.getElementById('o-locked-section').classList.remove('unlocked');
-    document.getElementById('o-name-container').style.opacity = '0';
-    document.getElementById('o-name-container').style.pointerEvents = 'none';
     renderDynamicOrderContent();
+    restoreOrderState();
   }
 }
 
@@ -380,6 +409,14 @@ function instantOrderStaffCheck(val) {
   
   const match = orderStaffCache.find(s => s.id === val);
   if(match) {
+    if (match.shop !== activeStore) {
+       msgDiv.innerHTML = `ID belongs to ${match.shop === 'chandarana' ? 'Chandarana' : 'Carrefour'} team`; 
+       msgDiv.className = 'msg error';
+       nameCont.style.opacity = '0'; nameCont.style.pointerEvents = 'none';
+       expFields.classList.remove('revealed'); lockedSec.classList.remove('unlocked');
+       return;
+    }
+
     msgDiv.innerHTML = '✓ ID Verified'; msgDiv.className = 'msg success';
     currentOrderStaffFullname = match.name;
     const firstName = match.name.split(' ')[0] || match.name;
@@ -409,30 +446,27 @@ function toggleFullName() {
 const JUICES = { chandarana: ["ORANGE", "TROPICAL MIX", "MANGO", "PASSION", "APPLE GINGER", "TREE TOMATO", "PINEAPPLE MINT", "LIME & GINGER", "APPLEJUICE", "LIMEJUICE", "HIBISCUS", "TAMARIND", "ALOE VERA", "BEETROOT", "TANGERINE", "GINGER PLAIN", "CARROT"], carrefour: ["ORANGE", "TROPICAL MIX", "MANGO", "PASSION", "APPLE GINGER", "TREE TOMATO", "PINEAPPLE MINT", "LIME & GINGER", "TAMARIND", "CARROT", "BEETROOT"] };
 const VOLUMES = ["5L", "3L"];
 
-function checkJuiceExclusivity(el) {
+function handleJuiceExclusivity(el) {
   const flavor = el.getAttribute('data-flavor');
   const vol = el.getAttribute('data-vol');
   const otherVol = vol === '5L' ? '3L' : '5L';
   const otherEl = document.querySelector(`.juice-input[data-flavor="${flavor}"][data-vol="${otherVol}"]`);
   
   if (otherEl && parseInt(otherEl.getAttribute('data-val')) > 0) {
-      otherEl.style.boxShadow = '0 0 0 4px var(--error-color)';
-      setTimeout(() => otherEl.style.boxShadow = '', 400);
-      return true;
+      otherEl.setAttribute('data-val', 0);
+      otherEl.innerText = '-';
+      otherEl.classList.remove('has-value');
   }
-  return false;
 }
 
 function handleJuicePointerDown(e, step) {
   e.preventDefault(); 
   const el = e.currentTarget;
-  if (checkJuiceExclusivity(el)) return;
   
   el.classList.add('editing');
   el.pressTimer = setTimeout(() => {
       el.isLong = true;
       el.classList.remove('editing');
-      if (checkJuiceExclusivity(el)) return;
       
       let val = prompt("Edit exact quantity (or 0 to clear):", el.getAttribute('data-val') || "0");
       if(val !== null && val !== "") {
@@ -441,6 +475,8 @@ function handleJuicePointerDown(e, step) {
               el.setAttribute('data-val', num);
               el.innerText = num === 0 ? '-' : num;
               el.classList.toggle('has-value', num > 0);
+              
+              if (num > 0) handleJuiceExclusivity(el);
           }
       }
   }, 400);
@@ -452,14 +488,14 @@ function handleJuicePointerUp(e, step) {
   el.classList.remove('editing');
   clearTimeout(el.pressTimer);
   if(!el.isLong) {
-      if (checkJuiceExclusivity(el)) return;
-      
       let currentVal = parseInt(el.getAttribute('data-val')) || 0;
       currentVal += step;
       if(currentVal > 60) currentVal = 0;
       el.setAttribute('data-val', currentVal);
       el.innerText = currentVal === 0 ? '-' : currentVal;
       el.classList.toggle('has-value', currentVal > 0);
+      
+      if (currentVal > 0) handleJuiceExclusivity(el);
   }
   el.isLong = false;
 }
@@ -557,29 +593,42 @@ async function submitOrder(e) {
     const storeCap = activeStore === 'chandarana' ? 'Chandarana' : 'Carrefour';
     await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: 'saveOrder', store: storeCap, data: payload }) });
     document.getElementById('orderForm').style.display = 'none'; document.getElementById('orderSuccessScreen').classList.add('active');
+    
+    // Safely clear state for this specific store upon success
+    orderState[activeStore] = { id: '', notes: '', juices: {}, fresh: [], bottles: [], haccp: [] };
+
   } catch (error) { alert("Error sending order. Check connection."); }
   btn.disabled = false; btn.innerText = 'Submit Order';
 }
 </script>
 
 <!-- MENU VIEW -->
-<div id="view-menu" class="view-section active">
-  <div class="hub-logo">Stentor Ent Ltd.</div>
-  <div class="menu-btn-container">
-    <button class="menu-btn playful" onclick="openOrder()">
-      <div class="icon">🛒</div>
-      <div class="text">Place Order</div>
-    </button>
-    <button class="menu-btn playful" onclick="openAttendance()">
-      <div class="icon">⏰</div>
-      <div class="text">Clock<br>In / Out</div>
-    </button>
+<div id="view-menu" class="view-section active" style="align-items: center; justify-content: center; padding-top: 10px;">
+  <div class="menu-container">
+    <div class="hub-logo">STENTOR OPS</div>
+    <div class="menu-subtitle">Select a module</div>
+    
+    <div class="menu-cards">
+      <div class="menu-card tap-effect" onclick="openOrder()">
+        <div class="mc-icon">🛒</div>
+        <div class="mc-content">
+          <h3>Place Order</h3>
+          <p>Juice orders & supplies</p>
+        </div>
+      </div>
+      <div class="menu-card tap-effect" onclick="openAttendance()">
+        <div class="mc-icon">⏰</div>
+        <div class="mc-content">
+          <h3>Attendance</h3>
+          <p>Clock In / Out with Selfie</p>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
 <!-- ORDERS VIEW -->
 <div id="view-orders" class="view-section">
-  <div class="back-pill" onclick="goHome()">← Menu</div>
   <div class="order-container scrollable-container">
     <div class="top-bar">
       <div class="terminal-pill-wrapper">
@@ -640,8 +689,6 @@ async function submitOrder(e) {
 
 <!-- ATTENDANCE VIEW -->
 <div id="view-attendance" class="view-section">
-  <div class="back-pill" onclick="goHome()">← Menu</div>
-  
   <div id="cameraBackdrop" onclick="stopCamera()"></div>
   <div id="photoBackdrop" onclick="toggleZoom()"></div>
 
@@ -739,17 +786,23 @@ var activeFetchId = 0, currentAction = "", videoStream = null;
 var staffRestrictionError = null; 
 var warningTimer = null;
 
-// Ensure persistent memory respects midnight
-function cleanOldHistory() { 
-  var today = new Date().toDateString(); 
-  var histRaw = Storage.get('local_history_' + currentTerminal); 
-  if (histRaw) { 
-    try { 
-      var history = JSON.parse(histRaw); var updated = false; 
-      for (var key in history) { if (!key.endsWith(today)) { delete history[key]; updated = true; } } 
-      if (updated) Storage.set('local_history_' + currentTerminal, JSON.stringify(history)); 
-    } catch(e){} 
-  } 
+function cleanOldHistory() {
+  var histRaw = Storage.get('local_history_' + currentTerminal);
+  if (histRaw) {
+    try {
+      var history = JSON.parse(histRaw);
+      var updated = false;
+      var todayStr = new Date().toDateString();
+      for (var key in history) {
+        var entry = history[key];
+        if (!entry || typeof entry !== 'object' || entry.dateStr !== todayStr) {
+          delete history[key];
+          updated = true;
+        }
+      }
+      if (updated) Storage.set('local_history_' + currentTerminal, JSON.stringify(history));
+    } catch(e) {}
+  }
 }
 
 function processSyncQueue() { 
@@ -763,9 +816,7 @@ function processSyncQueue() {
       var currentQ = JSON.parse(Storage.get('sync_queue') || '[]'); 
       currentQ.shift(); Storage.set('sync_queue', JSON.stringify(currentQ)); 
       processSyncQueue(); 
-    }).catch(function(e) { 
-      // Fails silently, will retry later. Protects UI
-    }); 
+    }).catch(function(e) {}); 
   } catch(e) {} 
 }
 
@@ -786,6 +837,7 @@ function updateTerminalUIAtt() {
   document.getElementById('btn-carrefour').classList.toggle('active',  currentTerminal === 'carrefour');
   requestAnimationFrame(function() { requestAnimationFrame(function() { var ab = document.querySelector('#view-attendance .pill-btn.active'), sl = document.getElementById('pillSlider'); if (ab && sl) { sl.style.width = ab.offsetWidth + 'px'; sl.style.left = ab.offsetLeft + 'px'; } }); });
 }
+
 function attSwitchTerminal(term) {
   if (currentTerminal === term && document.getElementById('view-attendance').classList.contains('active')) { triggerSignAnimation(); return; }
   currentTerminal = term; Storage.set('selected_terminal', term);
@@ -871,39 +923,36 @@ function handleStaffInputValue(val) {
   
   if (match) {
     staffName = match.name; 
-    var todayKey = new Date().toDateString(); 
+    
     var historyRaw = Storage.get('local_history_' + currentTerminal);
     var history = historyRaw ? JSON.parse(historyRaw) : {}; 
-    var historyEntry = history[match.id + '_' + todayKey];
+    var todayStr = new Date().toDateString();
+    var updatedHist = false;
     
-    var lastAction = match.status; 
+    for (var k in history) {
+      if (!history[k] || typeof history[k] !== 'object' || history[k].dateStr !== todayStr) {
+        delete history[k];
+        updatedHist = true;
+      }
+    }
+    if (updatedHist) Storage.set('local_history_' + currentTerminal, JSON.stringify(history));
+    
+    var historyEntry = history[match.id];
+    var lastAction = null; 
     var lastTime = null;
 
     if (historyEntry) {
-      if (typeof historyEntry === 'string') {
-        lastAction = historyEntry;
-      } else {
-        lastAction = historyEntry.action;
-        lastTime = historyEntry.time;
-      }
+      lastAction = historyEntry.action;
+      lastTime = historyEntry.time;
     }
 
     if (lastAction === 'Clock Out') {
       staffRestrictionError = 'You have completed today\'s attendance.';
-    }
-    
-    if (lastAction === 'Clock In') {
+    } else if (lastAction === 'Clock In') {
       if (lastTime) {
-        var inDate = new Date(lastTime);
-        var inHour = inDate.getHours() + (inDate.getMinutes() / 60);
-        var now = new Date();
-        var currentHour = now.getHours() + (now.getMinutes() / 60);
-        
-        var isMorningShift = (inHour < 12.0); 
-        if (isMorningShift) {
-          if (currentHour < 14.0) { staffRestrictionError = 'Morning Shift: Cannot clock out before 2:00 PM.'; }
-        } else {
-          if (currentHour < 18.0) { staffRestrictionError = 'Cannot clock out before time.'; }
+        var diffHours = (Date.now() - lastTime) / (1000 * 60 * 60);
+        if (diffHours < 5) {
+          staffRestrictionError = 'Cannot clock out before time.';
         }
       }
       currentAction = 'Clock Out';
@@ -943,6 +992,41 @@ function showGuideModal(type) {
   modal.style.display = 'flex';
 }
 
+function doVerifyGPS(isRetry) {
+  document.getElementById('gpsMsg').innerText = 'Locating…'; document.getElementById('gpsMsg').className = 'att-msg';
+  if (!navigator.geolocation) { showError('gpsMsg','GPS not supported on this device.'); return; }
+
+  navigator.geolocation.getCurrentPosition(
+    function(pos) {
+      coords = pos.coords; var b=null, bv=document.getElementById('branch').value;
+      for (var i=0;i<branches.length;i++) { if (branches[i][0]===bv){ b=branches[i]; break; } }
+      if (!b) { showError('gpsMsg','Select branch first.'); return; }
+      
+      var R=6371e3, dLat=(b[1]-coords.latitude)*Math.PI/180, dLon=(b[2]-coords.longitude)*Math.PI/180,
+          a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(coords.latitude*Math.PI/180)*Math.cos(b[1]*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2),
+          dist=R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+          
+      var maxDist = isRetry ? 350 : 250;
+      
+      if (dist > maxDist) {
+         if (!isRetry && navigator.onLine) {
+             setTimeout(function() { doVerifyGPS(true); }, 500);
+         } else {
+             showError('gpsMsg', dist>1000 ? 'Too far ('+(dist/1000).toFixed(1)+'km)' : 'Too far ('+Math.round(dist)+'m) — move closer');
+         }
+      } else { 
+        showSuccess('gpsMsg','Location Verified'); 
+        activateStep(4); 
+      }
+    },
+    function(err){ 
+      if(err.code===1) { showGuideModal('gps'); } 
+      else { if (!isRetry && navigator.onLine) { setTimeout(function() { doVerifyGPS(true); }, 500); } else { showGuideModal('gps_signal'); } } 
+    }, 
+    {enableHighAccuracy:true, timeout:15000, maximumAge: isRetry ? 0 : 30000}
+  );
+}
+
 function verifyGPS() {
   if (staffRestrictionError) {
     var msgEl = document.getElementById('staffMsg');
@@ -964,20 +1048,8 @@ function verifyGPS() {
     }, 300);
     return;
   }
-
-  document.getElementById('gpsMsg').innerText = 'Locating…'; document.getElementById('gpsMsg').className = 'att-msg';
-  if (!navigator.geolocation) { showError('gpsMsg','GPS not supported.'); return; }
-  navigator.geolocation.getCurrentPosition(
-    function(pos) {
-      coords = pos.coords; var b=null, bv=document.getElementById('branch').value;
-      for (var i=0;i<branches.length;i++) { if (branches[i][0]===bv){ b=branches[i]; break; } }
-      if (!b) { showError('gpsMsg','Select branch first.'); return; }
-      var R=6371e3, dLat=(b[1]-coords.latitude)*Math.PI/180, dLon=(b[2]-coords.longitude)*Math.PI/180, a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(coords.latitude*Math.PI/180)*Math.cos(b[1]*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2), dist=R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-      if (dist > 250) showError('gpsMsg', dist>1000 ? 'Too far ('+(dist/1000).toFixed(1)+'km)' : 'Too far ('+Math.round(dist)+'m) — move closer');
-      else { showSuccess('gpsMsg','Location Verified'); activateStep(4); }
-    },
-    function(err){ if(err.code===1) showGuideModal('gps'); else showGuideModal('gps_signal'); }, {enableHighAccuracy:true, timeout:15000, maximumAge:60000}
-  );
+  
+  doVerifyGPS(false);
 }
 
 function startCamera() {
@@ -1010,15 +1082,18 @@ function startCamera() {
 }
 
 function stopCamera() {
-  if (videoStream) { videoStream.getTracks().forEach(function(t) { t.stop(); }); videoStream = null; }
-  
-  document.getElementById('videoContainerWrapper').classList.remove('expanded'); 
-  document.getElementById('cameraBackdrop').classList.remove('show');
-  
+  var wrapper = document.getElementById('videoContainerWrapper'), backdrop = document.getElementById('cameraBackdrop');
+  wrapper.classList.remove('expanded'); backdrop.classList.remove('show');
   var video = document.getElementById('cameraVideo');
   video.classList.remove('live');
+  
   var btn = document.getElementById('openCameraBtn');
   if (btn && !btn.classList.contains('loading')) btn.textContent = 'Take Selfie';
+  
+  setTimeout(function() {
+    if (videoStream) { videoStream.getTracks().forEach(function(t){ t.stop(); }); videoStream = null; }
+    video.srcObject = null;
+  }, 300);
 }
 
 function capturePhoto() {
@@ -1062,6 +1137,12 @@ function capturePhoto() {
   submitAttendance();
 }
 
+function queueSubmission(payload) {
+  var queue = JSON.parse(Storage.get('sync_queue') || '[]');
+  queue.push(payload); Storage.set('sync_queue', JSON.stringify(queue));
+  processSyncQueue();
+}
+
 function submitAttendance() {
   showSuccess('cameraMsg', 'Submitting...');
   var branch = document.getElementById('branch').value, staffID = document.getElementById('staffID').value;
@@ -1069,27 +1150,20 @@ function submitAttendance() {
   
   Storage.set('last_staff_id_' + currentTerminal, staffID);
   
-  var todayKey = new Date().toDateString();
   var histRaw = Storage.get('local_history_' + currentTerminal);
   var history = histRaw ? JSON.parse(histRaw) : {};
-  history[staffID + '_' + todayKey] = { action: currentAction, time: Date.now() };
+  history[staffID] = { action: currentAction, time: Date.now(), dateStr: new Date().toDateString() };
   Storage.set('local_history_' + currentTerminal, JSON.stringify(history));
   
   for (var i=0; i<staff.length; i++) { if (staff[i].id === staffID) { staff[i].status = currentAction; break; } }
   
   var payload = { 
     id: staffID, name: staffName, branch: branch, action: currentAction, image: photo, 
-    lat: coords ? coords.latitude : 0, lng: coords ? coords.longitude : 0 
+    lat: coords ? coords.latitude : 0, lng: coords ? coords.longitude : 0,
+    clientTimestamp: new Date().toISOString()
   };
   
-  if (navigator.onLine) {
-    fetchFromServer('recordAttendance', payload).catch(function() {
-      var q = JSON.parse(Storage.get('sync_queue') || '[]'); q.push(payload); Storage.set('sync_queue', JSON.stringify(q));
-    });
-  } else {
-    var q = JSON.parse(Storage.get('sync_queue') || '[]'); q.push(payload); Storage.set('sync_queue', JSON.stringify(q));
-  }
-
+  queueSubmission(payload);
   finishSubmission(currentAction);
 }
 
@@ -1119,9 +1193,9 @@ function finishSubmission(action) {
   document.getElementById('successName').textContent = firstName;
   document.getElementById('successMsg').innerHTML = msg;
   
+  document.getElementById('mainContainer').style.overflow = 'visible';
   document.getElementById('mainFormAtt').style.display = 'none';
   document.getElementById('attSuccessScreen').style.display = 'flex';
-  document.getElementById('mainContainer').style.overflow = 'auto';
 }
 </script>
 </body>
