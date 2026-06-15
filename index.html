@@ -8,8 +8,18 @@
 <meta name="theme-color" id="theme-color-meta" content="#059669">
 <title>Stentor Operations</title>
 
-<!-- PDF Generation Library for Beautiful Custom Export -->
+<!-- PDF Generation Library for Orders -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script>
+  (function() {
+    try {
+      var isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var meta = document.getElementById('theme-color-meta');
+      if (meta) meta.setAttribute('content', isDark ? '#059669' : '#10b981');
+    } catch(e) {}
+  })();
+</script>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;900&display=swap');
@@ -22,11 +32,11 @@
   --success-color:#10b981; --error-color:#ef4444;
   --warning-bg:#fef2f2; --warning-border:#fecaca; --warning-text:#b91c1c;
   --success-card-bg:#f0fdf4; --success-card-border:#bbf7d0;
-  --theme-chan:#10b981; --theme-carr:#3b82f6;
-  --dynamic-primary: var(--theme-chan);
-  --shadow-color:rgba(0,0,0,0.1);
+  --modal-overlay:rgba(0,0,0,0.65); --shadow-color:rgba(0,0,0,0.1);
   --label-text:#6b7280;
-  --modal-overlay:rgba(0,0,0,0.65);
+  
+  --theme-chan:#10b981; --theme-carr:#3b82f6; 
+  --dynamic-primary:var(--theme-chan);
 }
 
 @media (prefers-color-scheme:dark) {
@@ -40,287 +50,152 @@
     --success-card-bg:#064e3b; --success-card-border:#065f46;
     --modal-overlay:rgba(0,0,0,0.85); --shadow-color:rgba(0,0,0,0.5);
     --label-text:#9ca3af;
+    --theme-chan:#059669; --theme-carr:#2563eb; 
   }
 }
 
-*,*::before,*::after{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
-  -webkit-tap-highlight-color: transparent; 
-}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color: transparent;}
 
-/* Global text selection prevention */
 body {
   font-family: 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-  color:var(--text-primary); 
-  min-height:100vh; min-height:100dvh; display:flex; flex-direction:column; align-items:center; justify-content:center;
-  padding: env(safe-area-inset-top, 16px) 12px env(safe-area-inset-bottom, 16px);
-  overflow-y:auto; -webkit-overflow-scrolling:touch; transition: background-color 0.3s ease;
-  background-color: var(--dynamic-primary); position: relative;
-  -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
-  -webkit-touch-callout: none;
+  color:var(--text-primary); background-color: var(--dynamic-primary);
+  min-height:100vh; min-height:100dvh; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; 
+  padding:env(safe-area-inset-top, 16px) 12px env(safe-area-inset-bottom, 16px); 
+  overflow-y:auto; -webkit-overflow-scrolling:touch;
+  transition: background-color 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-user-select: none; user-select: none;
 }
+input, textarea, select { -webkit-user-select: auto; user-select: auto; }
 
-input, textarea, select {
-  -webkit-user-select: auto; -moz-user-select: auto; -ms-user-select: auto; user-select: auto;
-}
-
-/* Background overlay completely hidden unless theme-hub */
-body::before {
-  content: ""; position: fixed; inset: 0;
-  background: linear-gradient(135deg, #059669 0%, #2563eb 100%);
-  opacity: 0; visibility: hidden; z-index: -1; 
-  transition: opacity 0.3s ease, visibility 0.3s ease; pointer-events: none;
-}
+/* THEME HANDLING */
+body::before { content: ""; position: fixed; inset: 0; background: linear-gradient(135deg, #059669 0%, #2563eb 100%); opacity: 0; visibility: hidden; z-index: -1; transition: opacity 0.3s ease; pointer-events: none; }
 body.theme-hub { background-color: var(--bg-primary); }
 body.theme-hub::before { opacity: 1; visibility: visible; }
+body.theme-chandarana{--dynamic-primary:var(--theme-chan)}
+body.theme-carrefour {--dynamic-primary:var(--theme-carr);--success-color:#3b82f6}
 
-body.theme-chandarana { background-color: var(--theme-chan); --dynamic-primary: var(--theme-chan); }
-body.theme-carrefour { background-color: var(--theme-carr); --dynamic-primary: var(--theme-carr); --success-color:#3b82f6; }
-
-/* INSTANT SMOOTH TRANSITIONS */
+/* GLOBAL UI */
 .view-section { display: none; width: 100%; max-width: 440px; flex-direction: column; align-items: center; position: relative; opacity: 0; transform: translateY(15px); }
 .view-section.active { display: flex; opacity: 1; animation: sectionFadeIn 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
-@keyframes sectionFadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: none !important; } }
+@keyframes sectionFadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: none; } }
+@keyframes bounceIn{ 0%{transform:scale(0.9);opacity:0} 60%{transform:scale(1.05)} 100%{transform:scale(1);opacity:1} }
+@keyframes spin{ to { transform: rotate(360deg); } }
 
-/* Floating Back Pill */
-.back-pill {
-    position: fixed; bottom: 24px; left: 24px; z-index: 9999;
-    background: var(--dynamic-primary); color: #fff;
-    font-weight: 800; font-size: 15px; padding: 14px 26px;
-    border-radius: 50px; box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-    cursor: pointer; display: flex; align-items: center; gap: 8px;
-    transition: transform 0.2s, background 0.4s ease, opacity 0.3s ease;
-    opacity: 0; pointer-events: none;
-}
+.back-pill { position: fixed; bottom: 24px; left: 24px; z-index: 9999; background: var(--dynamic-primary); color: #fff; font-weight: 800; font-size: 15px; padding: 14px 26px; border-radius: 50px; box-shadow: 0 8px 20px rgba(0,0,0,0.25); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.3s; opacity: 0; pointer-events: none; }
 .back-pill.show { opacity: 1; pointer-events: auto; }
 .back-pill:active { transform: scale(0.92); }
 
-/* ==========================================
-   MAIN MENU UI
-   ========================================== */
+/* HUB MENU */
 .menu-container { width: 100%; display: flex; flex-direction: column; align-items: center; max-width: 340px; z-index: 2; }
-.hub-logo { font-size: 36px; font-weight: 900; color: #fff; text-transform: uppercase; text-align: center; text-shadow: 0 4px 10px rgba(0,0,0,0.2); margin-bottom: 6px; }
-.menu-subtitle { text-align: center; color: rgba(255,255,255,0.9); font-weight: 700; font-size: 16px; margin-bottom: 10px; }
-
-.menu-cards { display: flex; flex-direction: column; gap: 20px; width: 100%; margin-top: 30px; }
-.menu-card { 
-  display: flex; align-items: center; background: var(--bg-primary); 
-  border-radius: 24px; padding: 22px; gap: 20px; width: 100%;
-  box-shadow: 0 15px 35px var(--shadow-color); border: 1px solid var(--border-color);
-  cursor: pointer; transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s; 
-  opacity: 0;
-}
+.hub-logo { font-size: 36px; font-weight: 900; color: #fff; text-shadow: 0 4px 10px rgba(0,0,0,0.2); margin-bottom: 6px; }
+.menu-subtitle { color: rgba(255,255,255,0.9); font-weight: 700; font-size: 16px; margin-bottom: 30px; }
+.menu-card { display: flex; align-items: center; background: var(--bg-primary); border-radius: 24px; padding: 22px; gap: 20px; width: 100%; margin-bottom: 20px; box-shadow: 0 15px 35px var(--shadow-color); border: 1px solid var(--border-color); cursor: pointer; transition: 0.2s; }
 .menu-card:active { transform: scale(0.96); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
 .mc-icon { font-size: 40px; background: var(--button-secondary-bg); width: 76px; height: 76px; display: flex; align-items: center; justify-content: center; border-radius: 20px; flex-shrink: 0;}
-.mc-content { display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
-.mc-content h3 { margin: 0 0 6px; font-size: 24px; font-weight: 900; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px;}
+.mc-content h3 { margin: 0 0 6px; font-size: 24px; font-weight: 900; color: var(--text-primary); text-transform: uppercase;}
 .mc-content p { margin: 0; font-size: 15px; font-weight: 700; color: var(--text-secondary); }
 
-@keyframes menuSlideLeft { 0% { transform: translateX(-40px); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
-@keyframes menuSlideRight { 0% { transform: translateX(40px); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
-#view-menu.active .menu-card:nth-child(1) { animation: menuSlideLeft 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
-#view-menu.active .menu-card:nth-child(2) { animation: menuSlideRight 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+/* SHARED APP CONTAINER */
+.app-container { width: 100%; background:var(--bg-primary); padding:24px 22px; border-radius:24px; box-shadow:0 15px 35px var(--shadow-color); position:relative; overflow:hidden; display:flex; flex-direction:column; justify-content:center; transition: background 0.4s ease; }
+.app-container.scrollable { max-height: 85vh; overflow-y: auto; overflow-x: hidden; padding-bottom: 30px; justify-content:flex-start; }
 
-/* ==========================================
-   ORDER SCREEN UI
-   ========================================== */
-.order-container { width: 100%; background:var(--bg-primary); padding:20px; border-radius:24px; box-shadow:0 15px 35px var(--shadow-color); overflow:hidden; transition: background 0.4s ease;}
-.scrollable-container { max-height: 85vh; overflow-y: auto; overflow-x: hidden; padding-bottom: 30px; }
-
-.section-card { border: 2px solid var(--border-color); border-radius: 18px; padding: 14px; background: var(--bg-primary); margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); transition: border-color 0.3s; }
-.progressive-fields { max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease, margin-top 0.4s ease; }
-.progressive-fields.revealed { max-height: 300px; opacity: 1; margin-top: 12px; }
-
-.locked-form { opacity: 0.4; pointer-events: none; transition: opacity 0.4s ease, filter 0.4s ease; filter: grayscale(100%); }
-.locked-form.unlocked { opacity: 1; pointer-events: auto; filter: grayscale(0%); }
-
-.order-grid { display: flex; gap: 12px; width: 100%; align-items: flex-end; }
-.order-grid > div { flex: 1; min-width: 0; }
-
-.order-label { font-weight:800; font-size:11px; display:block; margin-bottom:6px; color:var(--text-primary); text-transform:uppercase; transition: color 0.4s ease;}
-.order-input, .order-textarea { width:100%; padding:14px 12px; border-radius:12px; border:2px solid var(--input-border); font-size:15px; background:var(--input-bg); color:var(--dynamic-primary); outline:none; font-family: inherit; font-weight: 800; transition: border-color 0.2s, background 0.2s, color 0.4s; }
-
-.order-input:focus, .order-textarea:focus { border-color:var(--dynamic-primary); background: var(--bg-primary); box-shadow:0 0 0 3px rgba(16,185,129,0.1); }
-body.theme-carrefour .order-input:focus, body.theme-carrefour .order-textarea:focus {box-shadow:0 0 0 3px rgba(59,130,246,0.1)}
-
-.order-input:read-only { background: var(--bg-secondary); color: var(--dynamic-primary); border-color: transparent; cursor: default; }
-.order-input:read-only:focus { box-shadow: none !important; border-color: transparent !important; background: var(--bg-secondary); }
-
-::-webkit-input-placeholder { color: var(--text-tertiary); font-weight: 600; }
-::-moz-placeholder { color: var(--text-tertiary); font-weight: 600; }
-:-ms-input-placeholder { color: var(--text-tertiary); font-weight: 600; }
-::placeholder { color: var(--text-tertiary); font-weight: 600; }
-
-.btn-primary { width:100%; height:54px; border-radius:14px; border:none; font-size:16px; font-weight:800; margin-top: 8px; background:var(--dynamic-primary); color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; transition: transform 0.1s, box-shadow 0.2s, background 0.4s; }
-.tap-effect:active { transform: translateY(2px) scale(0.97); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
-.btn-primary:disabled { opacity: 0.7; pointer-events: none; }
-
-.order-group { border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 12px; background: var(--bg-primary); transition: border-color 0.3s; overflow: hidden; }
-.order-group-title { padding: 14px 16px; font-size: 14px; font-weight: 900; color: var(--text-primary); cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--bg-secondary); outline: none; list-style: none; border-radius: 12px;}
-.order-group-title::-webkit-details-marker { display: none; }
-.order-group-title::after { content: '+'; font-size: 18px; color: var(--dynamic-primary); transition: transform 0.3s, color 0.4s; font-weight: 400;}
-.order-group[open] { border-color: var(--dynamic-primary); }
-.order-group[open] .order-group-title { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
-.order-group[open] .order-group-title::after { content: '-'; transform: rotate(180deg); }
-.order-group-content { padding: 14px; border-top: 1px solid var(--border-color); }
-
-/* Juice Grid */
-.table-container { width: 100%; overflow-x: auto; overflow-y: hidden; background: var(--bg-primary); transition: border-color 0.4s ease;}
-table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: center; }
-th, td { padding: 8px 4px; border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); }
-th { background: var(--bg-secondary); font-weight: 900; color: var(--text-secondary); font-size: 12px; width: 35%; text-transform: uppercase;}
-th:first-child { width: 30%; position: sticky; left: 0; z-index: 12; border-right: 2px solid var(--border-color); }
-td.flavor-name { text-align: left; font-weight: 800; font-size: 11px; padding-left: 8px; white-space: nowrap; position: sticky; left: 0; background: var(--bg-primary); z-index: 11; border-right: 2px solid var(--border-color); line-height: 1.1;}
-
-/* Squircles */
-.square-input {
-  width: 54px; height: 34px; border-radius: 10px; margin: 0 auto;
-  background: var(--input-bg); border: 2px solid var(--input-border);
-  color: var(--text-tertiary); font-weight: 900; font-size: 15px;
-  display: flex; align-items: center; justify-content: center;
-  transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.1s ease; 
-}
-.square-input:active { transform: scale(0.92); }
-.square-input.has-value { background: var(--dynamic-primary); color: #fff; border-color: var(--dynamic-primary); }
-
-.chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip-label { cursor: pointer; -webkit-tap-highlight-color: transparent !important; -webkit-touch-callout: none !important; user-select: none !important; outline: none !important;}
-.chip-label input { display: none; }
-.chip-span { display: inline-flex; background: var(--input-bg); border: 1px solid var(--input-border); padding: 10px 16px; border-radius: 50px; font-size: 13px; font-weight: 800; color: var(--text-secondary); transition: 0.2s; -webkit-touch-callout: none !important;}
-.chip-label input:checked + .chip-span { background: var(--dynamic-primary); color: #fff; border-color: var(--dynamic-primary); box-shadow: 0 4px 10px rgba(0,0,0,0.15); transform: translateY(-2px); }
-.chip-label input:focus-visible + .chip-span { outline: none !important; box-shadow: none !important; }
-.chip-label:active .chip-span { transform: translateY(2px) scale(0.95); }
-
-.msg { font-size:12px; font-weight:800; margin-top:6px; min-height:20px; color:var(--text-tertiary); display:flex; align-items:center;}
-.msg.success { color:var(--success-color); } .msg.error { color:var(--error-color); }
-
-/* Unified Switcher Core CSS Fix */
-.top-bar { display:flex; justify-content:center; margin-bottom:15px; transition: opacity 0.3s ease;}
-.terminal-pill-wrapper { position:relative; display:inline-flex; background:var(--input-bg); border:1px solid var(--border-color); border-radius:50px; padding:4px; height:46px; align-items:center; overflow:hidden;}
-.pill-slider { position:absolute; top:4px; bottom:4px; border-radius:50px; background:var(--dynamic-primary); transition:transform 0.4s cubic-bezier(0.25,1,0.5,1); z-index:1; width: 110px;}
-.terminal-pill-wrapper.chandarana-active .pill-slider { transform: translateX(0); }
-.terminal-pill-wrapper.carrefour-active .pill-slider { transform: translateX(110px); }
-.pill-btn { position:relative; z-index:2; background:transparent; border:none; padding:0; width:110px; height:100%; font-size:14px; font-weight:900; color:var(--text-secondary); cursor:pointer; display:flex; align-items:center; justify-content:center; outline:none; transition: color 0.3s;}
+/* TERMINAL PILLS (SHARED) */
+.top-bar { display:flex; justify-content:center; margin-bottom:20px; transition: opacity 0.3s ease; width: 100%;}
+.terminal-pill-wrapper { position:relative; display:inline-flex; background:var(--input-bg); border:1px solid var(--border-color); border-radius:50px; padding:4px; height:46px; align-items:center; }
+.pill-slider { position:absolute; top:4px; bottom:4px; left:4px; border-radius:50px; background:var(--dynamic-primary); box-shadow:0 2px 6px rgba(0,0,0,0.15); transition:all 0.35s cubic-bezier(0.25,1,0.5,1); z-index:1; }
+.pill-btn { position:relative; z-index:2; background:transparent; border:none; padding:0 20px; height:100%; font-size:14px; font-weight:800; color:var(--text-secondary); cursor:pointer; outline:none; transition:color 0.2s; }
 .pill-btn.active { color:#fff; }
 
-.success-screen { text-align: center; padding: 20px 0; display: none; flex-direction: column; align-items: center; }
-.success-screen.active { display: flex; animation: sectionFadeIn 0.4s ease forwards; }
-.circle-check { width: 80px; height: 80px; background: var(--success-color); color: #fff; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 16px; }
+/* SHARED INPUTS & BUTTONS */
+.input-label { font-weight:800; font-size:11px; display:block; margin-bottom:6px; color:var(--label-text); text-transform:uppercase; letter-spacing:0.5px;}
+.ui-input, .ui-select { width:100%; height:48px; padding:0 14px; border-radius:12px; border:1px solid var(--input-border); font-size:15px; font-weight:800; background:var(--input-bg); color:var(--text-primary); font-family: inherit; transition: 0.2s; outline:none; -webkit-appearance:none; }
+.ui-input:focus, .ui-select:focus { border-color:var(--dynamic-primary); background:var(--bg-primary); box-shadow:0 0 0 3px rgba(16,185,129,0.1); }
+body.theme-carrefour .ui-input:focus, body.theme-carrefour .ui-select:focus {box-shadow:0 0 0 3px rgba(59,130,246,0.1)}
+.ui-input:read-only { background: var(--bg-secondary); color: var(--dynamic-primary); border-color: transparent; }
 
-/* Modal & Confirm Styles */
-#orderConfirmModal { display:none; position:fixed; inset:0; background:var(--modal-overlay); z-index:19999; flex-direction:column; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(5px); -webkit-backdrop-filter:blur(5px); }
-#orderConfirmModal .modal-box { background:var(--bg-primary); padding:24px; border-radius:20px; text-align:center; max-width:360px; width:100%; box-shadow: 0 20px 40px rgba(0,0,0,0.2); max-height: 85vh; display: flex; flex-direction: column; }
-.receipt-header { display:none; }
-.receipt-content { flex: 1; overflow-y: auto; text-align: left; padding: 16px; background: var(--bg-primary); border-radius: 12px; margin: 16px 0; border: 1px solid var(--border-color); color: var(--text-primary); font-size: 14px; line-height: 1.6; font-weight: 700; box-shadow: 0 4px 12px var(--shadow-color); }
-.modal-actions { display: flex; flex-direction: column; gap: 8px; }
-.btn-secondary { width:100%; height:46px; border-radius:12px; border:none; font-size:15px; font-weight:800; background:var(--button-secondary-bg); color:var(--dynamic-primary); cursor:pointer; transition: transform 0.1s; }
-.btn-secondary:active { transform: scale(0.97); }
+.btn-primary { width:100%; height:50px; border-radius:12px; border:none; font-size:15px; font-weight:800; background:var(--button-secondary-bg); color:var(--dynamic-primary); cursor:pointer; display:flex; align-items:center; justify-content:center; transition: 0.2s; }
+.btn-primary:active { transform: scale(0.97); }
+.btn-primary.solid { background:var(--dynamic-primary); color:#fff; margin-top:8px;}
+.btn-spinner { border: 2px solid rgba(0,0,0,0.1); border-top-color: currentColor; border-radius: 50%; animation: spin 0.6s linear infinite; width:16px; height:16px; margin-right:8px;}
 
-/* Branch Select Modal */
-#branchSelectModal { display:none; position:fixed; inset:0; background:var(--modal-overlay); z-index:20000; flex-direction:column; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(5px); -webkit-backdrop-filter:blur(5px); }
-#branchSelectModal .modal-box { background:var(--bg-primary); padding:24px; border-radius:20px; text-align:center; max-width:320px; width:100%; box-shadow: 0 20px 40px rgba(0,0,0,0.2); max-height: 80vh; display: flex; flex-direction: column; }
+/* ORDERS SPECIFIC */
+.section-card { border: 1px solid var(--border-color); border-radius: 18px; padding: 14px; background: var(--bg-primary); margin-bottom: 15px; }
+.locked-form { opacity: 0.4; pointer-events: none; filter: grayscale(100%); transition: 0.4s; }
+.locked-form.unlocked { opacity: 1; pointer-events: auto; filter: grayscale(0%); }
+.order-group { border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 12px; background: var(--bg-primary); overflow: hidden; }
+.order-group-title { padding: 14px 16px; font-size: 14px; font-weight: 900; color: var(--text-primary); cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: var(--bg-secondary); outline: none; list-style: none; }
+.order-group-title::-webkit-details-marker { display: none; }
+.order-group-title::after { content: '+'; font-size: 18px; color: var(--dynamic-primary); font-weight: 400;}
+.order-group[open] .order-group-title::after { content: '-'; transform: rotate(180deg); }
+.order-group-content { padding: 14px; border-top: 1px solid var(--border-color); }
+table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: center; }
+th, td { padding: 8px 4px; border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); }
+th { background: var(--bg-secondary); font-weight: 900; font-size: 12px; width: 35%; text-transform: uppercase;}
+th:first-child, td.flavor-name { position: sticky; left: 0; background: var(--bg-primary); z-index: 10; text-align: left; padding-left: 8px; font-weight:800; font-size:11px;}
+.square-input { width: 50px; height: 34px; border-radius: 10px; margin: 0 auto; background: var(--input-bg); border: 2px solid var(--input-border); color: var(--text-tertiary); font-weight: 900; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+.square-input.has-value { background: var(--dynamic-primary); color: #fff; border-color: var(--dynamic-primary); }
+.chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip-label input { display: none; }
+.chip-span { display: inline-flex; background: var(--input-bg); border: 1px solid var(--input-border); padding: 10px 16px; border-radius: 50px; font-size: 13px; font-weight: 800; color: var(--text-secondary); transition: 0.2s; }
+.chip-label input:checked + .chip-span { background: var(--dynamic-primary); color: #fff; border-color: var(--dynamic-primary); transform: translateY(-2px); }
 
-
-#cameraBackdrop{ display:none;position:fixed;inset:0;z-index:59; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
-#cameraBackdrop.show{ display:block; }
-#photoBackdrop {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.6);
-  z-index: 19999; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-  opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
-}
-#photoBackdrop.show { opacity: 1; pointer-events: auto; }
-
-/* Styles for the Zoomed Photo Clone Appended directly to Body */
-.success-photo-clone {
-  position: fixed;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%) scale(1);
-  z-index: 99999;
-  margin: 0;
-  border-radius: 50%;
-  box-shadow: 0 0 0 4px var(--success-color);
-  object-fit: cover;
-  transition: transform 0.4s cubic-bezier(0.25, 1, 0.4, 1), border-radius 0.4s ease, opacity 0.3s ease;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-.success-photo-clone.zoomed {
-  transform: translate(-50%, -50%) scale(2.6);
-  border-radius: 8%;
-}
-
-/* ==========================================
-   ATTENDANCE SYSTEM UI
-   ========================================== */
-.page-wrapper { display: flex; flex-direction: column; align-items: center; margin-top: -24px; width: 100%; max-width: 400px; }
-.hanging-sign-wrapper { position: relative; margin-bottom: 44px; perspective: 800px; z-index: 10; width: 240px; }
-.chain { position: absolute; top: -30px; width: 5px; height: 34px; background: linear-gradient(to right, #9ca3af, #f3f4f6, #9ca3af); border-radius: 3px; box-shadow: inset 0 0 3px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2); z-index: 1; }
-.chain::before { content: ''; position: absolute; top: -6px; left: -3.5px; width: 12px; height: 12px; border-radius: 50%; background: var(--dynamic-primary); border: 3.5px solid #d1d5db; box-shadow: 0 8px 12px rgba(0,0,0,0.6), 0 3px 6px rgba(0,0,0,0.4), inset 0 2px 4px rgba(0,0,0,0.7); box-sizing: border-box; transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+/* ATTENDANCE SPECIFIC */
+.hanging-sign-wrapper { position: relative; margin-bottom: 48px; perspective: 800px; z-index: 10; width: 240px; margin-top: -24px; }
+.chain { position: absolute; top: -30px; width: 5px; height: 34px; background: linear-gradient(to right, #9ca3af, #f3f4f6, #9ca3af); border-radius: 3px; z-index: 1; }
+.chain::before { content: ''; position: absolute; top: -6px; left: -3.5px; width: 12px; height: 12px; border-radius: 50%; background: var(--dynamic-primary); border: 3.5px solid #d1d5db; box-shadow: 0 8px 12px rgba(0,0,0,0.6); transition: 0.6s; }
 .left-chain { left: 40px; } .right-chain { right: 40px; }
-.hanging-sign { background: var(--bg-primary); color: var(--dynamic-primary); padding: 12px 10px; border-radius: 12px; font-weight: 900; font-size: 20px; text-transform: uppercase; letter-spacing: 2px; text-align: center; width: 100%; display: block; box-sizing: border-box; box-shadow: 0 10px 25px var(--shadow-color), inset 0 -3px 0 rgba(0,0,0,0.05); transform-origin: top center; transition: color 0.4s ease; position: relative; z-index: 2; }
-@keyframes swing { 0% { transform: rotateX(0deg) rotateZ(0deg); } 20% { transform: rotateX(25deg) rotateZ(-3deg); } 40% { transform: rotateX(-15deg) rotateZ(2deg); } 60% { transform: rotateX(8deg) rotateZ(-1deg); } 80% { transform: rotateX(-3deg) rotateZ(0deg); } 100% { transform: rotateX(0deg) rotateZ(0deg); } }
+.hanging-sign { background: var(--bg-primary); color: var(--dynamic-primary); padding: 12px 10px; border-radius: 12px; font-weight: 900; font-size: 20px; text-transform: uppercase; letter-spacing: 2px; text-align: center; width: 100%; box-shadow: 0 10px 25px var(--shadow-color); transform-origin: top center; transition: 0.4s; position: relative; z-index: 2; }
 .hanging-sign.nudge { animation: swing 0.7s cubic-bezier(0.25, 1, 0.5, 1); }
+@keyframes swing { 0% { transform: rotateX(0deg) } 20% { transform: rotateX(25deg) rotateZ(-3deg) } 40% { transform: rotateX(-15deg) rotateZ(2deg) } 60% { transform: rotateX(8deg) rotateZ(-1deg) } 80% { transform: rotateX(-3deg) } 100% { transform: rotateX(0deg) } }
 
-.att-container { width: 100%; aspect-ratio: 1 / 1; background:var(--bg-primary); padding:24px 22px; border-radius:24px; box-shadow:0 15px 35px var(--shadow-color); position:relative; overflow:hidden; display:flex; flex-direction:column; justify-content:center; transition: background 0.4s ease; }
-
-#mainFormAtt { width: 100%; }
-.network-indicator{ position:absolute;top:18px;left:18px;width:8px;height:8px;border-radius:50%; background:var(--success-color);opacity:0.8;transition:background 0.4s ease; box-shadow: 0 0 6px var(--success-color); }
+.network-indicator{ position:absolute;top:18px;left:18px;width:8px;height:8px;border-radius:50%; background:var(--success-color);opacity:0.8; box-shadow: 0 0 6px var(--success-color); }
 .network-indicator.offline{background:var(--text-tertiary);opacity:0.4; box-shadow:none;}
 .step-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 12px}
-.step{opacity:0.3;pointer-events:none;transition:opacity 0.4s ease}
-@keyframes bounceIn{ 0%{transform:scale(0.9);opacity:0} 60%{transform:scale(1.05)} 100%{transform:scale(1);opacity:1} }
-@keyframes spin{ to { transform: rotate(360deg); } }
+.step{opacity:0.3;pointer-events:none;transition: 0.4s}
 .step.activeStep{opacity:1;pointer-events:auto;animation:bounceIn 0.45s ease}
 
-.att-label{font-weight:600;font-size:12px;display:block;margin-bottom:6px;color:var(--text-primary);text-transform:uppercase;letter-spacing:0.5px; transition: color 0.4s ease;}
-.att-input, .att-select{ width:100%;height:46px;padding:0 14px;border-radius:12px; border:1px solid var(--input-border);font-size:15px;background:var(--input-bg); color:var(--dynamic-primary);transition:all 0.2s; -webkit-appearance:none; outline:none; font-family:inherit; font-weight:800;}
-.att-input:focus, .att-select:focus{border-color:var(--dynamic-primary);background:var(--bg-primary);box-shadow:0 0 0 3px rgba(16, 185, 129, 0.1)}
-body.theme-carrefour .att-input:focus, body.theme-carrefour .att-select:focus {box-shadow:0 0 0 3px rgba(59, 130, 246, 0.1)}
-.att-button{ width:100%;height:46px;border-radius:12px;border:none; font-size:14px;font-weight:700; background:var(--button-secondary-bg);color:var(--dynamic-primary); cursor:pointer;transition:transform 0.1s, opacity 0.2s, background 0.2s; }
-.att-button:active{transform:scale(0.97)}
-.att-button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.msg{ font-size:12px;font-weight:600;margin-top:6px; min-height:38px; color:var(--text-tertiary);display:flex; transition: 0.3s; opacity: 1; }
+.msg.success{color:var(--success-color);font-size:13px} .msg.error{color:var(--error-color)}
+.msg .dot{ display:inline-flex; width:16px; height:16px; background:var(--success-color); border-radius:50%; margin-right:6px; position:relative; margin-top:1px; }
+.msg .dot::after{ content:''; position:absolute; top:45%; left:50%; width:3.5px; height:7px; border-right:2px solid #fff; border-bottom:2px solid #fff; transform:translate(-50%,-50%) rotate(45deg); }
 
-.btn-spinner { border: 2px solid rgba(0,0,0,0.1); border-top-color: currentColor; border-radius: 50%; animation: spin 0.6s linear infinite; }
-
-.att-msg{ font-size:12px;font-weight:600;margin-top:6px; min-height:38px; align-items:flex-start; line-height:1.4; color:var(--text-tertiary);display:flex; transition: opacity 0.3s ease, color 0.3s ease; opacity: 1; }
-.att-msg.success{color:var(--success-color);font-size:13px} .att-msg.error{color:var(--error-color)}
-.att-msg .dot{ display:inline-flex;justify-content:center;align-items:center; width:16px;height:16px;background:var(--success-color);border-radius:50%; margin-right:6px;flex-shrink:0;position:relative; margin-top: 1px; }
-.att-msg .dot::after{ content:'';position:absolute;top:45%;left:50%; width:3.5px;height:7px; border-right:2px solid #fff;border-bottom:2px solid #fff; transform:translate(-50%,-50%) rotate(45deg); }
-
-/* Camera UI securely bounded by mainContainer bounds */
-#videoContainerWrapper{ position:absolute; top:0; left:0; right:0; bottom:0; width:100%; height:100%; border-radius:24px; overflow:hidden; z-index:60; background-color: #000; transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.25, 1, 0.4, 1); transform: scale(0.95); opacity:0; pointer-events:none; }
+/* CAMERA OVERLAYS */
+#videoContainerWrapper{ position:absolute; top:0; left:0; right:0; bottom:0; width:100%; height:100%; border-radius:24px; overflow:hidden; z-index:60; background-color: #000; transition: 0.35s; transform: scale(0.95); opacity:0; pointer-events:none; }
 #videoContainerWrapper.expanded{ pointer-events:auto; opacity:1; transform: scale(1); }
-#cameraVideo{ position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; display:block; transform: scaleX(-1); opacity: 0; transition: opacity 0.4s ease; }
+#cameraVideo{ position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; transform: scaleX(-1); opacity: 0; transition: 0.4s; }
 #cameraVideo.live { opacity: 1; }
-
-.camera-ui{ position:absolute;bottom:0;left:0;right:0; padding:20px; background:linear-gradient(to top,rgba(0,0,0,0.7) 0%,transparent 100%); display:flex;align-items:center;justify-content:center; z-index:4; }
-#captureBtn{ width:64px;height:64px;border-radius:50%; background:rgba(255,255,255,0.3);border:4px solid rgba(255,255,255,0.95); cursor:pointer;display:flex;align-items:center;justify-content:center; transition:transform 0.1s, opacity 0.3s ease; opacity: 1; }
-#captureBtn::after{content:'';width:48px;height:48px;background:#fff;border-radius:50%;transition:transform 0.1s}
+#cameraBackdrop{ display:none;position:fixed;inset:0;z-index:59; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+#cameraBackdrop.show{ display:block; }
+.camera-ui{ position:absolute;bottom:0;left:0;right:0; padding:20px; background:linear-gradient(to top,rgba(0,0,0,0.7) 0%,transparent 100%); display:flex;align-items:center;justify-content:center; z-index:3; }
+#captureBtn{ width:64px;height:64px;border-radius:50%; background:rgba(255,255,255,0.3);border:4px solid rgba(255,255,255,0.95); cursor:pointer;display:flex;align-items:center;justify-content:center; transition:0.1s;}
+#captureBtn::after{content:'';width:48px;height:48px;background:#fff;border-radius:50%;transition:0.1s}
 #captureBtn:active{transform:scale(0.88)}
-#closeCameraBtn{ position:absolute;top:16px;right:16px; width:36px;height:36px;border-radius:50%; background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.3); color:#fff;font-size:16px; cursor:pointer; display:flex;align-items:center;justify-content:center; z-index:6; }
+#closeCameraBtn{ position:absolute;top:16px;right:16px; width:36px;height:36px;border-radius:50%; background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.3); color:#fff;font-size:16px; cursor:pointer; display:flex;align-items:center;justify-content:center; z-index:4; }
 
-/* Att Success Screen */
-#attSuccessScreen{ display:none; flex-direction:column; align-items:center; justify-content:center; padding: 10px 4px; text-align:center; width:100%; position: relative; }
-.success-photo{ width: 110px; height: 110px; object-fit: cover; border-radius: 50%; box-shadow: 0 0 0 4px var(--success-color); margin-bottom: 16px; animation: bounceIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); cursor: zoom-in; position: relative; z-index: 10; transition: opacity 0.3s;}
-
-.success-badge{ background:var(--dynamic-primary);color:#fff;font-size:13px;font-weight:800; text-transform:uppercase;padding:6px 20px;border-radius:999px; margin-bottom: 24px;display:inline-block;box-shadow:0 4px 10px rgba(0,0,0,0.1); animation:bounceIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.05s backwards; transition: opacity 0.3s ease;}
-.success-card{ background:var(--success-card-bg);border:1px solid var(--success-card-border); border-radius:20px;padding:24px 20px;width:100%;margin-bottom:20px; animation:bounceIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s backwards; transition: opacity 0.3s ease;}
+/* SUCCESS SCREENS */
+.success-screen { display:none;flex-direction:column;align-items:center; justify-content:center; padding:10px 4px;text-align:center;width:100%; animation: sectionFadeIn 0.4s ease forwards; }
+.success-photo{ width: 110px; height: 110px; object-fit: cover; border-radius: 50%; box-shadow: 0 0 0 4px var(--success-color); margin-bottom: 16px; animation: bounceIn 0.5s; transition: 0.4s; cursor: zoom-in; position: relative; z-index: 20000;}
+.success-photo.zoomed { transform: scale(2.6); border-radius: 8%; box-shadow: 0 0 0 1.5px var(--success-color), 0 10px 30px rgba(0,0,0,0.3); cursor: zoom-out; }
+#photoBackdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 19999; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: 0.4s; }
+#photoBackdrop.show { opacity: 1; pointer-events: auto; }
+.success-badge{ background:var(--dynamic-primary);color:#fff;font-size:13px;font-weight:800; padding:6px 20px;border-radius:999px; margin-bottom:24px; animation:bounceIn 0.5s;}
+.success-card{ background:var(--success-card-bg);border:1px solid var(--success-card-border); border-radius:20px;padding:24px 20px;width:100%;margin-bottom:20px; animation:bounceIn 0.5s;}
 .success-name{font-size:26px;font-weight:800;color:var(--dynamic-primary);margin-bottom:8px}
-.success-msg {font-size:15px;font-weight:600;color:var(--text-secondary);line-height:1.5; word-break: break-word;}
-.success-back{ width:100%;height:48px;background:var(--button-secondary-bg); color:var(--dynamic-primary);border:none;border-radius:12px; font-size:15px;font-weight:700;cursor:pointer; transition: opacity 0.3s ease;}
+.success-msg {font-size:15px;font-weight:600;color:var(--text-secondary);line-height:1.5}
 
-#guideModal{ display:none;position:fixed;inset:0;background:var(--modal-overlay); z-index:19999;flex-direction:column;align-items:center;justify-content:center; padding:20px;backdrop-filter:blur(5px); -webkit-backdrop-filter:blur(5px); }
-#guideModal .modal-box{ background:var(--bg-primary);padding:28px;border-radius:20px; text-align:center;max-width:340px;width:100%; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
-#guideModal .modal-box h3{color:var(--error-color);margin:10px 0 16px;font-size:20px}
+/* MODALS */
+.modal-overlay { display:none; position:fixed; inset:0; background:var(--modal-overlay); z-index:19999; flex-direction:column; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(5px); -webkit-backdrop-filter:blur(5px); }
+.modal-box { background:var(--bg-primary); padding:24px; border-radius:20px; text-align:center; max-width:360px; width:100%; box-shadow: 0 20px 40px rgba(0,0,0,0.2); max-height: 85vh; display: flex; flex-direction: column; }
 .modal-instructions{ background:var(--input-bg);color:var(--text-secondary); padding:16px;border-radius:12px;margin-bottom:18px; font-size:13px;line-height:1.6;text-align:left; border: 1px solid var(--border-color); }
 </style>
 </head>
 <body class="theme-hub">
 
-<!-- GLOBAL STORAGE OBJECT -->
 <script>
+// >>> ADD YOUR APP SCRIPT URL HERE <<<
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwVy7MbFQmI6fVQM0ti52y05c0rc7-KvqUsU3Uq3WXzJ1CEqYP3vF0noIJbNtuL4nOT/exec";
+
 var Storage = { 
   set:function(k,v){try{localStorage.setItem(k,v)}catch(e){}}, 
   get:function(k){try{return localStorage.getItem(k)}catch(e){return null}}, 
@@ -328,1178 +203,535 @@ var Storage = {
 };
 </script>
 
-<!-- Floating Back Pill (Global) -->
-<div class="back-pill tap-effect no-print" id="globalBackBtn" onclick="goHome()">
+<!-- BACK BUTTON -->
+<div class="back-pill" id="globalBackBtn" onclick="goHome()">
   <span style="font-size: 18px; margin-right: 4px;">←</span> Menu
 </div>
 
-<script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyOHinnhI5ORDdxxm4pJuMvETZWfZm2PqN6w5bp-Kxn6YMwsr_mHzbu3js8v6kTVAHkCA/exec";
-
-// ==========================================
-// NAVIGATION & MODULE SWITCHING
-// ==========================================
-let activeStore = 'chandarana'; 
-
-// Tracks order inputs so users don't lose progress when switching tabs inside orders
-let orderState = {
-  chandarana: { juices: {}, fresh: [], bottles: [], haccp: [] },
-  carrefour: { juices: {}, fresh: [], bottles: [], haccp: [] }
-};
-
-function switchView(viewId) {
-    document.querySelectorAll('.view-section').forEach(v => {
-        if (v.id === viewId) {
-            v.style.display = 'flex';
-            v.classList.remove('active');
-            void v.offsetWidth; 
-            v.classList.add('active');
-        } else {
-            v.classList.remove('active');
-            v.style.display = 'none';
-        }
-    });
-}
-
-function goHome() { 
-  if (document.getElementById('view-orders').classList.contains('active')) {
-      saveOrderState();
-  }
-  const backBtn = document.getElementById('globalBackBtn');
-  backBtn.classList.remove('show');
-  
-  switchView('view-menu');
-  document.body.className = 'theme-hub'; 
-  
-  if(typeof stopCamera === 'function') stopCamera(); 
-  var meta = document.getElementById('theme-color-meta');
-  if (meta) meta.setAttribute('content', '#059669');
-}
-
-function saveOrderState() {
-  if (!activeStore) return;
-  const s = orderState[activeStore];
-  
-  s.juices = {};
-  document.querySelectorAll('.juice-input').forEach(el => {
-    s.juices[`${el.getAttribute('data-flavor')}_${el.getAttribute('data-vol')}`] = el.getAttribute('data-val');
-  });
-  
-  s.fresh = Array.from(document.querySelectorAll('.inp-fresh')).map(el => ({val: el.value, checked: el.checked}));
-  s.bottles = Array.from(document.querySelectorAll('.inp-bottle')).map(el => ({val: el.value, checked: el.checked}));
-  s.haccp = Array.from(document.querySelectorAll('.inp-haccp')).map(el => ({val: el.value, checked: el.checked}));
-}
-
-function restoreOrderState() {
-  if (!activeStore) return;
-  const s = orderState[activeStore];
-  
-  Object.keys(s.juices).forEach(key => {
-    const parts = key.split('_');
-    const el = document.querySelector(`.juice-input[data-flavor="${parts[0]}"][data-vol="${parts[1]}"]`);
-    if(el) {
-       el.setAttribute('data-val', s.juices[key]);
-       el.innerText = s.juices[key] === '0' ? '-' : s.juices[key];
-       el.classList.toggle('has-value', s.juices[key] > 0);
-    }
-  });
-  
-  s.fresh.forEach(item => { const el = document.querySelector(`.inp-fresh[value="${item.val}"]`); if(el) el.checked = item.checked; });
-  s.bottles.forEach(item => { const el = document.querySelector(`.inp-bottle[value="${item.val}"]`); if(el) el.checked = item.checked; });
-  s.haccp.forEach(item => { const el = document.querySelector(`.inp-haccp[value="${item.val}"]`); if(el) el.checked = item.checked; });
-}
-
-function openOrder() {
-  const backBtn = document.getElementById('globalBackBtn');
-  backBtn.innerHTML = '<span style="font-size: 18px; margin-right: 4px;">←</span> Menu';
-  backBtn.setAttribute('onclick', 'goHome()');
-  backBtn.classList.add('show');
-  
-  document.getElementById('orderForm').style.display = 'block';
-  document.getElementById('orderTopBar').style.display = 'flex';
-  document.getElementById('orderSuccessScreen').classList.remove('active'); 
-  document.getElementById('orderSuccessScreen').style.display = 'none';
-  
-  switchView('view-orders');
-  
-  if(!activeStore) activeStore = 'chandarana';
-  switchTerminal(activeStore, 'order', true);
-}
-
-function openAttendance() {
-  const backBtn = document.getElementById('globalBackBtn');
-  backBtn.innerHTML = '<span style="font-size: 18px; margin-right: 4px;">←</span> Menu';
-  backBtn.setAttribute('onclick', 'goHome()');
-  backBtn.classList.add('show');
-  
-  switchView('view-attendance');
-  attSwitchTerminal(Storage.get('selected_terminal') || 'chandarana', true); 
-}
-
-function switchTerminal(store, module, force) {
-  if (!force && module === 'order' && document.getElementById('view-orders').classList.contains('active')) {
-    saveOrderState();
-  }
-  
-  activeStore = store;
-  document.body.className = store === 'chandarana' ? 'theme-chandarana' : 'theme-carrefour';
-  var isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  var hexColor = store === 'chandarana' ? (isDark ? '#059669' : '#10b981') : (isDark ? '#2563eb' : '#3b82f6');
-  var meta = document.getElementById('theme-color-meta');
-  if (meta) meta.setAttribute('content', hexColor);
-
-  if (module === 'order') {
-    const wrapper = document.getElementById('o-terminal-wrapper');
-    if (wrapper) wrapper.className = 'terminal-pill-wrapper ' + store + '-active';
-    
-    const btnChan = document.getElementById('o-btn-chandarana'); 
-    const btnCarr = document.getElementById('o-btn-carrefour');
-    if(btnChan) btnChan.classList.toggle('active', store === 'chandarana'); 
-    if(btnCarr) btnCarr.classList.toggle('active', store === 'carrefour');
-
-    renderDynamicOrderContent();
-    restoreOrderState();
-    
-    let savedId = Storage.get('last_order_id');
-    if (savedId && !document.getElementById('o-id').value) {
-        document.getElementById('o-id').value = savedId;
-    }
-    const currentId = document.getElementById('o-id').value;
-    if(currentId) instantOrderStaffCheck(currentId);
-  }
-}
-
-// ==========================================
-// ORDER SYSTEM LOGIC (FAST CACHE)
-// ==========================================
-let orderStaffCache = [];
-
-function loadOrderStaffBackground() {
-  const cached = localStorage.getItem('order_staff');
-  if (cached) orderStaffCache = JSON.parse(cached);
-
-  fetch(SCRIPT_URL, { 
-      method: 'POST', 
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'getOrderStaff' }) 
-    })
-    .then(r => r.json()).then(res => {
-       if(res.ok) {
-          orderStaffCache = res.data;
-          localStorage.setItem('order_staff', JSON.stringify(res.data));
-          
-          if (document.getElementById('view-orders').classList.contains('active')) {
-             const currentId = document.getElementById('o-id').value;
-             if(currentId) instantOrderStaffCheck(currentId);
-          }
-       }
-    }).catch(e => console.warn("Background order staff sync failed", e));
-}
-document.addEventListener('DOMContentLoaded', loadOrderStaffBackground);
-
-let currentOrderStaffFullname = "";
-function instantOrderStaffCheck(val) {
-  val = val.trim();
-  const msgDiv = document.getElementById('o-staffMsg');
-  const nameCont = document.getElementById('o-name-container');
-  const nameInp = document.getElementById('o-name');
-  const expFields = document.getElementById('o-expanded-fields');
-  const lockedSec = document.getElementById('o-locked-section');
-  
-  if(val.length < 2) { 
-    msgDiv.innerHTML = ''; nameInp.value = ''; currentOrderStaffFullname = '';
-    document.getElementById('o-branch').value = '';
-    document.getElementById('o-phone').value = '';
-    nameCont.style.opacity = '0';
-    expFields.classList.remove('revealed'); lockedSec.classList.remove('unlocked');
-    Storage.remove('last_order_id');
-    return;
-  }
-  
-  const match = orderStaffCache.find(s => s.id === val);
-  if(match && match.shop === activeStore) {
-    Storage.set('last_order_id', val); 
-    
-    msgDiv.innerHTML = '✓ ID Verified'; msgDiv.className = 'msg success';
-    currentOrderStaffFullname = match.name;
-    
-    const parts = match.name.split(' ');
-    let displayName = parts.slice(0, 2).join(' ');
-    if (displayName.length > 15 || parts.length > 2) {
-       displayName += '...';
-    }
-    
-    nameInp.value = displayName;
-    document.getElementById('o-branch').value = match.branch || '';
-    document.getElementById('o-phone').value = match.phone || '';
-    
-    nameCont.style.opacity = '1';
-    expFields.classList.add('revealed'); lockedSec.classList.add('unlocked');
-  } else {
-    msgDiv.innerHTML = 'Invalid ID'; msgDiv.className = 'msg error';
-    nameInp.value = '';
-    document.getElementById('o-branch').value = '';
-    document.getElementById('o-phone').value = '';
-    nameCont.style.opacity = '0';
-    expFields.classList.remove('revealed'); lockedSec.classList.remove('unlocked');
-  }
-}
-
-// Shop Edit (Long Press logic)
-let branchEditTimer;
-function startBranchEdit(e) {
-   branchEditTimer = setTimeout(() => {
-      if (navigator.vibrate) navigator.vibrate(50);
-      openBranchSelectModal();
-   }, 500); 
-}
-function cancelBranchEdit(e) {
-   clearTimeout(branchEditTimer);
-}
-
-function openBranchSelectModal() {
-   const branches = [...new Set(orderStaffCache.filter(s => s.shop === activeStore).map(s => s.branch))].filter(Boolean).sort();
-   const list = document.getElementById('branchList');
-   list.innerHTML = branches.map(b => `<button class="btn-secondary tap-effect" style="text-align:left; padding: 14px; font-size:16px;" onclick="selectCustomBranch('${b}')">${b}</button>`).join('');
-   document.getElementById('branchSelectModal').style.display = 'flex';
-}
-
-function selectCustomBranch(b) {
-   document.getElementById('o-branch').value = b;
-   document.getElementById('o-branch').style.borderColor = 'var(--dynamic-primary)';
-   document.getElementById('branchSelectModal').style.display = 'none';
-}
-
-const JUICES = { chandarana: ["ORANGE", "TROPICAL MIX", "MANGO", "PASSION", "APPLE GINGER", "TREE TOMATO", "PINEAPPLE MINT", "LIME & GINGER", "APPLEJUICE", "LIMEJUICE", "HIBISCUS", "TAMARIND", "ALOE VERA", "BEETROOT", "TANGERINE", "GINGER PLAIN", "CARROT"], carrefour: ["ORANGE", "TROPICAL MIX", "MANGO", "PASSION", "APPLE GINGER", "TREE TOMATO", "PINEAPPLE MINT", "LIME & GINGER", "TAMARIND", "CARROT", "BEETROOT"] };
-const VOLUMES = ["5L", "3L"];
-
-function handleJuiceExclusivity(el) {
-  const flavor = el.getAttribute('data-flavor');
-  const vol = el.getAttribute('data-vol');
-  const otherVol = vol === '5L' ? '3L' : '5L';
-  const otherEl = document.querySelector(`.juice-input[data-flavor="${flavor}"][data-vol="${otherVol}"]`);
-  
-  if (otherEl && parseInt(otherEl.getAttribute('data-val')) > 0) {
-      otherEl.setAttribute('data-val', 0);
-      otherEl.innerText = '-';
-      otherEl.classList.remove('has-value');
-  }
-}
-
-function handleJuicePointerDown(e, step) {
-  e.preventDefault(); 
-  const el = e.currentTarget;
-  
-  el.pressTimer = setTimeout(() => {
-      el.isLong = true;
-      if (navigator.vibrate) navigator.vibrate(50);
-      el.setAttribute('data-val', "0");
-      el.innerText = '-';
-      el.classList.remove('has-value');
-  }, 400);
-}
-
-function handleJuicePointerUp(e, step) {
-  e.preventDefault();
-  const el = e.currentTarget;
-  clearTimeout(el.pressTimer);
-  if(!el.isLong) {
-      let currentVal = parseInt(el.getAttribute('data-val')) || 0;
-      currentVal += step;
-      if(currentVal > 60) currentVal = 0;
-      el.setAttribute('data-val', currentVal);
-      el.innerText = currentVal === 0 ? '-' : currentVal;
-      el.classList.toggle('has-value', currentVal > 0);
-      
-      if (currentVal > 0) handleJuiceExclusivity(el);
-  }
-  el.isLong = false;
-}
-
-function handleJuicePointerCancel(e) {
-  const el = e.currentTarget;
-  clearTimeout(el.pressTimer);
-  el.isLong = false;
-}
-
-function renderDynamicOrderContent() {
-  let html = `<details class="order-group"><summary class="order-group-title">Juice Flavors</summary><div class="order-group-content" style="padding:0; border-top:none; border-radius: 0 0 12px 12px; overflow: hidden;">`;
-  html += `<div class="table-container" style="margin-bottom:0; border:none; border-radius:0; box-shadow:none;"><table><thead><tr><th>Flavor</th>`;
-  VOLUMES.forEach(v => html += `<th>${v === '5L' ? '5 Litres' : '3 Litres'}</th>`);
-  html += `</tr></thead><tbody>`;
-  
-  JUICES[activeStore].forEach(flavor => {
-    html += `<tr><td class="flavor-name">${flavor}</td>`;
-    VOLUMES.forEach(v => {
-      let step = parseInt(v); 
-      html += `<td><div class="square-input juice-input" data-flavor="${flavor}" data-vol="${v}" data-val="0" 
-        ontouchstart="handleJuicePointerDown(event, ${step})" 
-        ontouchend="handleJuicePointerUp(event, ${step})" 
-        ontouchcancel="handleJuicePointerCancel(event)" 
-        onmousedown="handleJuicePointerDown(event, ${step})" 
-        onmouseup="handleJuicePointerUp(event, ${step})" 
-        onmouseleave="handleJuicePointerCancel(event)">-</div></td>`;
-    });
-    html += `</tr>`;
-  });
-  html += `</tbody></table></div></div></details>`;
-
-  html += `<details class="order-group"><summary class="order-group-title">Fresh Inputs</summary><div class="order-group-content"><div class="chip-group">`;
-  if(activeStore === 'chandarana') {
-    html += `<label class="chip-label"><input type="checkbox" class="inp-fresh" value="Ginger"><span class="chip-span tap-effect">Ginger</span></label>`;
-    html += `<label class="chip-label"><input type="checkbox" class="inp-fresh" value="Lime"><span class="chip-span tap-effect">Lime</span></label>`;
-    html += `<label class="chip-label"><input type="radio" name="sg_chan" class="inp-fresh" value="Sugarcane (Full)"><span class="chip-span tap-effect">Sugarcane (Full)</span></label>`;
-    html += `<label class="chip-label"><input type="radio" name="sg_chan" class="inp-fresh" value="Sugarcane (Half)"><span class="chip-span tap-effect">Sugarcane (Half)</span></label>`;
-  } else {
-    html += `<label class="chip-label"><input type="checkbox" class="inp-fresh" value="Sugarcane"><span class="chip-span tap-effect">Sugarcane</span></label>`;
-    html += `<label class="chip-label"><input type="checkbox" class="inp-fresh" value="Ginger"><span class="chip-span tap-effect">Ginger</span></label>`;
-    html += `<label class="chip-label"><input type="checkbox" class="inp-fresh" value="Lime"><span class="chip-span tap-effect">Lime</span></label>`;
-  }
-  html += `</div></div></details>`;
-
-  html += `<details class="order-group"><summary class="order-group-title">Bottles</summary><div class="order-group-content"><div class="chip-group">`;
-  html += `<label class="chip-label"><input type="checkbox" class="inp-bottle" value="1 Litre"><span class="chip-span tap-effect">1 Litre</span></label>`;
-  html += `<label class="chip-label"><input type="checkbox" class="inp-bottle" value="500ml"><span class="chip-span tap-effect">500ml</span></label>`;
-  if(activeStore === 'carrefour') html += `<label class="chip-label"><input type="checkbox" class="inp-bottle" value="250ml"><span class="chip-span tap-effect">250ml</span></label>`;
-  html += `</div></div></details>`;
-
-  html += `<details class="order-group"><summary class="order-group-title">HACCP Supplies</summary><div class="order-group-content"><div class="chip-group">`;
-  html += `<label class="chip-label"><input type="checkbox" class="inp-haccp" value="Sampling Cups"><span class="chip-span tap-effect">Sampling Cups</span></label>`;
-  if(activeStore === 'chandarana') {
-    html += `<label class="chip-label"><input type="checkbox" class="inp-haccp" value="Gloves"><span class="chip-span tap-effect">Gloves</span></label>`;
-    html += `<label class="chip-label"><input type="checkbox" class="inp-haccp" value="Hairnets"><span class="chip-span tap-effect">Hairnets</span></label>`;
-    html += `<label class="chip-label"><input type="checkbox" class="inp-haccp" value="Towels"><span class="chip-span tap-effect">Towels</span></label>`;
-  }
-  html += `</div></div></details>`;
-
-  document.getElementById('dynamicOrderContent').innerHTML = html;
-}
-
-let pendingOrderPayload = null;
-
-function processOrder(e) {
-  e.preventDefault();
-  if(!document.getElementById('o-name').value) { alert("Please enter a valid Staff ID."); return; }
-
-  const payload = {
-    "SHOP": document.getElementById('o-branch').value,
-    [activeStore === 'chandarana' ? "FULL NAME" : "FULL NAME (2 Names)"]: currentOrderStaffFullname,
-    "ID NO.": document.getElementById('o-id').value,
-    "PHONE NO.": document.getElementById('o-phone').value,
-    "FRESH INPUTS": Array.from(document.querySelectorAll('.inp-fresh:checked')).map(el => el.value).join(', '),
-    "BOTTLES": Array.from(document.querySelectorAll('.inp-bottle:checked')).map(el => el.value).join(', '),
-    "HACCP SUPPLIES": Array.from(document.querySelectorAll('.inp-haccp:checked')).map(el => el.value).join(', '),
-    "NOTES": document.getElementById('o-notes').value
-  };
-
-  const juicePrefix = activeStore === 'chandarana' ? "JUICE (5 LITRES/3 LITRES)" : "JUICE (5 ITRES / 3 LITRES)";
-  JUICES[activeStore].forEach(flavor => {
-    let flavorKey = flavor;
-    if (["TREE TOMATO", "HIBISCUS", "TAMARIND", "BEETROOT", "TANGERINE", "CARROT"].includes(flavor)) { flavorKey = activeStore === 'chandarana' ? `${flavor} ` : flavor; }
-    
-    let val5 = document.querySelector(`.juice-input[data-flavor="${flavor}"][data-vol="5L"]`)?.getAttribute('data-val') || "0";
-    let val3 = document.querySelector(`.juice-input[data-flavor="${flavor}"][data-vol="3L"]`)?.getAttribute('data-val') || "0";
-    
-    let qty = val5 !== "0" ? val5 : (val3 !== "0" ? val3 : "0");
-    if(qty !== "0") {
-        payload[`${juicePrefix} [${flavorKey}]`] = qty;
-    }
-  });
-
-  pendingOrderPayload = payload;
-
-  let html = `<div class="receipt-header">STENTOR ORDER</div>`;
-  html += `<p style="margin-bottom:6px;"><strong>Shop:</strong> ${payload["SHOP"]}</p>`;
-  html += `<p style="margin-bottom:6px;"><strong>Staff:</strong> ${payload["FULL NAME"] || payload["FULL NAME (2 Names)"]} (${payload["ID NO."]})</p>`;
-  html += `<p style="margin-bottom:6px;"><strong>Phone:</strong> ${payload["PHONE NO."]}</p>`;
-  
-  let hasJuices = false;
-  let juiceHtml = `<div style="margin-top:12px; padding-top:12px; border-top:2px solid var(--dynamic-primary);">
-    <strong style="color:var(--dynamic-primary);">JUICES</strong><ul style="margin:8px 0 0 20px; padding:0;">`;
-  JUICES[activeStore].forEach(flavor => {
-     let pieces5L = 0, pieces3L = 0;
-     const input5 = document.querySelector(`.juice-input[data-flavor="${flavor}"][data-vol="5L"]`);
-     const input3 = document.querySelector(`.juice-input[data-flavor="${flavor}"][data-vol="3L"]`);
-     
-     if (input5 && input5.getAttribute('data-val') !== "0") pieces5L = parseInt(input5.getAttribute('data-val'));
-     if (input3 && input3.getAttribute('data-val') !== "0") pieces3L = parseInt(input3.getAttribute('data-val'));
-     
-     if(pieces5L > 0) { hasJuices = true; juiceHtml += `<li style="margin-bottom:4px;">${flavor} - ${pieces5L}</li>`; }
-     if(pieces3L > 0) { hasJuices = true; juiceHtml += `<li style="margin-bottom:4px;">${flavor} - ${pieces3L}</li>`; }
-  });
-  juiceHtml += `</ul></div>`;
-  if(hasJuices) html += juiceHtml;
-
-  function formatList(title, commaStr) {
-      if(!commaStr) return '';
-      let items = commaStr.split(',').map(s => s.trim()).filter(Boolean);
-      return `<div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border-color);">
-        <strong style="color:var(--dynamic-primary);">${title}</strong>
-        <ul style="margin:8px 0 0 20px; padding:0;">` + items.map(i => `<li style="margin-bottom:4px;">${i}</li>`).join('') + `</ul></div>`;
-  }
-
-  if(payload["FRESH INPUTS"]) html += formatList("FRESH INPUTS", payload["FRESH INPUTS"]);
-  if(payload["BOTTLES"]) html += formatList("BOTTLES", payload["BOTTLES"]);
-  if(payload["HACCP SUPPLIES"]) html += formatList("HACCP SUPPLIES", payload["HACCP SUPPLIES"]);
-  if(payload["NOTES"]) html += `<div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border-color);"><strong style="color:var(--dynamic-primary);">NOTES</strong><br>${payload["NOTES"]}</div>`;
-  
-  document.getElementById('orderSummaryDetails').innerHTML = html;
-  document.getElementById('orderConfirmModal').style.display = 'flex';
-}
-
-function closeConfirmModal() {
-  document.getElementById('orderConfirmModal').style.display = 'none';
-}
-
-async function confirmAndSendOrder() {
-  const btn = document.getElementById('confirmSendBtn'); 
-  const oldText = btn.innerText;
-  btn.disabled = true; 
-  btn.innerHTML = '<span class="btn-spinner" style="display:inline-block; vertical-align:middle; width:16px; height:16px; margin-right:8px; border-color:#fff; border-top-color:transparent;"></span><span style="vertical-align:middle;">Submitting...</span>';
-  
-  const secBtns = document.querySelectorAll('#orderConfirmModal .btn-secondary');
-  secBtns.forEach(b => b.disabled = true);
-
-  try {
-    const storeCap = activeStore === 'chandarana' ? 'Chandarana' : 'Carrefour';
-    const response = await fetch(SCRIPT_URL, { 
-      method: "POST", 
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'saveOrder', store: storeCap, data: pendingOrderPayload }) 
-    });
-    
-    const res = await response.json();
-    if (!res.ok) throw new Error(res.error || "Failed to save order.");
-    
-    closeConfirmModal();
-    
-    document.getElementById('orderTopBar').style.opacity = '0';
-    setTimeout(() => { document.getElementById('orderTopBar').style.display = 'none'; }, 300);
-    
-    document.getElementById('orderForm').style.display = 'none'; 
-    document.getElementById('orderSuccessScreen').style.display = 'flex';
-    document.getElementById('orderSuccessScreen').classList.add('active');
-    
-    orderState[activeStore] = { juices: {}, fresh: [], bottles: [], haccp: [] };
-
-  } catch (error) { 
-      alert(error.message); 
-  }
-  
-  btn.disabled = false; btn.innerText = oldText;
-  secBtns.forEach(b => b.disabled = false);
-}
-
-function resetToNewOrder() {
-  document.getElementById('orderSuccessScreen').classList.remove('active');
-  document.getElementById('orderSuccessScreen').style.display = 'none';
-  
-  document.getElementById('orderTopBar').style.display = 'flex';
-  setTimeout(() => { document.getElementById('orderTopBar').style.opacity = '1'; }, 10);
-  document.getElementById('orderForm').style.display = 'block';
-  
-  document.getElementById('o-notes').value = '';
-  
-  renderDynamicOrderContent();
-  
-  let savedId = Storage.get('last_order_id');
-  if (savedId) {
-      document.getElementById('o-id').value = savedId;
-      instantOrderStaffCheck(savedId);
-  } else {
-      document.getElementById('o-id').value = '';
-      instantOrderStaffCheck('');
-  }
-}
-
-function downloadReceipt(btn) {
-  const oldText = btn.innerHTML;
-  btn.innerHTML = '<span class="btn-spinner" style="display:inline-block; vertical-align:middle; width:16px; height:16px; margin-right:8px; border-color:var(--dynamic-primary); border-top-color:transparent;"></span> Generating...';
-  btn.disabled = true;
-
-  // Build a constrained, beautiful HTML layout designed explicitly to fit on a single A4 page
-  const tempDiv = document.createElement('div');
-  tempDiv.style.width = '600px'; 
-  tempDiv.style.padding = '20px';
-  tempDiv.style.background = '#ffffff';
-  tempDiv.style.color = '#111827';
-  tempDiv.style.fontFamily = 'Nunito, sans-serif';
-  
-  const content = document.getElementById('orderSummaryDetails').cloneNode(true);
-  content.style.boxShadow = 'none';
-  content.style.border = '2px solid #e5e7eb';
-  content.style.margin = '0';
-  content.style.fontSize = '15px'; 
-  content.style.borderRadius = '12px';
-  content.style.padding = '24px';
-  content.style.pageBreakInside = 'avoid'; // Crucial rule for 1-page fit
-  
-  tempDiv.appendChild(content);
-
-  const opt = {
-    margin:       0.3,
-    filename:     'Order_' + document.getElementById('o-id').value + '.pdf',
-    image:        { type: 'jpeg', quality: 1 },
-    html2canvas:  { scale: 2, useCORS: true },
-    jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-  };
-
-  html2pdf().set(opt).from(tempDiv).save().then(() => {
-     btn.innerHTML = 'Saved! ✅';
-     setTimeout(() => {
-         btn.innerHTML = oldText;
-         btn.disabled = false;
-     }, 2000);
-  }).catch(err => {
-     btn.innerHTML = 'Error';
-     setTimeout(() => {
-         btn.innerHTML = oldText;
-         btn.disabled = false;
-     }, 2000);
-  });
-}
-</script>
-
-<!-- MENU VIEW -->
+<!-- =========================
+     VIEW: HUB MENU
+========================== -->
 <div id="view-menu" class="view-section active" style="align-items: center; justify-content: center; padding-top: 10px;">
   <div class="menu-container">
     <div class="hub-logo">STENTOR OPS</div>
     <div class="menu-subtitle">Select a module</div>
-    
     <div class="menu-cards">
-      <div class="menu-card tap-effect" onclick="openOrder()">
+      <div class="menu-card" onclick="openOrder()">
         <div class="mc-icon">🛒</div>
-        <div class="mc-content">
-          <h3>Place Order</h3>
-          <p>Juice orders & supplies</p>
-        </div>
+        <div class="mc-content"><h3>Place Order</h3><p>Juice orders & supplies</p></div>
       </div>
-      <div class="menu-card tap-effect" onclick="openAttendance()">
+      <div class="menu-card" onclick="openAttendance()">
         <div class="mc-icon">⏰</div>
-        <div class="mc-content">
-          <h3>Attendance</h3>
-          <p>Clock In / Out with Selfie</p>
-        </div>
+        <div class="mc-content"><h3>Attendance</h3><p>Clock In / Out with Selfie</p></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ORDERS VIEW -->
+<!-- =========================
+     VIEW: ORDERS
+========================== -->
 <div id="view-orders" class="view-section">
-  <div class="order-container scrollable-container">
+  <div class="app-container scrollable">
     <div class="top-bar" id="orderTopBar">
-      <div class="terminal-pill-wrapper chandarana-active" id="o-terminal-wrapper">
-        <div class="pill-slider"></div>
-        <button class="pill-btn active" id="o-btn-chandarana" type="button" onclick="switchTerminal('chandarana', 'order')">Chandarana</button>
-        <button class="pill-btn" id="o-btn-carrefour" type="button" onclick="switchTerminal('carrefour', 'order')">Carrefour</button>
+      <div class="terminal-pill-wrapper" id="o-terminal-wrapper">
+        <div class="pill-slider" id="o-pill-slider"></div>
+        <button class="pill-btn active" id="o-btn-chandarana" onclick="switchTerminalOrder('chandarana')">Chandarana</button>
+        <button class="pill-btn" id="o-btn-carrefour" onclick="switchTerminalOrder('carrefour')">Carrefour</button>
       </div>
     </div>
 
     <form id="orderForm" onsubmit="processOrder(event)">
-      <div class="section-card">
-        <div class="order-grid">
-          <div>
-            <label class="order-label">Staff ID</label>
-            <input type="tel" id="o-id" class="order-input" placeholder="Enter ID" required autocomplete="off" oninput="instantOrderStaffCheck(this.value)">
-          </div>
-          <div id="o-name-container" style="opacity: 0; transition: opacity 0.3s;">
-            <label class="order-label">Name</label>
-            <input type="text" id="o-name" class="order-input" placeholder="Name" readonly>
-          </div>
-        </div>
-        <div id="o-staffMsg" class="msg"></div>
+      <div class="section-card" style="display:flex; gap:12px; align-items:flex-end;">
+        <div style="flex:1;"><label class="input-label">Staff ID</label><input type="tel" id="o-id" class="ui-input" placeholder="Enter ID" required autocomplete="off" oninput="instantOrderStaffCheck(this.value)"></div>
+        <div id="o-name-container" style="opacity:0; transition:0.3s; flex:1;"><label class="input-label">Name</label><input type="text" id="o-name" class="ui-input" placeholder="Name" readonly></div>
+      </div>
+      <div id="o-staffMsg" class="msg" style="min-height:20px; margin-top:-5px; margin-bottom:10px; padding-left:14px;"></div>
 
-        <div id="o-expanded-fields" class="progressive-fields">
-          <div class="order-grid">
-            <div style="position: relative; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;" 
-                 ontouchstart="startBranchEdit(event)" ontouchend="cancelBranchEdit(event)" ontouchcancel="cancelBranchEdit(event)"
-                 onmousedown="startBranchEdit(event)" onmouseup="cancelBranchEdit(event)" onmouseleave="cancelBranchEdit(event)"
-                 oncontextmenu="return false;">
-              <label class="order-label">Branch / Shop</label>
-              <!-- Input receives no pointer events, the wrapper handles the touch safely -->
-              <input type="text" id="o-branch" class="order-input" placeholder="Branch" required readonly style="pointer-events: none;">
-            </div>
-            <div>
-              <label class="order-label">Phone No.</label>
-              <input type="tel" id="o-phone" class="order-input" placeholder="Phone" required readonly>
-            </div>
-          </div>
+      <div id="o-expanded-fields" style="display:none;">
+        <div class="section-card" style="display:flex; gap:12px;">
+          <div style="flex:1;"><label class="input-label">Branch</label><input type="text" id="o-branch" class="ui-input" readonly></div>
+          <div style="flex:1;"><label class="input-label">Phone</label><input type="tel" id="o-phone" class="ui-input" readonly></div>
         </div>
       </div>
 
       <div id="o-locked-section" class="locked-form">
         <div id="dynamicOrderContent"></div>
-
         <div class="section-card">
-          <label class="order-label" style="margin-top: 0;">Additional Notes</label>
-          <textarea id="o-notes" class="order-textarea" rows="2" placeholder="Any special instructions..."></textarea>
-          <button type="submit" class="btn-primary tap-effect" id="orderSubmitBtn">Submit Order</button>
+          <label class="input-label">Notes</label>
+          <textarea id="o-notes" class="ui-input" style="height:auto; padding:12px;" rows="2" placeholder="Special instructions..."></textarea>
+          <button type="submit" class="btn-primary solid" id="orderSubmitBtn">Submit Order</button>
         </div>
       </div>
     </form>
 
     <div class="success-screen" id="orderSuccessScreen">
-      <div class="circle-check">✓</div>
-      <h2 style="margin-bottom:8px; font-weight:900;">Order Sent!</h2>
-      <p style="color:var(--text-secondary); font-size:15px; font-weight:600; margin-bottom:24px;">Your order has been logged successfully.</p>
-      <button class="btn-primary tap-effect" style="max-width:200px; margin:0 auto;" onclick="resetToNewOrder()">New Order</button>
+      <div style="width:80px;height:80px;background:var(--success-color);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:40px;margin-bottom:16px;">✓</div>
+      <h2 style="font-weight:900; margin-bottom:8px;">Order Sent!</h2>
+      <p style="color:var(--text-secondary); font-size:15px; font-weight:600; margin-bottom:24px;">Your order has been logged securely.</p>
+      <button class="btn-primary solid" style="max-width:200px;" onclick="resetOrderForm()">New Order</button>
     </div>
   </div>
 </div>
 
-<!-- Order Confirmation Modal -->
-<div id="orderConfirmModal">
-   <div class="modal-box">
-       <h3 style="color:var(--text-primary); margin: 0 0 10px; font-size:22px; font-weight:900; text-transform: uppercase;">Confirm Order</h3>
-       <div id="orderSummaryDetails" class="receipt-content"></div>
-       <div class="modal-actions">
-           <button class="btn-secondary tap-effect" style="background:var(--bg-secondary); color:var(--text-secondary); border: 1px solid var(--border-color);" onclick="closeConfirmModal()">Back to Edit</button>
-           <button class="btn-secondary tap-effect" onclick="downloadReceipt(this)">Save as PDF</button>
-           <button class="btn-primary tap-effect" id="confirmSendBtn" onclick="confirmAndSendOrder()">Confirm & Send</button>
-       </div>
-   </div>
-</div>
-
-<!-- Branch Select Modal -->
-<div id="branchSelectModal">
-   <div class="modal-box no-print">
-       <h3 style="color:var(--text-primary); margin: 0 0 16px; font-size:20px; font-weight:900; text-transform: uppercase;">Select Shop</h3>
-       <div id="branchList" style="overflow-y:auto; flex:1; text-align:left; display:flex; flex-direction:column; gap:8px;"></div>
-       <button class="btn-secondary tap-effect" style="margin-top:16px; background:var(--input-bg); color:var(--text-secondary);" onclick="document.getElementById('branchSelectModal').style.display='none'">Cancel</button>
-   </div>
-</div>
-
-<!-- ATTENDANCE VIEW -->
+<!-- =========================
+     VIEW: ATTENDANCE
+========================== -->
 <div id="view-attendance" class="view-section">
   <div id="cameraBackdrop" onclick="stopCamera()"></div>
   <div id="photoBackdrop" onclick="toggleZoom()"></div>
 
-  <div class="page-wrapper">
-    <div class="hanging-sign-wrapper" id="signWrapper">
-      <div class="chain left-chain"></div>
-      <div class="chain right-chain"></div>
-      <div class="hanging-sign nudge" id="storeSign">Chandarana</div>
-    </div>
-
-    <div class="att-container" id="mainContainer">
-      <div id="networkIndicator" class="network-indicator"></div>
-
-      <div id="mainFormAtt">
-        <div class="top-bar" style="justify-content: flex-end; margin-bottom: 20px;">
-          <div class="terminal-pill-wrapper chandarana-active" id="a-terminal-wrapper">
-            <div class="pill-slider"></div>
-            <button class="pill-btn active" id="btn-chandarana" onclick="attSwitchTerminal('chandarana')">
-              <span class="full-text">Chandarana</span>
-            </button>
-            <button class="pill-btn" id="btn-carrefour" onclick="attSwitchTerminal('carrefour')">
-              <span class="full-text">Carrefour</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="step-grid">
-          <div id="step1" class="step activeStep">
-            <label class="att-label">Branch</label>
-            <select id="branch" class="att-select"><option value="">Loading...</option></select>
-            <div id="branchMsg" class="att-msg"></div>
-          </div>
-
-          <div id="step2" class="step">
-            <label class="att-label">Staff ID</label>
-            <input id="staffID" class="att-input" type="tel" placeholder="Enter ID" autocomplete="off" inputmode="numeric">
-            <div id="staffMsg" class="att-msg"></div>
-          </div>
-
-          <div id="step3" class="step">
-            <label class="att-label">GPS Location</label>
-            <button class="att-button tap-effect" onclick="verifyGPS()">Verify</button>
-            <div id="gpsMsg" class="att-msg"></div>
-          </div>
-
-          <div id="step4" class="step">
-            <label class="att-label">Identity</label>
-            <button class="att-button tap-effect" id="openCameraBtn" onclick="startCamera()">Take Selfie</button>
-            <div id="cameraMsg" class="att-msg"></div>
-          </div>
-        </div>
-      </div>
-
-      <div id="attSuccessScreen">
-        <img id="successPhoto" class="success-photo" src="" alt="Captured Selfie" onclick="toggleZoom()">
-        
-        <div class="success-badge" id="successBadge">CLOCK IN</div>
-        <div class="success-card">
-          <div class="success-name" id="successName"></div>
-          <div class="success-msg"  id="successMsg"></div>
-        </div>
-        <button class="success-back tap-effect" onclick="resetToStart()">← Submit Another</button>
-      </div>
-
-      <!-- Camera overlay bounded tightly by the white container -->
-      <div id="videoContainerWrapper">
-        <video id="cameraVideo" autoplay playsinline muted></video>
-        <button id="closeCameraBtn" class="tap-effect" onclick="stopCamera()" aria-label="Close camera">&#x2715;</button>
-        <div class="camera-ui">
-          <div id="captureBtn" onclick="capturePhoto()"></div>
-        </div>
-      </div>
-    </div>
+  <div class="hanging-sign-wrapper" id="signWrapper">
+    <div class="chain left-chain"></div><div class="chain right-chain"></div>
+    <div class="hanging-sign nudge" id="storeSign">Chandarana</div>
   </div>
 
-  <!-- Guide Modal -->
-  <div id="guideModal" class="no-print">
-    <div class="modal-box">
-      <div id="guideIcon" style="font-size:44px;margin-bottom:10px;">🛑</div>
-      <h3 id="guideTitle">Action Blocked</h3>
-      <div class="modal-instructions" id="guideText"></div>
-      <button class="tap-effect" onclick="document.getElementById('guideModal').style.display='none'" style="background:var(--dynamic-primary);color:#fff;border:none;padding:14px;border-radius:12px;width:100%;font-weight:700;cursor:pointer;">GOT IT</button>
+  <div class="app-container" id="attMainContainer">
+    <div id="networkIndicator" class="network-indicator"></div>
+
+    <div id="attMainForm">
+      <div class="top-bar">
+        <div class="terminal-pill-wrapper">
+          <div class="pill-slider" id="a-pill-slider"></div>
+          <button class="pill-btn active" id="a-btn-chandarana" onclick="switchTerminalAtt('chandarana')">Chandarana</button>
+          <button class="pill-btn" id="a-btn-carrefour" onclick="switchTerminalAtt('carrefour')">Carrefour</button>
+        </div>
+      </div>
+
+      <div class="step-grid">
+        <div id="step1" class="step activeStep">
+          <label class="input-label">Branch</label>
+          <select id="branch" class="ui-select"><option value="">Loading...</option></select>
+          <div id="branchMsg" class="msg"></div>
+        </div>
+        <div id="step2" class="step">
+          <label class="input-label">Staff ID</label>
+          <input id="staffID" class="ui-input" type="tel" placeholder="Enter ID" autocomplete="off">
+          <div id="staffMsg" class="msg"></div>
+        </div>
+        <div id="step3" class="step">
+          <label class="input-label">GPS Location</label>
+          <button class="btn-primary" onclick="verifyGPS()">Verify</button>
+          <div id="gpsMsg" class="msg"></div>
+        </div>
+        <div id="step4" class="step">
+          <label class="input-label">Identity</label>
+          <button class="btn-primary" id="openCameraBtn" onclick="startCamera()">Take Selfie</button>
+          <div id="cameraMsg" class="msg"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="attSuccessScreen" class="success-screen">
+      <img id="successPhoto" class="success-photo" src="" alt="Selfie" onclick="toggleZoom()">
+      <div class="success-badge" id="successBadge">CLOCK IN</div>
+      <div class="success-card"><div class="success-name" id="successName"></div><div class="success-msg" id="successMsg"></div></div>
+      <button class="btn-primary" onclick="resetAttForm()">← Submit Another</button>
+    </div>
+
+    <div id="videoContainerWrapper">
+      <video id="cameraVideo" autoplay playsinline muted></video>
+      <button id="closeCameraBtn" onclick="stopCamera()">&#x2715;</button>
+      <div class="camera-ui"><div id="captureBtn" onclick="capturePhoto()"></div></div>
     </div>
   </div>
 </div>
 
+<!-- =========================
+     MODALS
+========================== -->
+<div id="orderConfirmModal" class="modal-overlay">
+  <div class="modal-box">
+    <h3 style="margin:0 0 10px; font-size:22px; font-weight:900; text-transform:uppercase;">Confirm Order</h3>
+    <div id="orderSummaryDetails" style="flex:1; overflow-y:auto; text-align:left; padding:16px; background:var(--bg-primary); border-radius:12px; margin:16px 0; border:1px solid var(--border-color); font-size:14px; line-height:1.6; font-weight:700;"></div>
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <button class="btn-primary" style="background:var(--bg-secondary); border:1px solid var(--border-color);" onclick="document.getElementById('orderConfirmModal').style.display='none'">Back to Edit</button>
+      <button class="btn-primary solid" id="confirmSendBtn" onclick="confirmAndSendOrder()">Confirm & Send</button>
+    </div>
+  </div>
+</div>
+
+<div id="guideModal" class="modal-overlay">
+  <div class="modal-box">
+    <div id="guideIcon" style="font-size:44px;margin-bottom:10px;">🛑</div>
+    <h3 id="guideTitle" style="color:var(--error-color);margin:10px 0 16px;font-size:20px;">Action Blocked</h3>
+    <div class="modal-instructions" id="guideText"></div>
+    <button class="btn-primary solid" onclick="document.getElementById('guideModal').style.display='none'">GOT IT</button>
+  </div>
+</div>
+
+<!-- =========================
+     JAVASCRIPT CORE
+========================== -->
 <script>
-// ==========================================
-// UNIFIED ATTENDANCE SYSTEM JS
-// ==========================================
-var currentTerminal = Storage.get('selected_terminal') || 'chandarana';
-var staff = [], branches = [], coords = null, staffName = "", photo = null;
-var activeFetchId = 0, currentAction = "", videoStream = null;
+// --- NAVIGATION CONTROLLER ---
+let activeStore = 'chandarana', currentTerminal = Storage.get('selected_terminal') || 'chandarana';
 
-var staffRestrictionError = null; 
-var warningTimer = null;
+document.addEventListener('DOMContentLoaded', function() {
+  loadOrderStaffBackground();
+  cleanOldHistory();
+  processSyncQueue();
+  window.addEventListener('online', function(){ checkNetworkStatus(); processSyncQueue(); });
+  window.addEventListener('offline', checkNetworkStatus);
+});
 
-function closeOverlays() {
-  if (document.getElementById('videoContainerWrapper').classList.contains('expanded')) {
-     stopCamera();
-  }
-  var photoBackdrop = document.getElementById('photoBackdrop');
-  if (photoBackdrop && photoBackdrop.classList.contains('show')) {
-     toggleZoom();
-  }
+function switchView(viewId) {
+  document.querySelectorAll('.view-section').forEach(v => {
+    if (v.id === viewId) { v.style.display = 'flex'; v.classList.remove('active'); void v.offsetWidth; v.classList.add('active'); }
+    else { v.classList.remove('active'); v.style.display = 'none'; }
+  });
+}
+function goHome() { 
+  if (document.getElementById('view-orders').classList.contains('active')) saveOrderState();
+  document.getElementById('globalBackBtn').classList.remove('show');
+  switchView('view-menu'); document.body.className = 'theme-hub';
+  var meta = document.getElementById('theme-color-meta');
+  if (meta) meta.setAttribute('content', '#059669');
+  stopCamera();
+}
+
+// --- ORDER SYSTEM LOGIC ---
+let orderStaffCache = [], currentOrderStaffFullname = "";
+let orderState = { chandarana: { juices: {}, fresh: [], bottles: [], haccp: [] }, carrefour: { juices: {}, fresh: [], bottles: [], haccp: [] } };
+
+function openOrder() {
+  document.getElementById('globalBackBtn').classList.add('show');
+  document.getElementById('orderForm').style.display = 'block';
+  document.getElementById('orderTopBar').style.display = 'flex';
+  document.getElementById('orderSuccessScreen').style.display = 'none';
+  switchView('view-orders'); switchTerminalOrder(activeStore);
+}
+
+function switchTerminalOrder(store) {
+  saveOrderState(); activeStore = store;
+  document.body.className = store === 'chandarana' ? 'theme-chandarana' : 'theme-carrefour';
+  var isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  var meta = document.getElementById('theme-color-meta');
+  if (meta) meta.setAttribute('content', store === 'chandarana' ? (isDark ? '#059669' : '#10b981') : (isDark ? '#2563eb' : '#3b82f6'));
+
+  document.getElementById('o-btn-chandarana').classList.toggle('active', store === 'chandarana');
+  document.getElementById('o-btn-carrefour').classList.toggle('active', store === 'carrefour');
+  requestAnimationFrame(() => {
+    const ab = document.querySelector('#o-terminal-wrapper .pill-btn.active'), sl = document.getElementById('o-pill-slider');
+    if (ab && sl) { sl.style.width = ab.offsetWidth + 'px'; sl.style.left = ab.offsetLeft + 'px'; }
+  });
+
+  renderDynamicOrderContent(); restoreOrderState();
+  let savedId = Storage.get('last_order_id');
+  if (savedId && !document.getElementById('o-id').value) document.getElementById('o-id').value = savedId;
+  instantOrderStaffCheck(document.getElementById('o-id').value);
+}
+
+function loadOrderStaffBackground() {
+  const cached = localStorage.getItem('order_staff'); if (cached) orderStaffCache = JSON.parse(cached);
+  fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getOrderStaff' }) }).then(r => r.json()).then(res => {
+    if(res.ok) { orderStaffCache = res.data; localStorage.setItem('order_staff', JSON.stringify(res.data)); }
+  }).catch(e => {});
+}
+
+function instantOrderStaffCheck(val) {
+  val = val.trim(); const msgDiv = document.getElementById('o-staffMsg'), nameCont = document.getElementById('o-name-container'), nameInp = document.getElementById('o-name'), expFields = document.getElementById('o-expanded-fields'), lockedSec = document.getElementById('o-locked-section');
+  if(val.length < 2) { msgDiv.innerHTML = ''; nameInp.value = ''; currentOrderStaffFullname = ''; document.getElementById('o-branch').value = ''; document.getElementById('o-phone').value = ''; nameCont.style.opacity = '0'; expFields.style.display='none'; lockedSec.classList.remove('unlocked'); Storage.remove('last_order_id'); return; }
+  
+  const match = orderStaffCache.find(s => s.id === val);
+  if(match && match.shop === activeStore) {
+    Storage.set('last_order_id', val); msgDiv.innerHTML = '<span class="dot"></span> ID Verified'; msgDiv.className = 'msg success'; currentOrderStaffFullname = match.name;
+    const parts = match.name.split(' '); nameInp.value = parts.slice(0, 2).join(' ') + (parts.length>2?'...':'');
+    document.getElementById('o-branch').value = match.branch || ''; document.getElementById('o-phone').value = match.phone || '';
+    nameCont.style.opacity = '1'; expFields.style.display='block'; lockedSec.classList.add('unlocked');
+  } else { msgDiv.innerHTML = 'Invalid ID'; msgDiv.className = 'msg error'; nameInp.value = ''; document.getElementById('o-branch').value = ''; document.getElementById('o-phone').value = ''; nameCont.style.opacity = '0'; expFields.style.display='none'; lockedSec.classList.remove('unlocked'); }
+}
+
+const JUICES = { chandarana: ["ORANGE", "TROPICAL MIX", "MANGO", "PASSION", "APPLE GINGER", "TREE TOMATO", "PINEAPPLE MINT", "LIME & GINGER", "APPLEJUICE", "LIMEJUICE", "HIBISCUS", "TAMARIND", "ALOE VERA", "BEETROOT", "TANGERINE", "GINGER PLAIN", "CARROT"], carrefour: ["ORANGE", "TROPICAL MIX", "MANGO", "PASSION", "APPLE GINGER", "TREE TOMATO", "PINEAPPLE MINT", "LIME & GINGER", "TAMARIND", "CARROT", "BEETROOT"] };
+
+function handleJuiceTouch(e, step) {
+  e.preventDefault(); const el = e.currentTarget;
+  if(e.type === 'touchstart' || e.type === 'mousedown') {
+    el.pressTimer = setTimeout(() => { el.isLong = true; if(navigator.vibrate) navigator.vibrate(50); el.setAttribute('data-val', "0"); el.innerText = '-'; el.classList.remove('has-value'); }, 400);
+  } else if (e.type === 'touchend' || e.type === 'mouseup') {
+    clearTimeout(el.pressTimer);
+    if(!el.isLong) {
+      let currentVal = parseInt(el.getAttribute('data-val')) || 0; currentVal += step; if(currentVal > 60) currentVal = 0;
+      el.setAttribute('data-val', currentVal); el.innerText = currentVal === 0 ? '-' : currentVal; el.classList.toggle('has-value', currentVal > 0);
+      const flavor = el.getAttribute('data-flavor'), vol = el.getAttribute('data-vol'), otherVol = vol === '5L' ? '3L' : '5L';
+      const otherEl = document.querySelector(`.juice-input[data-flavor="${flavor}"][data-vol="${otherVol}"]`);
+      if (currentVal > 0 && otherEl && parseInt(otherEl.getAttribute('data-val')) > 0) { otherEl.setAttribute('data-val', 0); otherEl.innerText = '-'; otherEl.classList.remove('has-value'); }
+    } el.isLong = false;
+  } else { clearTimeout(el.pressTimer); el.isLong = false; }
+}
+
+function renderDynamicOrderContent() {
+  let html = `<details class="order-group"><summary class="order-group-title">Juice Flavors</summary><div class="order-group-content" style="padding:0; border-top:none;"><div style="overflow-x:auto;"><table><thead><tr><th>Flavor</th><th>5 Litres</th><th>3 Litres</th></tr></thead><tbody>`;
+  JUICES[activeStore].forEach(flavor => {
+    html += `<tr><td class="flavor-name">${flavor}</td>`;
+    ["5L", "3L"].forEach(v => { html += `<td><div class="square-input juice-input" data-flavor="${flavor}" data-vol="${v}" data-val="0" ontouchstart="handleJuiceTouch(event, ${parseInt(v)})" ontouchend="handleJuiceTouch(event, ${parseInt(v)})" ontouchcancel="handleJuiceTouch(event, 0)" onmousedown="handleJuiceTouch(event, ${parseInt(v)})" onmouseup="handleJuiceTouch(event, ${parseInt(v)})" onmouseleave="handleJuiceTouch(event, 0)">-</div></td>`; });
+    html += `</tr>`;
+  }); html += `</tbody></table></div></div></details>`;
+
+  html += `<details class="order-group"><summary class="order-group-title">Fresh Inputs</summary><div class="order-group-content"><div class="chip-group">`;
+  if(activeStore === 'chandarana') { html += `<label class="chip-label"><input type="checkbox" class="inp-fresh" value="Ginger"><span class="chip-span">Ginger</span></label><label class="chip-label"><input type="checkbox" class="inp-fresh" value="Lime"><span class="chip-span">Lime</span></label><label class="chip-label"><input type="radio" name="sg" class="inp-fresh" value="Sugarcane (Full)"><span class="chip-span">Sugarcane (Full)</span></label><label class="chip-label"><input type="radio" name="sg" class="inp-fresh" value="Sugarcane (Half)"><span class="chip-span">Sugarcane (Half)</span></label>`; }
+  else { html += `<label class="chip-label"><input type="checkbox" class="inp-fresh" value="Sugarcane"><span class="chip-span">Sugarcane</span></label><label class="chip-label"><input type="checkbox" class="inp-fresh" value="Ginger"><span class="chip-span">Ginger</span></label><label class="chip-label"><input type="checkbox" class="inp-fresh" value="Lime"><span class="chip-span">Lime</span></label>`; }
+  html += `</div></div></details>`;
+
+  html += `<details class="order-group"><summary class="order-group-title">Bottles</summary><div class="order-group-content"><div class="chip-group"><label class="chip-label"><input type="checkbox" class="inp-bottle" value="1 Litre"><span class="chip-span">1 Litre</span></label><label class="chip-label"><input type="checkbox" class="inp-bottle" value="500ml"><span class="chip-span">500ml</span></label>`;
+  if(activeStore === 'carrefour') html += `<label class="chip-label"><input type="checkbox" class="inp-bottle" value="250ml"><span class="chip-span">250ml</span></label>`;
+  html += `</div></div></details>`;
+
+  html += `<details class="order-group"><summary class="order-group-title">HACCP Supplies</summary><div class="order-group-content"><div class="chip-group"><label class="chip-label"><input type="checkbox" class="inp-haccp" value="Sampling Cups"><span class="chip-span">Sampling Cups</span></label>`;
+  if(activeStore === 'chandarana') html += `<label class="chip-label"><input type="checkbox" class="inp-haccp" value="Gloves"><span class="chip-span">Gloves</span></label><label class="chip-label"><input type="checkbox" class="inp-haccp" value="Hairnets"><span class="chip-span">Hairnets</span></label><label class="chip-label"><input type="checkbox" class="inp-haccp" value="Towels"><span class="chip-span">Towels</span></label>`;
+  html += `</div></div></details>`;
+  document.getElementById('dynamicOrderContent').innerHTML = html;
+}
+
+function saveOrderState() { const s = orderState[activeStore]; s.juices={}; document.querySelectorAll('.juice-input').forEach(el => { s.juices[`${el.getAttribute('data-flavor')}_${el.getAttribute('data-vol')}`] = el.getAttribute('data-val'); }); s.fresh = Array.from(document.querySelectorAll('.inp-fresh')).map(el => ({val: el.value, checked: el.checked})); s.bottles = Array.from(document.querySelectorAll('.inp-bottle')).map(el => ({val: el.value, checked: el.checked})); s.haccp = Array.from(document.querySelectorAll('.inp-haccp')).map(el => ({val: el.value, checked: el.checked})); }
+function restoreOrderState() { const s = orderState[activeStore]; Object.keys(s.juices).forEach(key => { const parts = key.split('_'), el = document.querySelector(`.juice-input[data-flavor="${parts[0]}"][data-vol="${parts[1]}"]`); if(el) { el.setAttribute('data-val', s.juices[key]); el.innerText = s.juices[key] === '0' ? '-' : s.juices[key]; el.classList.toggle('has-value', s.juices[key] > 0); } }); s.fresh.forEach(item => { const el = document.querySelector(`.inp-fresh[value="${item.val}"]`); if(el) el.checked = item.checked; }); s.bottles.forEach(item => { const el = document.querySelector(`.inp-bottle[value="${item.val}"]`); if(el) el.checked = item.checked; }); s.haccp.forEach(item => { const el = document.querySelector(`.inp-haccp[value="${item.val}"]`); if(el) el.checked = item.checked; }); }
+
+let pendingOrderPayload = null;
+function processOrder(e) {
+  e.preventDefault(); if(!document.getElementById('o-name').value) return alert("Valid Staff ID required.");
+  const payload = { "SHOP": document.getElementById('o-branch').value, [activeStore==='chandarana'?"FULL NAME":"FULL NAME (2 Names)"]: currentOrderStaffFullname, "ID NO.": document.getElementById('o-id').value, "PHONE NO.": document.getElementById('o-phone').value, "FRESH INPUTS": Array.from(document.querySelectorAll('.inp-fresh:checked')).map(el=>el.value).join(', '), "BOTTLES": Array.from(document.querySelectorAll('.inp-bottle:checked')).map(el=>el.value).join(', '), "HACCP SUPPLIES": Array.from(document.querySelectorAll('.inp-haccp:checked')).map(el=>el.value).join(', '), "NOTES": document.getElementById('o-notes').value };
+  JUICES[activeStore].forEach(flavor => { let flavorKey = flavor; if (["TREE TOMATO", "HIBISCUS", "TAMARIND", "BEETROOT", "TANGERINE", "CARROT"].includes(flavor)) { flavorKey = activeStore === 'chandarana' ? `${flavor} ` : flavor; } let val5 = document.querySelector(`.juice-input[data-flavor="${flavor}"][data-vol="5L"]`)?.getAttribute('data-val') || "0", val3 = document.querySelector(`.juice-input[data-flavor="${flavor}"][data-vol="3L"]`)?.getAttribute('data-val') || "0", qty = val5 !== "0" ? val5 : (val3 !== "0" ? val3 : "0"); if(qty !== "0") payload[(activeStore==='chandarana'?"JUICE (5 LITRES/3 LITRES)":"JUICE (5 ITRES / 3 LITRES)") + ` [${flavorKey}]`] = qty; });
+  pendingOrderPayload = payload;
+  
+  let html = `<p><strong>Shop:</strong> ${payload["SHOP"]}</p><p><strong>Staff:</strong> ${currentOrderStaffFullname}</p>`;
+  document.getElementById('orderSummaryDetails').innerHTML = html + `<p style="font-size:12px; margin-top:10px; color:var(--text-tertiary);">Review looks good. Press Confirm & Send below.</p>`;
+  document.getElementById('orderConfirmModal').style.display = 'flex';
+}
+
+async function confirmAndSendOrder() {
+  const btn = document.getElementById('confirmSendBtn'); btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span>Submitting...';
+  try {
+    const res = await (await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: 'saveOrder', store: activeStore === 'chandarana' ? 'Chandarana' : 'Carrefour', data: pendingOrderPayload }) })).json();
+    if (!res.ok) throw new Error(res.error);
+    document.getElementById('orderConfirmModal').style.display = 'none';
+    document.getElementById('orderForm').style.display = 'none'; document.getElementById('orderTopBar').style.display = 'none';
+    document.getElementById('orderSuccessScreen').style.display = 'flex';
+    orderState[activeStore] = { juices: {}, fresh: [], bottles: [], haccp: [] };
+  } catch (err) { alert(err.message); }
+  btn.disabled = false; btn.innerText = 'Confirm & Send';
+}
+
+function resetOrderForm() {
+  document.getElementById('orderSuccessScreen').style.display = 'none';
+  document.getElementById('orderTopBar').style.display = 'flex'; document.getElementById('orderForm').style.display = 'block';
+  document.getElementById('o-notes').value = ''; renderDynamicOrderContent(); instantOrderStaffCheck(document.getElementById('o-id').value);
+}
+
+// --- ATTENDANCE SYSTEM LOGIC ---
+var staff = [], branches = [], coords = null, staffName = "", photo = null, activeFetchId = 0, currentAction = "", videoStream = null, staffRestrictionError = null, warningTimer = null;
+
+function openAttendance() {
+  document.getElementById('globalBackBtn').classList.add('show');
+  switchView('view-attendance'); switchTerminalAtt(currentTerminal);
 }
 
 function cleanOldHistory() {
   var histRaw = Storage.get('local_history_' + currentTerminal);
   if (histRaw) {
     try {
-      var history = JSON.parse(histRaw);
-      var updated = false;
-      var todayStr = new Date().toDateString();
-      for (var key in history) {
-        var entry = history[key];
-        if (!entry || typeof entry !== 'object' || entry.dateStr !== todayStr) {
-          delete history[key];
-          updated = true;
-        }
-      }
+      var history = JSON.parse(histRaw), updated = false, todayStr = new Date().toDateString();
+      for (var key in history) { if (!history[key] || typeof history[key] !== 'object' || history[key].dateStr !== todayStr) { delete history[key]; updated = true; } }
       if (updated) Storage.set('local_history_' + currentTerminal, JSON.stringify(history));
     } catch(e) {}
   }
 }
 
-function processSyncQueue() { 
-  if (!navigator.onLine) return; 
-  var qRaw = Storage.get('sync_queue'); if (!qRaw) return; 
-  try { 
-    var queue = JSON.parse(qRaw); 
-    if (queue.length === 0) return; 
-    var item = queue[0]; 
-    fetchFromServer('recordAttendance', item).then(function() { 
-      var currentQ = JSON.parse(Storage.get('sync_queue') || '[]'); 
-      currentQ.shift(); Storage.set('sync_queue', JSON.stringify(currentQ)); 
-      processSyncQueue(); 
-    }).catch(function(e) {}); 
-  } catch(e) {} 
+function processSyncQueue() {
+  if (!navigator.onLine) return; var qRaw = Storage.get('sync_queue'); if (!qRaw) return;
+  try {
+    var queue = JSON.parse(qRaw); if (queue.length === 0) return;
+    fetch(SCRIPT_URL, { method:'POST', body:JSON.stringify({action:'recordAttendance', data:queue[0], terminal:currentTerminal}) }).then(r=>r.json()).then(j=>{
+      if(j.ok){ var currentQ = JSON.parse(Storage.get('sync_queue') || '[]'); currentQ.shift(); Storage.set('sync_queue', JSON.stringify(currentQ)); processSyncQueue(); }
+    }).catch(e=>{});
+  } catch(e) {}
 }
 
-window.addEventListener('online', function(){ checkNetworkStatus(); processSyncQueue(); }); window.addEventListener('offline', checkNetworkStatus);
-function checkNetworkStatus() { var ind = document.getElementById('networkIndicator'); if(ind){if (navigator.onLine) ind.classList.remove('offline'); else ind.classList.add('offline');} }
+function checkNetworkStatus() { var ind = document.getElementById('networkIndicator'); if (ind) navigator.onLine ? ind.classList.remove('offline') : ind.classList.add('offline'); }
 
-function triggerSignAnimation() { var sign = document.getElementById('storeSign'); sign.classList.remove('nudge'); void sign.offsetWidth; sign.classList.add('nudge'); }
-function updateTerminalUIAtt() {
+function switchTerminalAtt(term) {
+  currentTerminal = term; Storage.set('selected_terminal', term); staff = []; branches = [];
+  document.getElementById('branch').innerHTML = '<option value="">Loading...</option>';
+  document.getElementById('attSuccessScreen').style.display='none'; document.getElementById('attMainForm').style.display='block'; document.getElementById('attMainContainer').style.overflow = 'hidden';
+  
   document.body.className = 'theme-' + currentTerminal;
   var isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  var hexColor = currentTerminal === 'chandarana' ? (isDark ? '#059669' : '#10b981') : (isDark ? '#2563eb' : '#3b82f6');
-  var meta = document.getElementById('theme-color-meta');
-  if (meta) meta.setAttribute('content', hexColor);
-
-  var title = document.getElementById('storeSign'); if(title) title.innerText = currentTerminal.charAt(0).toUpperCase() + currentTerminal.slice(1);
-  triggerSignAnimation();
+  var meta = document.getElementById('theme-color-meta'); if (meta) meta.setAttribute('content', currentTerminal === 'chandarana' ? (isDark ? '#059669' : '#10b981') : (isDark ? '#2563eb' : '#3b82f6'));
   
-  const wrapper = document.getElementById('a-terminal-wrapper');
-  if (wrapper) wrapper.className = 'terminal-pill-wrapper ' + currentTerminal + '-active';
-  document.getElementById('btn-chandarana').classList.toggle('active', currentTerminal === 'chandarana');
-  document.getElementById('btn-carrefour').classList.toggle('active',  currentTerminal === 'carrefour');
+  var title = document.getElementById('storeSign'); title.innerText = currentTerminal.charAt(0).toUpperCase() + currentTerminal.slice(1);
+  title.classList.remove('nudge'); void title.offsetWidth; title.classList.add('nudge');
+  
+  document.getElementById('a-btn-chandarana').classList.toggle('active', currentTerminal === 'chandarana');
+  document.getElementById('a-btn-carrefour').classList.toggle('active',  currentTerminal === 'carrefour');
+  requestAnimationFrame(() => {
+    const ab = document.querySelector('#attMainForm .pill-btn.active'), sl = document.getElementById('a-pill-slider');
+    if (ab && sl) { sl.style.width = ab.offsetWidth + 'px'; sl.style.left = ab.offsetLeft + 'px'; }
+  });
+  
+  resetStepsFrom(2); cleanOldHistory(); 
+  
+  var myId = ++activeFetchId, cacheKey = currentTerminal + '_portal_data', cached = false;
+  try { var raw = Storage.get(cacheKey); if (raw) { var p = JSON.parse(raw); if (p && Array.isArray(p.branches)) { staff = p.staff || []; branches = p.branches || []; populateBranches(branches); restoreUserState(); cached = true; } } } catch(e) {}
+  
+  fetch(SCRIPT_URL, { method:'POST', body:JSON.stringify({action:'getPortalData', terminal:currentTerminal}) }).then(r=>r.json()).then(j => {
+    if (myId !== activeFetchId) return; var data = j.data;
+    var changed = JSON.stringify(branches) !== JSON.stringify(data.branches) || JSON.stringify(staff) !== JSON.stringify(data.staff);
+    staff = data.staff || []; branches = data.branches || [];
+    try { Storage.set(cacheKey, JSON.stringify({staff:staff, branches:branches})); } catch(e) {}
+    if (!cached || changed) { populateBranches(branches); restoreUserState(); } else { restoreUserState(); }
+  }).catch(()=>{ if (myId === activeFetchId && branches.length === 0) document.getElementById('branch').innerHTML = '<option value="">Offline — waiting for connection</option>'; });
 }
 
-function attSwitchTerminal(term, force) {
-  if (!force && currentTerminal === term && document.getElementById('view-attendance').classList.contains('active')) { triggerSignAnimation(); return; }
-  currentTerminal = term; Storage.set('selected_terminal', term);
-  staff = []; branches = []; document.getElementById('branch').innerHTML = '<option value="">Loading...</option>';
-  document.getElementById('attSuccessScreen').style.display='none'; document.getElementById('mainFormAtt').style.display='block'; document.getElementById('mainContainer').style.overflow = 'hidden';
-  updateTerminalUIAtt(); resetStepsFrom(2); cleanOldHistory(); initApp();
-}
-
-function fetchFromServer(action, data) {
-  return fetch(SCRIPT_URL, { method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({action:action, data:data, terminal:currentTerminal}) })
-  .then(function(r){ return r.json(); }).then(function(j){ if(!j.ok) throw new Error(j.error||'Server error'); return j.data; });
-}
-
-function populateBranchesAtt(list, savedBranch) {
+function populateBranches(list) {
   if (!Array.isArray(list)) return;
-  var options = '<option value="">Choose Branch</option>' + list.map(function(b){ return '<option value="'+b[0]+'"'+(b[0]===savedBranch?' selected':'')+'>'+b[0]+'</option>'; }).join('');
-  document.getElementById('branch').innerHTML = options;
+  document.getElementById('branch').innerHTML = '<option value="">Choose Branch</option>' + list.map(b => `<option value="${b[0]}">${b[0]}</option>`).join('');
 }
 
 function restoreUserState() {
-  var savedBranch = Storage.get('last_branch_' + currentTerminal); var branchEl = document.getElementById('branch');
-  if (savedBranch && branchEl) { var found = false; for (var i = 0; i < branchEl.options.length; i++) { if (branchEl.options[i].value === savedBranch) { found = true; break; } }
-    if (found) { branchEl.value = savedBranch; handleBranchChange(true); }
-  }
+  var savedBranch = Storage.get('last_branch_' + currentTerminal);
+  if (savedBranch) { var branchEl = document.getElementById('branch'); branchEl.value = savedBranch; if (branchEl.value) handleBranchChange(); }
   var savedStaffID = Storage.get('last_staff_id_' + currentTerminal);
-  if (savedStaffID && staff.length > 0) { var staffEl = document.getElementById('staffID'); if (document.getElementById('step2').classList.contains('activeStep')) { staffEl.value = savedStaffID; handleStaffInputValue(savedStaffID); } }
-}
-
-function initApp() {
-  checkNetworkStatus(); cleanOldHistory(); processSyncQueue();
-  var myId = ++activeFetchId; var cacheKey = currentTerminal + '_portal_data'; var savedBranch = Storage.get('last_branch_' + currentTerminal); var dataLoaded = false;
-  try { var raw = Storage.get(cacheKey); if (raw) { var p = JSON.parse(raw); if (p && Array.isArray(p.branches) && p.branches.length > 0) { staff = p.staff || []; branches = p.branches || []; populateBranchesAtt(branches, savedBranch); restoreUserState(); dataLoaded = true; } } } catch(e) {}
-  if (!dataLoaded) { document.getElementById('branch').innerHTML = '<option value="">Loading…</option>'; }
-  fetchFromServer('getPortalData', {}).then(function(data) {
-    if (myId !== activeFetchId) return; var newStaff = data.staff || [], newBranches = data.branches || [];
-    var changed = JSON.stringify(branches) !== JSON.stringify(newBranches) || JSON.stringify(staff) !== JSON.stringify(newStaff);
-    staff = newStaff; branches = newBranches; try { Storage.set(cacheKey, JSON.stringify({staff:staff, branches:branches})); } catch(e) {}
-    if (!dataLoaded || changed) { var currentBranch = document.getElementById('branch').value || savedBranch; populateBranchesAtt(branches, currentBranch); if (currentBranch) { document.getElementById('branch').value = currentBranch; } restoreUserState(); }
-  }).catch(function() { if (myId === activeFetchId && !dataLoaded) { document.getElementById('branch').innerHTML = '<option value="">Offline — check connection</option>'; } });
+  if (savedStaffID && staff.length > 0) { var staffEl = document.getElementById('staffID'); staffEl.value = savedStaffID; handleStaffInput.call(staffEl); }
 }
 
 function activateStep(n) { document.getElementById('step'+n).classList.add('activeStep'); }
 function resetStepsFrom(n) {
   for (var i = n; i <= 4; i++) { var el = document.getElementById('step'+i); if (el) el.classList.remove('activeStep'); }
-  if (n <= 2) { staffName = ''; document.getElementById('staffID').value = ''; clearMsg('staffMsg'); staffRestrictionError = null; }
-  if (n <= 3) { coords = null; clearMsg('gpsMsg'); }
-  if (n <= 4) { photo = null; stopCamera(); clearMsg('cameraMsg'); document.getElementById('successPhoto').src = ''; }
+  if (n<=2) { staffName=''; document.getElementById('staffID').value=''; clearMsg('staffMsg'); staffRestrictionError = null; }
+  if (n<=3) { coords=null; clearMsg('gpsMsg'); }
+  if (n<=4) { photo=null; stopCamera(); clearMsg('cameraMsg'); document.getElementById('successPhoto').src=''; }
 }
 
-function resetToStart() {
-  document.getElementById('attSuccessScreen').style.display = 'none'; document.getElementById('mainFormAtt').style.display = 'block'; document.getElementById('mainContainer').style.overflow = 'hidden';
-  resetStepsFrom(3); var branchVal = document.getElementById('branch').value; var staffVal = document.getElementById('staffID').value;
-  if (branchVal && staffVal) handleStaffInputValue(staffVal);
-}
+function clearMsg(id) { document.getElementById(id).innerText=''; document.getElementById(id).className='msg'; }
+function showSuccess(id,txt) { document.getElementById(id).innerHTML='<span class="dot"></span> '+txt; document.getElementById(id).className='msg success'; }
+function showError(id,txt) { document.getElementById(id).innerText=txt; document.getElementById(id).className='msg error'; }
 
-function showSuccess(id,txt){ var e=document.getElementById(id); e.innerHTML='<span class="dot"></span> '+txt; e.className='att-msg success'; }
-function showError(id,txt)  { var e=document.getElementById(id); e.innerText=txt; e.className='att-msg error'; }
-function clearMsg(id)       { var e=document.getElementById(id); e.innerText=''; e.className='att-msg'; }
-
-function toggleZoom() {
-  var img = document.getElementById('successPhoto');
-  var backdrop = document.getElementById('photoBackdrop');
-  if (img.classList.contains('zoomed')) {
-    img.classList.remove('zoomed');
-    backdrop.classList.remove('show');
-  } else {
-    img.classList.add('zoomed');
-    backdrop.classList.add('show');
-  }
-}
-
-function handleBranchChange(silent) {
-  var val = document.getElementById('branch').value;
-  if (!val) { resetStepsFrom(2); return; }
-  Storage.set('last_branch_' + currentTerminal, val); showSuccess('branchMsg', 'Branch Selected');
-  if (!silent && document.getElementById('step2').classList.contains('activeStep') && document.getElementById('staffID').value !== '') resetStepsFrom(2);
+function handleBranchChange() {
+  var val = document.getElementById('branch').value; if (!val) return resetStepsFrom(2);
+  Storage.set('last_branch_' + currentTerminal, val); showSuccess('branchMsg','Branch Selected');
+  if (document.getElementById('step2').classList.contains('activeStep') && document.getElementById('staffID').value !== '') resetStepsFrom(2);
   if (!document.getElementById('step2').classList.contains('activeStep')) activateStep(2);
 }
-document.getElementById('branch').onchange = function() { handleBranchChange(false); };
+document.getElementById('branch').onchange = handleBranchChange;
 
-function handleStaffInputValue(val) {
-  if (!val) return; val = val.trim();
-  staffRestrictionError = null;
+function handleStaffInput() {
+  var val = this.value.trim(); staffRestrictionError = null; 
   if (val.length < 2) { resetStepsFrom(3); clearMsg('staffMsg'); return; }
-  
-  var match = null; 
-  for (var i = 0; i < staff.length; i++) { if (staff[i].id === val) { match = staff[i]; break; } }
-  
+  var match = staff.find(s => s.id === val);
   if (match) {
-    staffName = match.name; 
-    
-    var historyRaw = Storage.get('local_history_' + currentTerminal);
-    var history = historyRaw ? JSON.parse(historyRaw) : {}; 
-    var todayStr = new Date().toDateString();
-    var updatedHist = false;
-    
-    for (var k in history) {
-      if (!history[k] || typeof history[k] !== 'object' || history[k].dateStr !== todayStr) {
-        delete history[k];
-        updatedHist = true;
-      }
-    }
-    if (updatedHist) Storage.set('local_history_' + currentTerminal, JSON.stringify(history));
-    
-    var historyEntry = history[match.id];
-    var lastAction = null; 
-    var lastTime = null;
+    staffName = match.name;
+    cleanOldHistory(); // Secure clean check
+    var historyRaw = Storage.get('local_history_' + currentTerminal), history = historyRaw ? JSON.parse(historyRaw) : {}, historyEntry = history[match.id];
+    var lastAction = historyEntry ? historyEntry.action : null, lastTime = historyEntry ? historyEntry.time : null;
 
-    if (historyEntry) {
-      lastAction = historyEntry.action;
-      lastTime = historyEntry.time;
-    }
-
-    if (lastAction === 'Clock Out') {
-      staffRestrictionError = 'You have completed today\'s attendance.';
-    } else if (lastAction === 'Clock In') {
-      if (lastTime) {
-        var diffHours = (Date.now() - lastTime) / (1000 * 60 * 60);
-        if (diffHours < 5) {
-          staffRestrictionError = 'Cannot clock out before time.';
-        }
-      }
+    if (lastAction === 'Clock Out') staffRestrictionError = "You have completed today's attendance.";
+    else if (lastAction === 'Clock In') {
+      if (lastTime && ((Date.now() - lastTime) / (1000 * 60 * 60)) < 5) staffRestrictionError = 'Cannot clock out before 5 hours.';
       currentAction = 'Clock Out';
-    } else {
-      currentAction = 'Clock In';
-    }
+    } else currentAction = 'Clock In';
     
-    var msgEl = document.getElementById('staffMsg');
-    msgEl.style.opacity = '1';
-    showSuccess('staffMsg', 'Welcome ' + staffName);
-    
+    document.getElementById('staffMsg').style.opacity = '1'; showSuccess('staffMsg', 'Welcome ' + staffName);
     if (document.getElementById('step4').classList.contains('activeStep')) resetStepsFrom(4);
     if (!document.getElementById('step3').classList.contains('activeStep')) activateStep(3);
-  } else { 
-    resetStepsFrom(3); showError('staffMsg', 'Invalid Staff ID. Please check.'); 
-  }
+  } else { resetStepsFrom(3); showError('staffMsg','Invalid Staff ID.'); }
 }
-
-var staffDebounce = null;
-document.getElementById('staffID').addEventListener('input', function() { var val = this.value; clearTimeout(staffDebounce); staffDebounce = setTimeout(function() { handleStaffInputValue(val); }, 350); });
-document.getElementById('staffID').addEventListener('change', function() { clearTimeout(staffDebounce); handleStaffInputValue(this.value); });
+document.getElementById('staffID').oninput = handleStaffInput;
 
 function showGuideModal(type) {
-  var modal=document.getElementById('guideModal'), title=document.getElementById('guideTitle'), text=document.getElementById('guideText'), icon=document.getElementById('guideIcon');
-  if (type==='gps') { 
-    icon.textContent='📍'; title.textContent='Location Blocked'; title.style.color='var(--error-color)'; 
-    text.innerHTML='<p>We need your location to verify you are at the branch.</p><p style="margin-top:8px"><strong>🍎 iPhone:</strong><br>Settings → Privacy & Security → Location Services → Allow Safari/Chrome.</p><p style="margin-top:8px"><strong>🤖 Android:</strong><br>⋮ Menu → Settings → Site settings → Location → Allow.</p><p style="margin-top:12px; color:var(--error-color); font-weight:bold;">After allowing, please clear the browser from your recent apps and reopen.</p>'; 
-  }
-  else if (type==='gps_signal') { 
-    icon.textContent='📡'; title.textContent='Weak GPS Signal'; title.style.color='var(--warning-text)'; 
-    text.innerHTML='<p>We couldn\'t get an accurate location reading.</p><ul style="margin-top:8px;padding-left:20px"><li>Step outside or near a window.</li><li>Turn WiFi ON — it helps GPS lock faster.</li></ul>'; 
-  }
-  else if (type==='camera') { 
-    icon.textContent='📸'; title.textContent='Camera Access Denied'; title.style.color='var(--error-color)'; 
-    text.innerHTML='<p>Camera permission is required to capture your identity securely.</p><p style="margin-top:8px"><strong>🍎 iPhone:</strong> Settings → Safari/Chrome → Camera → Allow.</p><p style="margin-top:8px"><strong>🤖 Android:</strong> Site settings → Camera → Allow.</p><p style="margin-top:12px; color:var(--error-color); font-weight:bold;">After allowing, please clear the browser from your recent apps and reopen.</p>'; 
-  }
-  modal.style.display = 'flex';
-}
-
-function doVerifyGPS(isRetry) {
-  document.getElementById('gpsMsg').innerText = 'Locating…'; document.getElementById('gpsMsg').className = 'att-msg';
-  if (!navigator.geolocation) { showError('gpsMsg','GPS not supported on this device.'); return; }
-
-  navigator.geolocation.getCurrentPosition(
-    function(pos) {
-      coords = pos.coords; var b=null, bv=document.getElementById('branch').value;
-      for (var i=0;i<branches.length;i++) { if (branches[i][0]===bv){ b=branches[i]; break; } }
-      if (!b) { showError('gpsMsg','Select branch first.'); return; }
-      
-      var R=6371e3, dLat=(b[1]-coords.latitude)*Math.PI/180, dLon=(b[2]-coords.longitude)*Math.PI/180,
-          a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(coords.latitude*Math.PI/180)*Math.cos(b[1]*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2),
-          dist=R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-          
-      var maxDist = isRetry ? 350 : 250;
-      
-      if (dist > maxDist) {
-         if (!isRetry && navigator.onLine) {
-             setTimeout(function() { doVerifyGPS(true); }, 500);
-         } else {
-             showError('gpsMsg', dist>1000 ? 'Too far ('+(dist/1000).toFixed(1)+'km)' : 'Too far ('+Math.round(dist)+'m) — move closer');
-         }
-      } else { 
-        showSuccess('gpsMsg','Location Verified'); 
-        activateStep(4); 
-      }
-    },
-    function(err){ 
-      if(err.code===1) { showGuideModal('gps'); } 
-      else { if (!isRetry && navigator.onLine) { setTimeout(function() { doVerifyGPS(true); }, 500); } else { showGuideModal('gps_signal'); } } 
-    }, 
-    {enableHighAccuracy:true, timeout:15000, maximumAge: isRetry ? 0 : 30000}
-  );
+  var m=document.getElementById('guideModal'), t=document.getElementById('guideTitle'), tx=document.getElementById('guideText'), i=document.getElementById('guideIcon');
+  if (type==='gps') { i.textContent='📍'; t.textContent='Location Blocked'; t.style.color='var(--error-color)'; tx.innerHTML='<p>We need your location to verify you are at the branch.</p><p style="margin-top:8px"><strong>🍎 iPhone:</strong><br>Settings → Privacy & Security → Location Services → Allow Safari/Chrome.</p><p style="margin-top:8px"><strong>🤖 Android:</strong><br>⋮ Menu → Settings → Site settings → Location → Allow.</p>'; }
+  else if (type==='gps_signal') { i.textContent='📡'; t.textContent='Weak GPS Signal'; t.style.color='var(--warning-text)'; tx.innerHTML='<p>We couldn\'t get an accurate location reading.</p><ul style="margin-top:8px;padding-left:20px"><li>Step outside or near a window.</li><li>Turn WiFi ON — it helps GPS lock faster.</li></ul>'; }
+  else if (type==='camera') { i.textContent='📸'; t.textContent='Camera Access Denied'; t.style.color='var(--error-color)'; tx.innerHTML='<p>Camera permission is required to capture your identity securely.</p><p style="margin-top:8px"><strong>🍎 iPhone:</strong> Settings → Safari/Chrome → Camera → Allow.</p><p style="margin-top:8px"><strong>🤖 Android:</strong> Site settings → Camera → Allow.</p>'; }
+  m.style.display = 'flex';
 }
 
 function verifyGPS() {
   if (staffRestrictionError) {
-    var msgEl = document.getElementById('staffMsg');
-    msgEl.style.opacity = '0';
-    setTimeout(function() {
-      showError('staffMsg', staffRestrictionError);
-      msgEl.style.opacity = '1';
-      
-      clearTimeout(warningTimer);
-      warningTimer = setTimeout(function() {
-        msgEl.style.opacity = '0';
-        setTimeout(function() {
-          if(document.getElementById('step2').classList.contains('activeStep')) {
-            showSuccess('staffMsg', 'Welcome ' + staffName);
-          }
-          msgEl.style.opacity = '1';
-        }, 300);
-      }, 3000); 
-    }, 300);
-    return;
+    var msgEl = document.getElementById('staffMsg'); msgEl.style.opacity = '0';
+    setTimeout(() => {
+      showError('staffMsg', staffRestrictionError); msgEl.style.opacity = '1';
+      clearTimeout(warningTimer); warningTimer = setTimeout(() => { msgEl.style.opacity = '0'; setTimeout(() => { if(document.getElementById('step2').classList.contains('activeStep')) showSuccess('staffMsg', 'Welcome ' + staffName); msgEl.style.opacity = '1'; }, 300); }, 3000); 
+    }, 300); return;
   }
-  
   doVerifyGPS(false);
+}
+
+function doVerifyGPS(isRetry) {
+  document.getElementById('gpsMsg').innerText = 'Locating…'; document.getElementById('gpsMsg').className = 'msg';
+  if (!navigator.geolocation) return showError('gpsMsg','GPS not supported on this device.');
+  navigator.geolocation.getCurrentPosition(
+    function(pos) {
+      coords = pos.coords; var b=branches.find(br => br[0] === document.getElementById('branch').value);
+      if (!b) return showError('gpsMsg','Select branch first.');
+      var R=6371e3, dLat=(b[1]-coords.latitude)*Math.PI/180, dLon=(b[2]-coords.longitude)*Math.PI/180, a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(coords.latitude*Math.PI/180)*Math.cos(b[1]*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2), dist=R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+      var maxDist = isRetry ? 350 : 250;
+      if (dist > maxDist) { if (!isRetry && navigator.onLine) setTimeout(() => doVerifyGPS(true), 500); else showError('gpsMsg', dist>1000 ? 'Too far ('+(dist/1000).toFixed(1)+'km)' : 'Too far ('+Math.round(dist)+'m) — move closer'); }
+      else { showSuccess('gpsMsg','Location Verified'); activateStep(4); }
+    },
+    function(err) { if(err.code===1) showGuideModal('gps'); else if (!isRetry && navigator.onLine) setTimeout(() => doVerifyGPS(true), 500); else showGuideModal('gps_signal'); },
+    {enableHighAccuracy:true, timeout:15000, maximumAge: isRetry ? 0 : 30000}
+  );
 }
 
 function startCamera() {
   var btn = document.getElementById('openCameraBtn');
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { showGuideModal('camera'); return; }
-
-  btn.classList.add('loading');
-  btn.innerHTML = '<span class="btn-spinner" style="display:inline-block; vertical-align:middle; width:16px; height:16px; margin-right:8px;"></span><span style="vertical-align:middle;">Starting...</span>';
-  clearMsg('cameraMsg');
-
-  var constraints = { video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false };
-  navigator.mediaDevices.getUserMedia(constraints)
-    .then(function(stream) {
-      videoStream = stream; 
-      var video = document.getElementById('cameraVideo'); 
-      video.srcObject = stream;
-      video.onloadedmetadata = function() {
-        video.play().catch(function(){}); 
-        
-        document.getElementById('videoContainerWrapper').classList.add('expanded');
-        document.getElementById('cameraBackdrop').classList.add('show');
-        video.classList.add('live'); 
-        
-        btn.classList.remove('loading');
-        btn.innerText = 'Take Selfie'; 
-      };
-    }).catch(function(err) { 
-      btn.classList.remove('loading');
-      btn.innerText = 'Take Selfie';
-      showGuideModal('camera'); 
-    });
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return showGuideModal('camera');
+  btn.innerHTML = '<span class="btn-spinner"></span>Starting...'; clearMsg('cameraMsg');
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false }).then(stream => {
+    videoStream = stream; var video = document.getElementById('cameraVideo'); video.srcObject = stream;
+    video.onloadedmetadata = () => {
+      video.play().catch(()=>{}); document.getElementById('videoContainerWrapper').classList.add('expanded'); document.getElementById('cameraBackdrop').classList.add('show'); video.classList.add('live'); btn.innerText = 'Take Selfie';
+    };
+  }).catch(() => { btn.innerText = 'Take Selfie'; showGuideModal('camera'); });
 }
 
 function stopCamera() {
-  var wrapper = document.getElementById('videoContainerWrapper'), backdrop = document.getElementById('cameraBackdrop');
-  wrapper.classList.remove('expanded'); backdrop.classList.remove('show');
-  var video = document.getElementById('cameraVideo');
-  video.classList.remove('live');
-  
-  var btn = document.getElementById('openCameraBtn');
-  if (btn && !btn.classList.contains('loading')) btn.textContent = 'Take Selfie';
-  
-  setTimeout(function() {
-    if (videoStream) { videoStream.getTracks().forEach(function(t){ t.stop(); }); videoStream = null; }
-    video.srcObject = null;
-  }, 300);
+  document.getElementById('videoContainerWrapper').classList.remove('expanded'); document.getElementById('cameraBackdrop').classList.remove('show');
+  var video = document.getElementById('cameraVideo'); video.classList.remove('live');
+  var btn = document.getElementById('openCameraBtn'); if (btn && !btn.innerHTML.includes('Starting')) btn.textContent = 'Take Selfie';
+  setTimeout(() => { if (videoStream) { videoStream.getTracks().forEach(t => t.stop()); videoStream = null; } video.srcObject = null; }, 300);
 }
 
 function capturePhoto() {
-  var video = document.getElementById('cameraVideo');
-  var wrapper = document.getElementById('mainContainer'); 
-  var vw = video.videoWidth || 1280, vh = video.videoHeight || 720;
-  
-  var cw = wrapper.offsetWidth, ch = wrapper.offsetHeight;
-  var containerAspect = cw / ch;
-  var videoAspect = vw / vh;
-  
-  var sWidth, sHeight, startX, startY;
-  
-  if (videoAspect > containerAspect) {
-    sHeight = vh; sWidth = vh * containerAspect;
-    startX = (vw - sWidth) / 2; startY = 0;
-  } else {
-    sWidth = vw; sHeight = vw / containerAspect;
-    startX = 0; startY = (vh - sHeight) / 2;
-  }
-  
-  var maxOutput = 720;
-  var scale = (sWidth > maxOutput || sHeight > maxOutput) ? (maxOutput / Math.max(sWidth, sHeight)) : 1;
-  
-  var canvas = document.createElement('canvas');
-  canvas.width = Math.round(sWidth * scale); 
-  canvas.height = Math.round(sHeight * scale);
-  var ctx = canvas.getContext('2d');
-  
-  ctx.translate(canvas.width, 0); 
-  ctx.scale(-1, 1); 
-  ctx.imageSmoothingEnabled = true; 
-  ctx.imageSmoothingQuality = 'high';
-  
+  var video = document.getElementById('cameraVideo'), wrapper = document.getElementById('attMainContainer'); 
+  var vw = video.videoWidth || 1280, vh = video.videoHeight || 720, cw = wrapper.offsetWidth, ch = wrapper.offsetHeight;
+  var containerAspect = cw / ch, videoAspect = vw / vh, sWidth, sHeight, startX, startY;
+  if (videoAspect > containerAspect) { sHeight = vh; sWidth = vh * containerAspect; startX = (vw - sWidth) / 2; startY = 0; } else { sWidth = vw; sHeight = vw / containerAspect; startX = 0; startY = (vh - sHeight) / 2; }
+  var scale = (sWidth > 720 || sHeight > 720) ? (720 / Math.max(sWidth, sHeight)) : 1;
+  var canvas = document.createElement('canvas'); canvas.width = Math.round(sWidth * scale); canvas.height = Math.round(sHeight * scale);
+  var ctx = canvas.getContext('2d'); ctx.translate(canvas.width, 0); ctx.scale(-1, 1); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
   ctx.drawImage(video, startX, startY, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
-  
-  photo = canvas.toDataURL('image/jpeg', 0.85);
-
-  document.getElementById('successPhoto').src = photo;
-  stopCamera(); 
-  submitAttendance();
-}
-
-function queueSubmission(payload) {
-  var queue = JSON.parse(Storage.get('sync_queue') || '[]');
-  queue.push(payload); Storage.set('sync_queue', JSON.stringify(queue));
-  processSyncQueue();
+  photo = canvas.toDataURL('image/jpeg', 0.85); document.getElementById('successPhoto').src = photo;
+  stopCamera(); submitAttendance();
 }
 
 function submitAttendance() {
-  showSuccess('cameraMsg', 'Submitting...');
   var branch = document.getElementById('branch').value, staffID = document.getElementById('staffID').value;
-  if (!branch || !staffID || !currentAction || !photo) return;
-  
+  if (!branch||!staffID||!currentAction||!photo) return;
   Storage.set('last_staff_id_' + currentTerminal, staffID);
+  var histRaw = Storage.get('local_history_' + currentTerminal), history = histRaw ? JSON.parse(histRaw) : {};
+  history[staffID] = { action: currentAction, time: Date.now(), dateStr: new Date().toDateString() }; Storage.set('local_history_' + currentTerminal, JSON.stringify(history));
+  var queue = JSON.parse(Storage.get('sync_queue') || '[]'); queue.push({ name: staffName, id: staffID, branch: branch, action: currentAction, image: photo, lat: coords ? coords.latitude : 0, lng: coords ? coords.longitude : 0, clientTimestamp: new Date().toISOString() }); Storage.set('sync_queue', JSON.stringify(queue));
+  processSyncQueue();
   
-  var histRaw = Storage.get('local_history_' + currentTerminal);
-  var history = histRaw ? JSON.parse(histRaw) : {};
-  history[staffID] = { action: currentAction, time: Date.now(), dateStr: new Date().toDateString() };
-  Storage.set('local_history_' + currentTerminal, JSON.stringify(history));
-  
-  for (var i=0; i<staff.length; i++) { if (staff[i].id === staffID) { staff[i].status = currentAction; break; } }
-  
-  var payload = { 
-    id: staffID, name: staffName, branch: branch, action: currentAction, image: photo, 
-    lat: coords ? coords.latitude : 0, lng: coords ? coords.longitude : 0,
-    clientTimestamp: new Date().toISOString()
-  };
-  
-  queueSubmission(payload);
-  finishSubmission(currentAction);
-}
-
-function finishSubmission(action) {
-  var firstName = staffName.split(' ')[0] || staffName;
-  var hrs = new Date().getHours(), mins = new Date().getMinutes(), timeVal = hrs + (mins / 60.0);
-  var msg = '';
-
-  if (action === 'Clock In') {
-    if (timeVal < 6.5)        { msg="Fantastic start — you're early today! Keep it up."; }
-    else if (timeVal <= 7.66) { msg="Great, you are on time for the morning shift."; }
-    else if (timeVal < 11.0)  { msg="Note: Late for morning shift.<br><br><span style='color:var(--error-color);font-size:13px;display:block;'>Consistent lateness will be forwarded to management for review.</span>"; }
-    else if (timeVal < 14.0)  { msg="Early for the second shift. Great job!"; }
-    else if (timeVal <= 14.66){ msg="On time for the second shift. Have a productive afternoon!"; }
-    else                      { msg="Note: Late for afternoon shift."; }
+  var hrs = new Date().getHours(), mins = new Date().getMinutes(), timeVal = hrs + (mins / 60.0), msg='';
+  if (currentAction === 'Clock In') {
+    if (timeVal < 6.5) msg="Fantastic start — you're early today! Keep it up."; else if (timeVal <= 7.66) msg="Great, you are on time for the morning shift."; else if (timeVal < 11.0) msg="Note: Late for morning shift."; else if (timeVal < 14.0) msg="Early for the second shift. Great job!"; else if (timeVal <= 14.66) msg="On time for the second shift. Have a productive afternoon!"; else msg="Note: Late for afternoon shift.";
   } else {
-    if (hrs < 16) { msg="Have a wonderful afternoon!"; }
-    else          { msg="Have a restful night!"; }
-    
-    if (hrs >= 18) {
-      msg += "<br><br><span style='display:block;'>And remember to place your order.</span>";
-    }
+    msg = hrs < 16 ? "Have a wonderful afternoon!" : "Have a restful night!";
+    if (hrs >= 18) msg += "<br><br><span style='display:block;'>And remember to place your order.</span>";
   }
-
-  document.getElementById('successBadge').textContent = action.toUpperCase();
-  document.getElementById('successBadge').style.background = action === 'Clock In' ? 'var(--success-color)' : 'var(--error-color)';
-  document.getElementById('successName').textContent = firstName;
-  document.getElementById('successMsg').innerHTML = msg;
-  
-  document.getElementById('mainContainer').style.overflow = 'visible';
-  document.getElementById('mainFormAtt').style.display = 'none';
-  document.getElementById('attSuccessScreen').style.display = 'flex';
+  document.getElementById('successBadge').textContent = currentAction.toUpperCase(); document.getElementById('successBadge').style.background = currentAction === 'Clock In' ? 'var(--success-color)' : 'var(--error-color)';
+  document.getElementById('successName').textContent = staffName.split(' ')[0] || staffName; document.getElementById('successMsg').innerHTML = msg;
+  document.getElementById('attMainContainer').style.overflow = 'visible'; document.getElementById('attMainForm').style.display = 'none'; document.getElementById('attSuccessScreen').style.display = 'flex';
 }
+
+function resetAttForm() {
+  document.getElementById('attSuccessScreen').style.display='none'; document.getElementById('attMainForm').style.display='block'; document.getElementById('attMainContainer').style.overflow = 'hidden';
+  document.getElementById('successPhoto').classList.remove('zoomed'); document.getElementById('photoBackdrop').classList.remove('show');
+  resetStepsFrom(3); handleBranchChange(); if (document.getElementById('staffID').value) handleStaffInput.call(document.getElementById('staffID'));
+}
+
+function toggleZoom() { var img = document.getElementById('successPhoto'), backdrop = document.getElementById('photoBackdrop'); if (img.classList.contains('zoomed')) { img.classList.remove('zoomed'); backdrop.classList.remove('show'); } else { img.classList.add('zoomed'); backdrop.classList.add('show'); } }
 </script>
 </body>
 </html>
-
