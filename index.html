@@ -135,7 +135,7 @@ th:first-child, td.flavor-name { position: sticky; left: 0; background: var(--bg
 .chip-label input:checked + .chip-span { background: var(--dynamic-primary); color: #fff; border-color: var(--dynamic-primary); transform: translateY(-2px); }
 
 /* ATTENDANCE SPECIFIC */
-.hanging-sign-wrapper { position: relative; margin-bottom: 30px; perspective: 800px; z-index: 10; width: 240px; margin-top: 24px; }
+.hanging-sign-wrapper { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 15px; perspective: 800px; z-index: 10; width: 240px; }
 .chain { position: absolute; top: -30px; width: 5px; height: 34px; background: linear-gradient(to right, #9ca3af, #f3f4f6, #9ca3af); border-radius: 3px; z-index: 1; }
 .chain::before { content: ''; position: absolute; top: -6px; left: -3.5px; width: 12px; height: 12px; border-radius: 50%; background: var(--dynamic-primary); border: 3.5px solid #d1d5db; transition: 0.6s; }
 .left-chain { left: 40px; } .right-chain { right: 40px; }
@@ -157,12 +157,13 @@ th:first-child, td.flavor-name { position: sticky; left: 0; background: var(--bg
 .msg .dot{ display:inline-flex; width:16px; height:16px; background:var(--success-color); border-radius:50%; margin-right:6px; position:relative; margin-top:1px; }
 .msg .dot::after{ content:''; position:absolute; top:45%; left:50%; width:3.5px; height:7px; border-right:2px solid #fff; border-bottom:2px solid #fff; transform:translate(-50%,-50%) rotate(45deg); }
 
-/* CAMERA & PHOTO BACKDROPS */
+/* CAMERA & PHOTO BACKDROPS (Smooth Fades) */
 #cameraBackdrop, #photoBackdrop {
-  display:none; position:fixed; inset:0; z-index:10000;
+  position: fixed; inset: 0; z-index: 10000;
   background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  opacity: 0; visibility: hidden; transition: opacity 0.35s ease, visibility 0.35s ease;
 }
-#cameraBackdrop.show, #photoBackdrop.show { display:block; }
+#cameraBackdrop.show, #photoBackdrop.show { opacity: 1; visibility: visible; }
 
 /* CAMERA UI - Raised, Transparent Controls */
 #videoContainerWrapper {
@@ -170,16 +171,16 @@ th:first-child, td.flavor-name { position: sticky; left: 0; background: var(--bg
   width: 90%; max-width: 400px; aspect-ratio: 4 / 5.2;
   border-radius: 24px; overflow: hidden; z-index: 10001; background: #000;
   transform: translate(-50%, -50%) scale(0.95);
-  opacity: 0; pointer-events: none;
-  transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.25, 1, 0.4, 1);
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.25, 1, 0.4, 1), visibility 0.35s ease;
 }
-#videoContainerWrapper.expanded { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
+#videoContainerWrapper.expanded { opacity: 1; visibility: visible; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
 #cameraVideo { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 
 .camera-ui {
   position: absolute; bottom: 0; left: 0; right: 0; padding: 24px;
   display: flex; align-items: center; justify-content: center; z-index: 3;
-  background: transparent; /* No gradient, no flicker */
+  background: transparent; 
 }
 #captureBtn {
   width: 64px; height: 64px; border-radius: 50%;
@@ -189,12 +190,14 @@ th:first-child, td.flavor-name { position: sticky; left: 0; background: var(--bg
 #captureBtn::after { content: ''; width: 48px; height: 48px; background: #fff; border-radius: 50%; }
 #captureBtn:active { transform: scale(0.88); }
 
-/* SUCCESS SCREENS & PHOTO ZOOM */
+/* SUCCESS SCREENS & SMOOTH PHOTO ZOOM */
 .success-screen { display:none;flex-direction:column;align-items:center; justify-content:center; padding:10px 4px;text-align:center;width:100%; animation: sectionFadeIn 0.4s ease forwards; }
+
 .success-photo {
   width: 110px; height: 110px; object-fit: cover; border-radius: 50%;
   box-shadow: 0 0 0 4px var(--success-color); margin-bottom: 16px;
-  cursor: zoom-in; position: relative; z-index: 2; transition: 0.4s;
+  cursor: zoom-in; position: relative; z-index: 2; 
+  transition: all 0.4s cubic-bezier(0.25, 1, 0.4, 1);
 }
 .success-photo.zoomed {
   position: fixed; left: 50%; top: 40%;
@@ -321,12 +324,13 @@ var Storage = {
 
 <div id="view-attendance" class="view-section">
   
-  <div class="hanging-sign-wrapper" id="signWrapper">
-    <div class="chain left-chain"></div><div class="chain right-chain"></div>
-    <div class="hanging-sign nudge" id="storeSign">Chandarana</div>
-  </div>
+  <div class="app-container" id="attMainContainer" style="margin-top: 24px;">
+    
+    <div class="hanging-sign-wrapper" id="signWrapper">
+      <div class="chain left-chain"></div><div class="chain right-chain"></div>
+      <div class="hanging-sign nudge" id="storeSign">Chandarana</div>
+    </div>
 
-  <div class="app-container" id="attMainContainer">
     <div id="networkIndicator" class="network-indicator"></div>
 
     <div id="attMainForm">
@@ -465,6 +469,7 @@ function loadOrderStaffBackground() {
   fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: 'getOrderStaff' }) }).then(r => r.json()).then(res => { if(res.ok) { orderStaffCache = res.data; localStorage.setItem('order_staff', JSON.stringify(res.data)); } }).catch(e => {});
 }
 
+// Fixed live-fallback checking for ordering system
 function instantOrderStaffCheck(val) {
   val = val.trim(); const msgDiv = document.getElementById('o-staffMsg'), nameCont = document.getElementById('o-name-container'), nameInp = document.getElementById('o-name'), expFields = document.getElementById('o-expanded-fields'), lockedSec = document.getElementById('o-locked-section');
   if(val.length < 2) { msgDiv.innerHTML = ''; nameInp.value = ''; currentOrderStaffFullname = ''; document.getElementById('o-branch').value = ''; document.getElementById('o-phone').value = ''; nameCont.style.opacity = '0'; expFields.style.display='none'; lockedSec.classList.remove('unlocked'); Storage.remove('last_order_id'); return; }
@@ -475,7 +480,24 @@ function instantOrderStaffCheck(val) {
     const parts = match.name.split(' '); nameInp.value = parts.slice(0, 2).join(' ') + (parts.length>2?'...':'');
     document.getElementById('o-branch').value = match.branch || ''; document.getElementById('o-phone').value = match.phone || '';
     nameCont.style.opacity = '1'; expFields.style.display='block'; lockedSec.classList.add('unlocked');
-  } else { msgDiv.innerHTML = 'Invalid ID'; msgDiv.className = 'msg error'; nameInp.value = ''; document.getElementById('o-branch').value = ''; document.getElementById('o-phone').value = ''; nameCont.style.opacity = '0'; expFields.style.display='none'; lockedSec.classList.remove('unlocked'); }
+  } else { 
+    // Fallback live check to database
+    msgDiv.innerHTML = '<span class="btn-spinner" style="width:14px;height:14px;"></span> Searching...'; msgDiv.className = 'msg';
+    nameCont.style.opacity = '0'; expFields.style.display='none'; lockedSec.classList.remove('unlocked');
+    
+    fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: 'fetchUser', id: val }) })
+    .then(r => r.json())
+    .then(res => {
+       if (res.found && document.getElementById('o-id').value.trim() === val) {
+          orderStaffCache.push({id: val, name: res.name, phone: res.phone, branch: res.branch});
+          instantOrderStaffCheck(val);
+       } else if (!res.found && document.getElementById('o-id').value.trim() === val) {
+          msgDiv.innerHTML = 'Invalid ID'; msgDiv.className = 'msg error';
+       }
+    }).catch(e => {
+       if (document.getElementById('o-id').value.trim() === val) { msgDiv.innerHTML = 'Network Error'; msgDiv.className = 'msg error'; }
+    });
+  }
 }
 
 const JUICES = { chandarana: ["ORANGE", "TROPICAL MIX", "MANGO", "PASSION", "APPLE GINGER", "TREE TOMATO", "PINEAPPLE MINT", "LIME & GINGER", "APPLEJUICE", "LIMEJUICE", "HIBISCUS", "TAMARIND", "ALOE VERA", "BEETROOT", "TANGERINE", "GINGER PLAIN", "CARROT"], carrefour: ["ORANGE", "TROPICAL MIX", "MANGO", "PASSION", "APPLE GINGER", "TREE TOMATO", "PINEAPPLE MINT", "LIME & GINGER", "TAMARIND", "CARROT", "BEETROOT"] };
@@ -619,7 +641,7 @@ function switchTerminalAtt(term, isInitialOpen = false) {
   updatePillSlider('a-terminal-wrapper', 'a-pill-slider');
   
   if (!isInitialOpen) {
-    document.getElementById('staffID').value = ''; // Safely wipe input ONLY if user is intentionally switching tabs
+    document.getElementById('staffID').value = ''; 
   }
   
   resetStepsFrom(2); 
@@ -650,7 +672,7 @@ function restoreUserState() {
   if (savedStaffID && staff.length > 0 && staffEl.value === '') { 
     staffEl.value = savedStaffID; handleStaffInput.call(staffEl); 
   } else if (staffEl.value !== '') {
-    handleStaffInput.call(staffEl); // Re-validate whatever was already typed without wiping
+    handleStaffInput.call(staffEl); 
   }
 }
 
@@ -686,7 +708,6 @@ function handleBranchChange(isInit = false) {
   Storage.set('last_branch_' + currentTerminal, val); 
   showSuccess('branchMsg','Branch Selected'); 
   
-  // Notice we DO NOT clear the staff ID here anymore. If they typed their ID first, let it stay.
   lastSelectedBranch = val;
 
   if (!document.getElementById('step2').classList.contains('activeStep')) activateStep(2); 
@@ -758,7 +779,9 @@ function stopCamera() {
   document.getElementById('videoContainerWrapper').classList.remove('expanded'); document.getElementById('cameraBackdrop').classList.remove('show');
   var video = document.getElementById('cameraVideo');
   var btn = document.getElementById('openCameraBtn'); if (btn && !btn.innerHTML.includes('Starting') && !btn.innerHTML.includes('Submitting')) btn.textContent = 'Take Selfie';
-  setTimeout(() => { if (videoStream) { videoStream.getTracks().forEach(t => t.stop()); videoStream = null; } video.srcObject = null; }, 300);
+  
+  // Wait for CSS transition to complete before totally killing the stream to prevent flickering
+  setTimeout(() => { if (videoStream) { videoStream.getTracks().forEach(t => t.stop()); videoStream = null; } video.srcObject = null; }, 400);
 }
 
 function capturePhoto() {
@@ -777,7 +800,7 @@ function submitAttendance() {
   var branch = document.getElementById('branch').value, staffID = document.getElementById('staffID').value;
   if (!branch||!staffID||!currentAction||!photo) return;
   var btn = document.getElementById('openCameraBtn'); if (btn) { btn.disabled = true; btn.innerHTML = '<span class="btn-spinner"></span>Submitting...'; }
-  showSuccess('cameraMsg', 'Saving to cloud...');
+  showSuccess('cameraMsg', 'Submitting...');
   var payload = { name: staffName, id: staffID, branch: branch, action: currentAction, image: photo, lat: coords ? coords.latitude : 0, lng: coords ? coords.longitude : 0 };
 
   fetch(SCRIPT_URL, { method:'POST', headers: { 'Content-Type': 'text/plain' }, body:JSON.stringify({action:'recordAttendance', data:payload, terminal:currentTerminal}) })
@@ -803,7 +826,8 @@ function finishSubmission(action) {
 
 function resetAttForm() {
   document.getElementById('attSuccessScreen').style.display='none'; document.getElementById('attMainForm').style.display='block'; document.getElementById('attMainContainer').style.overflow = 'hidden';
-  var clone = document.getElementById('zoomed-photo-clone'); if(clone) { toggleZoom(); }
+  var img = document.getElementById('successPhoto'); var backdrop = document.getElementById('photoBackdrop');
+  if(img.classList.contains('zoomed')) { img.classList.remove('zoomed'); backdrop.classList.remove('show'); }
   
   document.getElementById('staffID').value = ''; 
   resetStepsFrom(3); 
@@ -813,19 +837,14 @@ function resetAttForm() {
 
 function toggleZoom() {
   var backdrop = document.getElementById('photoBackdrop');
-  var clone = document.getElementById('zoomed-photo-clone');
+  var img = document.getElementById('successPhoto');
   
-  if (clone) {
-    clone.remove();
+  if (img.classList.contains('zoomed')) {
+    img.classList.remove('zoomed');
     backdrop.classList.remove('show');
   } else {
-    var img = document.getElementById('successPhoto');
-    var newClone = img.cloneNode(true);
-    newClone.id = 'zoomed-photo-clone';
-    newClone.classList.add('zoomed');
-    document.body.appendChild(newClone);
+    img.classList.add('zoomed');
     backdrop.classList.add('show');
-    newClone.onclick = toggleZoom;
   }
 }
 </script>
