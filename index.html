@@ -135,7 +135,7 @@ th:first-child, td.flavor-name { position: sticky; left: 0; background: var(--bg
 .chip-label input:checked + .chip-span { background: var(--dynamic-primary); color: #fff; border-color: var(--dynamic-primary); transform: translateY(-2px); }
 
 /* ATTENDANCE SPECIFIC */
-.hanging-sign-wrapper { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 15px; perspective: 800px; z-index: 10; width: 240px; }
+.hanging-sign-wrapper { position: relative; margin-bottom: 30px; perspective: 800px; z-index: 10; width: 240px; margin-top: 24px; }
 .chain { position: absolute; top: -30px; width: 5px; height: 34px; background: linear-gradient(to right, #9ca3af, #f3f4f6, #9ca3af); border-radius: 3px; z-index: 1; }
 .chain::before { content: ''; position: absolute; top: -6px; left: -3.5px; width: 12px; height: 12px; border-radius: 50%; background: var(--dynamic-primary); border: 3.5px solid #d1d5db; transition: 0.6s; }
 .left-chain { left: 40px; } .right-chain { right: 40px; }
@@ -320,18 +320,18 @@ var Storage = {
 </div>
 
 <div id="view-attendance" class="view-section">
-  <div class="app-container" id="attMainContainer" style="margin-top: 24px;">
-    
-    <div class="hanging-sign-wrapper" id="signWrapper">
-      <div class="chain left-chain"></div><div class="chain right-chain"></div>
-      <div class="hanging-sign nudge" id="storeSign">Chandarana</div>
-    </div>
+  
+  <div class="hanging-sign-wrapper" id="signWrapper">
+    <div class="chain left-chain"></div><div class="chain right-chain"></div>
+    <div class="hanging-sign nudge" id="storeSign">Chandarana</div>
+  </div>
 
+  <div class="app-container" id="attMainContainer">
     <div id="networkIndicator" class="network-indicator"></div>
 
     <div id="attMainForm">
       <div class="top-bar">
-        <div class="terminal-pill-wrapper">
+        <div class="terminal-pill-wrapper" id="a-terminal-wrapper">
           <div class="pill-slider" id="a-pill-slider"></div>
           <button class="pill-btn active" id="a-btn-chandarana" onclick="switchTerminalAtt('chandarana')">Chandarana</button>
           <button class="pill-btn" id="a-btn-carrefour" onclick="switchTerminalAtt('carrefour')">Carrefour</button>
@@ -425,6 +425,17 @@ function goHome() {
   stopCamera();
 }
 
+function updatePillSlider(containerId, sliderId) {
+  setTimeout(() => {
+    const ab = document.querySelector(`#${containerId} .pill-btn.active`);
+    const sl = document.getElementById(sliderId);
+    if (ab && sl) {
+      sl.style.width = ab.offsetWidth + 'px';
+      sl.style.left = ab.offsetLeft + 'px';
+    }
+  }, 50);
+}
+
 // --- ORDER SYSTEM LOGIC ---
 let orderStaffCache = [], currentOrderStaffFullname = "";
 let orderState = { chandarana: { juices: {}, fresh: [], bottles: [], haccp: [] }, carrefour: { juices: {}, fresh: [], bottles: [], haccp: [] } };
@@ -441,7 +452,8 @@ function switchTerminalOrder(store) {
   var meta = document.getElementById('theme-color-meta'); if (meta) meta.setAttribute('content', store === 'chandarana' ? (isDark ? '#059669' : '#10b981') : (isDark ? '#2563eb' : '#3b82f6'));
 
   document.getElementById('o-btn-chandarana').classList.toggle('active', store === 'chandarana'); document.getElementById('o-btn-carrefour').classList.toggle('active', store === 'carrefour');
-  requestAnimationFrame(() => { const ab = document.querySelector('#o-terminal-wrapper .pill-btn.active'), sl = document.getElementById('o-pill-slider'); if (ab && sl) { sl.style.width = ab.offsetWidth + 'px'; sl.style.left = ab.offsetLeft + 'px'; } });
+  
+  updatePillSlider('o-terminal-wrapper', 'o-pill-slider');
 
   renderDynamicOrderContent(); restoreOrderState();
   let savedId = Storage.get('last_order_id'); if (savedId && !document.getElementById('o-id').value) document.getElementById('o-id').value = savedId;
@@ -572,7 +584,11 @@ function resetOrderForm() { document.getElementById('orderSuccessScreen').style.
 var staff = [], branches = [], coords = null, staffName = "", photo = null, activeFetchId = 0, currentAction = "", videoStream = null, staffRestrictionError = null, warningTimer = null;
 let lastSelectedBranch = "";
 
-function openAttendance() { document.getElementById('globalBackBtn').classList.add('show'); switchView('view-attendance'); switchTerminalAtt(currentTerminal); }
+function openAttendance() { 
+  document.getElementById('globalBackBtn').classList.add('show'); 
+  switchView('view-attendance'); 
+  switchTerminalAtt(currentTerminal, true); 
+}
 
 function triggerSignAnimation() {
   const sign = document.getElementById('storeSign');
@@ -582,8 +598,11 @@ function triggerSignAnimation() {
   }
 }
 
-function switchTerminalAtt(term) {
-  if (currentTerminal === term && document.getElementById('view-attendance').classList.contains('active')) { triggerSignAnimation(); return; }
+function switchTerminalAtt(term, isInitialOpen = false) {
+  if (currentTerminal === term && document.getElementById('view-attendance').classList.contains('active') && !isInitialOpen) { 
+    triggerSignAnimation(); return; 
+  }
+  
   currentTerminal = term; Storage.set('selected_terminal', term); staff = []; branches = []; lastSelectedBranch = "";
   document.getElementById('branch').innerHTML = '<option value="">Loading...</option>';
   
@@ -596,9 +615,13 @@ function switchTerminalAtt(term) {
   triggerSignAnimation();
   
   document.getElementById('a-btn-chandarana').classList.toggle('active', currentTerminal === 'chandarana'); document.getElementById('a-btn-carrefour').classList.toggle('active',  currentTerminal === 'carrefour');
-  requestAnimationFrame(() => { const ab = document.querySelector('#attMainForm .pill-btn.active'), sl = document.getElementById('a-pill-slider'); if (ab && sl) { sl.style.width = ab.offsetWidth + 'px'; sl.style.left = ab.offsetLeft + 'px'; } });
   
-  document.getElementById('staffID').value = ''; // Safely wipe input upon actual user tab change
+  updatePillSlider('a-terminal-wrapper', 'a-pill-slider');
+  
+  if (!isInitialOpen) {
+    document.getElementById('staffID').value = ''; // Safely wipe input ONLY if user is intentionally switching tabs
+  }
+  
   resetStepsFrom(2); 
   initAppAtt();
 }
@@ -627,7 +650,7 @@ function restoreUserState() {
   if (savedStaffID && staff.length > 0 && staffEl.value === '') { 
     staffEl.value = savedStaffID; handleStaffInput.call(staffEl); 
   } else if (staffEl.value !== '') {
-    handleStaffInput.call(staffEl); // Re-validate whatever was typed
+    handleStaffInput.call(staffEl); // Re-validate whatever was already typed without wiping
   }
 }
 
@@ -643,9 +666,10 @@ function initAppAtt() {
 }
 
 function activateStep(n) { document.getElementById('step'+n).classList.add('activeStep'); }
+
 function resetStepsFrom(n) { 
   for (var i = n; i <= 4; i++) { var el = document.getElementById('step'+i); if (el) el.classList.remove('activeStep'); } 
-  // IMPORTANT: Omitting staffID.value clearing so it does not auto-delete while typing
+  // IMPORTANT: Deliberately omitted staffID clearing so it does not auto-delete while typing
   if (n<=2) { staffName=''; clearMsg('staffMsg'); staffRestrictionError = null; } 
   if (n<=3) { coords=null; clearMsg('gpsMsg'); } 
   if (n<=4) { photo=null; stopCamera(); clearMsg('cameraMsg'); document.getElementById('successPhoto').src=''; } 
@@ -662,12 +686,7 @@ function handleBranchChange(isInit = false) {
   Storage.set('last_branch_' + currentTerminal, val); 
   showSuccess('branchMsg','Branch Selected'); 
   
-  if (lastSelectedBranch !== val && !isInit) {
-    if (document.getElementById('step2').classList.contains('activeStep') && document.getElementById('staffID').value !== '') {
-      resetStepsFrom(2);
-      document.getElementById('staffID').value = ''; // Safely wipe if user explicitly changes branch
-    }
-  }
+  // Notice we DO NOT clear the staff ID here anymore. If they typed their ID first, let it stay.
   lastSelectedBranch = val;
 
   if (!document.getElementById('step2').classList.contains('activeStep')) activateStep(2); 
