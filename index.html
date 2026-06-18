@@ -165,10 +165,17 @@ th:first-child, td.flavor-name { position: sticky; left: 0; background: var(--bg
 .msg .dot::after{ content:'';position:absolute;top:45%;left:50%; width:3.5px;height:7px; border-right:2px solid #fff;border-bottom:2px solid #fff; transform:translate(-50%,-50%) rotate(45deg); }
 
 /* CAMERA & PHOTO BACKDROPS */
-#cameraBackdrop { display:none;position:fixed;inset:0;z-index:59; background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+#cameraBackdrop { display:none; position:fixed; inset:0; z-index:59; background: rgba(0,0,0,0.95); }
 #cameraBackdrop.show { display:block; }
 
-#videoContainerWrapper{ position:fixed; top: 50%; left: 50%; width:90%; max-width:400px; aspect-ratio: 4 / 5.2; min-height: 520px; border-radius:24px; overflow:hidden; z-index:60; background-color: #000; transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.25, 1, 0.4, 1); transform: translate(-50%, -50%) scale(0.95); opacity:0; pointer-events:none; }
+#videoContainerWrapper{ 
+  position:fixed; top: 50%; left: 50%; 
+  width:100%; max-width:420px; 
+  height:80vh; /* Extends tall enough to hide the background square */
+  border-radius:24px; overflow:hidden; z-index:60; background-color: #000; 
+  transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.25, 1, 0.4, 1); 
+  transform: translate(-50%, -50%) scale(0.95); opacity:0; pointer-events:none; 
+}
 #videoContainerWrapper.expanded{ pointer-events:auto; opacity:1; transform: translate(-50%, -50%) scale(1); }
 
 #cameraVideo{ position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; display:block; transform: scaleX(-1); opacity: 0; transition: opacity 0.4s ease; }
@@ -533,14 +540,55 @@ function instantOrderStaffCheck(val) {
 const JUICES = { chandarana: ["ORANGE", "TROPICAL MIX", "MANGO", "PASSION", "APPLE GINGER", "TREE TOMATO", "PINEAPPLE MINT", "LIME & GINGER", "APPLEJUICE", "LIMEJUICE", "HIBISCUS", "TAMARIND", "ALOE VERA", "BEETROOT", "TANGERINE", "GINGER PLAIN", "CARROT"], carrefour: ["ORANGE", "TROPICAL MIX", "MANGO", "PASSION", "APPLE GINGER", "TREE TOMATO", "PINEAPPLE MINT", "LIME & GINGER", "TAMARIND", "CARROT", "BEETROOT"] };
 
 function handleJuiceTouch(e, step) {
-  e.preventDefault(); const el = e.currentTarget;
-  if(e.type === 'touchstart' || e.type === 'mousedown') { el.pressTimer = setTimeout(() => { el.isLong = true; if(navigator.vibrate) navigator.vibrate(50); el.setAttribute('data-val', "0"); el.innerText = '-'; el.classList.remove('has-value'); }, 400);
-  } else if (e.type === 'touchend' || e.type === 'mouseup') { clearTimeout(el.pressTimer); if(!el.isLong) { let currentVal = parseInt(el.getAttribute('data-val')) || 0; currentVal += step; if(currentVal > 60) currentVal = 0; el.setAttribute('data-val', currentVal); el.innerText = currentVal === 0 ? '-' : currentVal; el.classList.toggle('has-value', currentVal > 0); const flavor = el.getAttribute('data-flavor'), vol = el.getAttribute('data-vol'), otherVol = vol === '5L' ? '3L' : '5L'; const otherEl = document.querySelector(`.juice-input[data-flavor="${flavor}"][data-vol="${otherVol}"]`); if (currentVal > 0 && otherEl && parseInt(otherEl.getAttribute('data-val')) > 0) { otherEl.setAttribute('data-val', 0); otherEl.innerText = '-'; otherEl.classList.remove('has-value'); } } el.isLong = false; } else { clearTimeout(el.pressTimer); el.isLong = false; }
+  const el = e.currentTarget;
+  
+  if (e.type === 'touchmove') { 
+    el.hasScrolled = true; 
+    clearTimeout(el.pressTimer); 
+    return; 
+  }
+  
+  if (e.type === 'touchstart' || e.type === 'mousedown') { 
+    el.hasScrolled = false;
+    el.pressTimer = setTimeout(() => { 
+      el.isLong = true; 
+      if(navigator.vibrate) navigator.vibrate(50); 
+      el.setAttribute('data-val', "0"); el.innerText = '-'; el.classList.remove('has-value'); 
+    }, 400);
+  } 
+  else if (e.type === 'touchend' || e.type === 'mouseup') { 
+    clearTimeout(el.pressTimer); 
+    if (el.hasScrolled) return; // Ignores tap if user was scrolling
+    if (e.cancelable) e.preventDefault(); 
+    
+    if(!el.isLong) { 
+      let currentVal = parseInt(el.getAttribute('data-val')) || 0; 
+      currentVal += step; 
+      if(currentVal > 60) currentVal = 0; 
+      el.setAttribute('data-val', currentVal); el.innerText = currentVal === 0 ? '-' : currentVal; el.classList.toggle('has-value', currentVal > 0); 
+      const flavor = el.getAttribute('data-flavor'), vol = el.getAttribute('data-vol'), otherVol = vol === '5L' ? '3L' : '5L'; 
+      const otherEl = document.querySelector(`.juice-input[data-flavor="${flavor}"][data-vol="${otherVol}"]`); 
+      if (currentVal > 0 && otherEl && parseInt(otherEl.getAttribute('data-val')) > 0) { 
+        otherEl.setAttribute('data-val', 0); otherEl.innerText = '-'; otherEl.classList.remove('has-value'); 
+      } 
+    } 
+    el.isLong = false; 
+  } 
+  else { 
+    clearTimeout(el.pressTimer); el.isLong = false; 
+  }
 }
 
 function renderDynamicOrderContent() {
   let html = `<details class="order-group"><summary class="order-group-title">Juice Flavors</summary><div class="order-group-content" style="padding:0; border-top:none;"><div style="overflow-x:auto;"><table><thead><tr><th>Flavor</th><th>5 Litres</th><th>3 Litres</th></tr></thead><tbody>`;
-  JUICES[activeStore].forEach(flavor => { html += `<tr><td class="flavor-name">${flavor}</td>`; ["5L", "3L"].forEach(v => { html += `<td><div class="square-input juice-input" data-flavor="${flavor}" data-vol="${v}" data-val="0" ontouchstart="handleJuiceTouch(event, ${parseInt(v)})" ontouchend="handleJuiceTouch(event, ${parseInt(v)})" ontouchcancel="handleJuiceTouch(event, 0)" onmousedown="handleJuiceTouch(event, ${parseInt(v)})" onmouseup="handleJuiceTouch(event, ${parseInt(v)})" onmouseleave="handleJuiceTouch(event, 0)">-</div></td>`; }); html += `</tr>`; }); html += `</tbody></table></div></div></details>`;
+  JUICES[activeStore].forEach(flavor => { 
+    html += `<tr><td class="flavor-name">${flavor}</td>`; 
+    ["5L", "3L"].forEach(v => { 
+      html += `<td><div class="square-input juice-input" data-flavor="${flavor}" data-vol="${v}" data-val="0" ontouchstart="handleJuiceTouch(event, ${parseInt(v)})" ontouchmove="handleJuiceTouch(event, 0)" ontouchend="handleJuiceTouch(event, ${parseInt(v)})" ontouchcancel="handleJuiceTouch(event, 0)" onmousedown="handleJuiceTouch(event, ${parseInt(v)})" onmouseup="handleJuiceTouch(event, ${parseInt(v)})" onmouseleave="handleJuiceTouch(event, 0)">-</div></td>`; 
+    }); 
+    html += `</tr>`; 
+  }); 
+  html += `</tbody></table></div></div></details>`;
   html += `<details class="order-group"><summary class="order-group-title">Fresh Inputs</summary><div class="order-group-content"><div class="chip-group">`;
   if(activeStore === 'chandarana') { html += `<label class="chip-label"><input type="checkbox" class="inp-fresh" value="Ginger"><span class="chip-span">Ginger</span></label><label class="chip-label"><input type="checkbox" class="inp-fresh" value="Lime"><span class="chip-span">Lime</span></label><label class="chip-label"><input type="radio" name="sg" class="inp-fresh" value="Sugarcane (Full)"><span class="chip-span">Sugarcane (Full)</span></label><label class="chip-label"><input type="radio" name="sg" class="inp-fresh" value="Sugarcane (Half)"><span class="chip-span">Sugarcane (Half)</span></label>`; } else { html += `<label class="chip-label"><input type="checkbox" class="inp-fresh" value="Sugarcane"><span class="chip-span">Sugarcane</span></label><label class="chip-label"><input type="checkbox" class="inp-fresh" value="Ginger"><span class="chip-span">Ginger</span></label><label class="chip-label"><input type="checkbox" class="inp-fresh" value="Lime"><span class="chip-span">Lime</span></label>`; }
   html += `</div></div></details><details class="order-group"><summary class="order-group-title">Bottles</summary><div class="order-group-content"><div class="chip-group"><label class="chip-label"><input type="checkbox" class="inp-bottle" value="1 Litre"><span class="chip-span">1 Litre</span></label><label class="chip-label"><input type="checkbox" class="inp-bottle" value="500ml"><span class="chip-span">500ml</span></label>`;
@@ -564,7 +612,7 @@ function processOrder(e) {
   JUICES[activeStore].forEach(flavor => { 
     let flavorKey = flavor; if (["TREE TOMATO", "HIBISCUS", "TAMARIND", "BEETROOT", "TANGERINE", "CARROT"].includes(flavor)) { flavorKey = activeStore === 'chandarana' ? `${flavor} ` : flavor; } 
     let val5 = document.querySelector(`.juice-input[data-flavor="${flavor}"][data-vol="5L"]`)?.getAttribute('data-val') || "0"; let val3 = document.querySelector(`.juice-input[data-flavor="${flavor}"][data-vol="3L"]`)?.getAttribute('data-val') || "0"; let qty = val5 !== "0" ? val5 : (val3 !== "0" ? val3 : "0"); 
-    if(qty !== "0") { payload[(activeStore==='chandarana'?"JUICE (5 LITRES/3 LITRES)":"JUICE (5 ITRES / 3 LITRES)") + ` [${flavorKey}]`] = qty; hasJuices = true; juiceHtml += `<li style="margin-bottom:4px;">${flavor} - ${qty} Pieces</li>`; } 
+    if(qty !== "0") { payload[(activeStore==='chandarana'?"JUICE (5 LITRES/3 LITRES)":"JUICE (5 ITRES / 3 LITRES)") + ` [${flavorKey}]`] = qty; hasJuices = true; juiceHtml += `<li style="margin-bottom:4px;">${flavor} - ${qty} L</li>`; } 
   });
   juiceHtml += `</ul></div>`; if(hasJuices) html += juiceHtml;
 
@@ -749,7 +797,6 @@ function handleBranchChange(isInit = false) {
 }
 document.getElementById('branch').addEventListener('change', () => handleBranchChange(false));
 
-// Includes Cache Date check to reset statuses correctly
 function handleStaffInput() {
   const val = this.value.trim(); staffRestrictionError = null; 
   if (val.length < 2) { resetStepsFrom(3); clearMsg('staffMsg'); return; }
@@ -760,7 +807,6 @@ function handleStaffInput() {
     let lastAction = match.status; 
     const lastTime = match.lastTime;
 
-    // IMPORTANT CHECK: Reset action to null if the cached record is NOT from today
     if (lastTime) {
       const d = new Date(lastTime);
       const now = new Date();
