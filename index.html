@@ -84,7 +84,7 @@ body.theme-carrefour {--dynamic-primary:var(--theme-carr);--success-color:#3b82f
 @keyframes bounceIn{ 0%{transform:scale(0.9);opacity:0} 60%{transform:scale(1.05)} 100%{transform:scale(1);opacity:1} }
 @keyframes spin{ to { transform: rotate(360deg); } }
 
-/* Back Button adopting active theme color directly with sleek shadow */
+/* Back Button */
 .back-pill { 
   position: fixed; bottom: 24px; left: 24px; z-index: 9999; 
   background: var(--dynamic-primary); 
@@ -102,8 +102,23 @@ body.theme-carrefour {--dynamic-primary:var(--theme-carr);--success-color:#3b82f
 .menu-container { width: 100%; display: flex; flex-direction: column; align-items: center; max-width: 340px; z-index: 2; }
 .hub-logo { font-size: 36px; font-weight: 900; color: #fff; text-shadow: 0 4px 10px rgba(0,0,0,0.2); margin-bottom: 6px; }
 .menu-subtitle { color: rgba(255,255,255,0.9); font-weight: 700; font-size: 16px; margin-bottom: 30px; }
-.menu-card { display: flex; align-items: center; background: var(--bg-primary); border-radius: 24px; padding: 22px; gap: 20px; width: 100%; margin-bottom: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: 1px solid var(--border-color); cursor: pointer; transition: 0.2s; }
-.menu-card:active { transform: scale(0.96); }
+.menu-cards { width: 100%; display: flex; flex-direction: column; gap: 20px; }
+
+/* HUB MENU ANIMATIONS */
+.menu-card { 
+  display: flex; align-items: center; background: var(--bg-primary); 
+  border-radius: 24px; padding: 22px; gap: 20px; width: 100%; 
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: 1px solid var(--border-color); 
+  cursor: pointer; opacity: 0; 
+}
+.menu-card:active { transform: scale(0.96) !important; transition: transform 0.2s; }
+
+#view-menu.active .menu-card:nth-child(1) { animation: slideInLeft 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; animation-delay: 0.05s; }
+#view-menu.active .menu-card:nth-child(2) { animation: slideInRight 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; animation-delay: 0.1s; }
+
+@keyframes slideInLeft { from { opacity: 0; transform: translateX(-60px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes slideInRight { from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); } }
+
 .mc-icon { font-size: 40px; background: var(--button-secondary-bg); width: 76px; height: 76px; display: flex; align-items: center; justify-content: center; border-radius: 20px; flex-shrink: 0;}
 .mc-content h3 { margin: 0 0 6px; font-size: 24px; font-weight: 900; color: var(--text-primary); text-transform: uppercase;}
 .mc-content p { margin: 0; font-size: 15px; font-weight: 700; color: var(--text-secondary); }
@@ -137,9 +152,9 @@ body.theme-carrefour .ui-input:focus, body.theme-carrefour .ui-select:focus {box
 /* ORDERS SPECIFIC */
 .section-card { border: 1px solid var(--border-color); border-radius: 18px; padding: 14px; background: var(--bg-primary); margin-bottom: 15px; }
 
-/* Themed ID Input Field */
-#o-id { border: 2px solid var(--dynamic-primary); color: var(--dynamic-primary); font-weight: 900; font-size: 18px; background-color: var(--button-secondary-bg); }
-#o-id::placeholder { color: var(--dynamic-primary); opacity: 0.5; font-weight: 700; }
+/* Themed ID Input Field - Only text is colored */
+#o-id { color: var(--dynamic-primary); font-weight: 900; font-size: 18px; }
+#o-id::placeholder { color: var(--text-tertiary); opacity: 0.8; font-weight: 700; }
 
 .locked-form { opacity: 0.4; pointer-events: none; transition: 0.4s; }
 .locked-form.unlocked { opacity: 1; pointer-events: auto; }
@@ -164,7 +179,6 @@ th:first-child, td.flavor-name { position: sticky; left: 0; background: var(--bg
 /* ATTENDANCE SPECIFIC */
 .app-wrapper { position: relative; width: 100%; max-width: 420px; display: flex; flex-direction:column; align-items: center; justify-content: center; padding-top:20px; z-index: 1;}
 
-/* Pointer-events none to ensure the sign never blocks clicking the form inputs! */
 .hanging-sign-wrapper { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: -5px; perspective: 800px; z-index: 10; width: 240px; pointer-events: none; }
 .chain { position: absolute; top: -30px; width: 5px; height: 34px; background: linear-gradient(to right, #9ca3af, #f3f4f6, #9ca3af); border-radius: 3px; box-shadow: inset 0 0 3px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2); z-index: 1; pointer-events: none; }
 .chain::before { content: ''; position: absolute; top: -6px; left: -3.5px; width: 12px; height: 12px; border-radius: 50%; background: var(--dynamic-primary); border: 3.5px solid #d1d5db; box-shadow: 0 8px 12px rgba(0,0,0,0.6), 0 3px 6px rgba(0,0,0,0.4), inset 0 2px 4px rgba(0,0,0,0.7); box-sizing: border-box; transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none; }
@@ -185,12 +199,13 @@ th:first-child, td.flavor-name { position: sticky; left: 0; background: var(--bg
 .msg .dot{ display:inline-flex;justify-content:center;align-items:center; width:16px;height:16px;background:var(--success-color);border-radius:50%; margin-right:8px;flex-shrink:0;position:relative; margin-top: 2px; }
 .msg .dot::after{ content:'';position:absolute;top:45%;left:50%; width:3.5px;height:7px; border-right:2px solid #fff;border-bottom:2px solid #fff; transform:translate(-50%,-50%) rotate(45deg); }
 
-/* PERFECT FULL-SCREEN CLEAN DARK OVERLAYS (No blur edges!) */
+/* PERFECT FULL-SCREEN CLEAN BLUR OVERLAYS (Oversized to prevent edge bleed!) */
 #cameraBackdrop, #photoBackdrop { 
   display:none; position:fixed; 
-  top:0; left:0; right:0; bottom:0; 
-  width:100%; height:100%; 
-  background: rgba(10, 10, 10, 0.95); 
+  top:-10%; left:-10%; /* Oversize to hide blur edges */
+  width:120%; height:120%; 
+  background: rgba(0, 0, 0, 0.5); 
+  backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); 
   margin:0; padding:0; z-index:10000; 
   opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
 }
@@ -202,7 +217,7 @@ th:first-child, td.flavor-name { position: sticky; left: 0; background: var(--bg
   aspect-ratio: 4 / 4.8; 
   max-height: 65vh; 
   border-radius:24px; overflow:hidden; z-index:10001; background-color: #000; 
-  box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.5);
   transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.25, 1, 0.4, 1); 
   transform: translate(-50%, -50%) scale(0.95); opacity:0; pointer-events:none; 
 }
@@ -221,7 +236,7 @@ th:first-child, td.flavor-name { position: sticky; left: 0; background: var(--bg
 #attSuccessScreen { display:none;flex-direction:column;align-items:center; justify-content:center; padding:10px 4px;text-align:center;width:100%; }
 .success-photo{ width: 120px; height: 120px; object-fit: cover; border-radius: 50%; box-shadow: 0 0 0 4px var(--success-color); margin-bottom: 20px; animation: bounceIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); transition: transform 0.4s cubic-bezier(0.25, 1, 0.4, 1), border-radius 0.4s cubic-bezier(0.25, 1, 0.4, 1), box-shadow 0.4s ease; cursor: zoom-in; position: relative; z-index: 9999; -webkit-tap-highlight-color: transparent; }
 
-/* Photo Zoom beautifully centered above the dark background */
+/* Photo Zoom beautifully centered above the blurred background */
 .success-photo.zoomed { 
   position: fixed; top: 45%; left: 50%; 
   transform: translate(-50%, -50%) scale(2.6); 
@@ -457,8 +472,15 @@ function checkNetworkStatus() {
 
 function switchView(viewId) {
   document.querySelectorAll('.view-section').forEach(v => {
-    if (v.id === viewId) { v.style.display = 'flex'; v.classList.remove('active'); void v.offsetWidth; v.classList.add('active'); }
-    else { v.classList.remove('active'); v.style.display = 'none'; }
+    if (v.id === viewId) { 
+      v.style.display = 'flex'; 
+      v.classList.remove('active'); 
+      void v.offsetWidth; // Force reflow
+      v.classList.add('active'); 
+    } else { 
+      v.classList.remove('active'); 
+      v.style.display = 'none'; 
+    }
   });
 }
 
@@ -729,7 +751,9 @@ function switchTerminalAtt(term, isInitialOpen = false) {
   document.getElementById('a-btn-carrefour').classList.toggle('active',  currentTerminal === 'carrefour');
   updatePillSlider('a-terminal-wrapper', 'a-pill-slider');
   
+  // Clear steps but crucially re-activate the Branch Select (Step 1) so it's not blocked
   resetStepsFrom(1);
+  document.getElementById('step1').classList.add('activeStep');
   document.getElementById('staffID').value = ''; 
   
   initAppAtt();
