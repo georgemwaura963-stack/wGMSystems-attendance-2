@@ -164,14 +164,15 @@ th:first-child, td.flavor-name { position: sticky; left: 0; background: var(--bg
 .msg .dot{ display:inline-flex;justify-content:center;align-items:center; width:16px;height:16px;background:var(--success-color);border-radius:50%; margin-right:8px;flex-shrink:0;position:relative; margin-top: 2px; }
 .msg .dot::after{ content:'';position:absolute;top:45%;left:50%; width:3.5px;height:7px; border-right:2px solid #fff;border-bottom:2px solid #fff; transform:translate(-50%,-50%) rotate(45deg); }
 
-/* CAMERA & PHOTO BACKDROPS */
-#cameraBackdrop { display:none; position:fixed; inset:0; z-index:59; background: rgba(0,0,0,0.95); }
+/* CAMERA UI REFINEMENTS (Uniform Dark Blur-Free Backdrops) */
+#cameraBackdrop { display:none; position:fixed; inset:0; z-index:59; background: rgba(0,0,0,0.9); }
 #cameraBackdrop.show { display:block; }
 
 #videoContainerWrapper{ 
   position:fixed; top: 50%; left: 50%; 
-  width:100%; max-width:420px; 
-  height:80vh; /* Extends tall enough to hide the background square */
+  width:92%; max-width:400px; 
+  aspect-ratio: 3 / 4; /* Perfect height to match the main UI square */
+  max-height: 70vh; 
   border-radius:24px; overflow:hidden; z-index:60; background-color: #000; 
   transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.25, 1, 0.4, 1); 
   transform: translate(-50%, -50%) scale(0.95); opacity:0; pointer-events:none; 
@@ -190,9 +191,16 @@ th:first-child, td.flavor-name { position: sticky; left: 0; background: var(--bg
 /* SUCCESS SCREENS & SMOOTH PHOTO ZOOM */
 #attSuccessScreen { display:none;flex-direction:column;align-items:center; justify-content:center; padding:10px 4px;text-align:center;width:100%; }
 .success-photo{ width: 120px; height: 120px; object-fit: cover; border-radius: 50%; box-shadow: 0 0 0 4px var(--success-color); margin-bottom: 20px; animation: bounceIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); transition: transform 0.4s cubic-bezier(0.25, 1, 0.4, 1), border-radius 0.4s cubic-bezier(0.25, 1, 0.4, 1), box-shadow 0.4s ease; cursor: zoom-in; position: relative; z-index: 20000; -webkit-tap-highlight-color: transparent; }
-.success-photo.zoomed { transform: scale(2.6); border-radius: 8%; box-shadow: 0 0 0 1.5px var(--success-color), 0 10px 30px rgba(0,0,0,0.3); cursor: zoom-out; }
 
-#photoBackdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 19999; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
+/* Photo Zoom perfectly centered slightly high */
+.success-photo.zoomed { 
+  position: fixed; top: 45%; left: 50%; 
+  transform: translate(-50%, -50%) scale(2.6); 
+  border-radius: 8%; box-shadow: 0 0 0 1.5px var(--success-color), 0 10px 30px rgba(0,0,0,0.5); 
+  cursor: zoom-out; margin: 0; z-index: 20000; 
+}
+
+#photoBackdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 19999; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
 #photoBackdrop.show { opacity: 1; pointer-events: auto; }
 
 .success-badge{ background:var(--dynamic-primary);color:#fff;font-size:14px;font-weight:800; text-transform:uppercase;padding:8px 24px;border-radius:999px; margin-bottom:24px;display:inline-block;box-shadow:0 4px 10px rgba(0,0,0,0.1); animation:bounceIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.05s backwards; }
@@ -558,7 +566,7 @@ function handleJuiceTouch(e, step) {
   } 
   else if (e.type === 'touchend' || e.type === 'mouseup') { 
     clearTimeout(el.pressTimer); 
-    if (el.hasScrolled) return; // Ignores tap if user was scrolling
+    if (el.hasScrolled) return; // FIX: Ignores tap if user was scrolling
     if (e.cancelable) e.preventDefault(); 
     
     if(!el.isLong) { 
@@ -612,6 +620,8 @@ function processOrder(e) {
   JUICES[activeStore].forEach(flavor => { 
     let flavorKey = flavor; if (["TREE TOMATO", "HIBISCUS", "TAMARIND", "BEETROOT", "TANGERINE", "CARROT"].includes(flavor)) { flavorKey = activeStore === 'chandarana' ? `${flavor} ` : flavor; } 
     let val5 = document.querySelector(`.juice-input[data-flavor="${flavor}"][data-vol="5L"]`)?.getAttribute('data-val') || "0"; let val3 = document.querySelector(`.juice-input[data-flavor="${flavor}"][data-vol="3L"]`)?.getAttribute('data-val') || "0"; let qty = val5 !== "0" ? val5 : (val3 !== "0" ? val3 : "0"); 
+    
+    // FIX: Print as L instead of Pieces
     if(qty !== "0") { payload[(activeStore==='chandarana'?"JUICE (5 LITRES/3 LITRES)":"JUICE (5 ITRES / 3 LITRES)") + ` [${flavorKey}]`] = qty; hasJuices = true; juiceHtml += `<li style="margin-bottom:4px;">${flavor} - ${qty} L</li>`; } 
   });
   juiceHtml += `</ul></div>`; if(hasJuices) html += juiceHtml;
@@ -664,6 +674,7 @@ let staff = [], branches = [], coords = null, staffName = "", photo = null;
 let activeFetchId = 0, currentAction = "", videoStream = null;
 let lastSelectedBranch = ""; 
 let staffRestrictionError = null, warningTimer = null; 
+let lastValidatedId = ""; // Fixes the bug where steps wipe themselves!
 
 function openAttendance() { 
   document.getElementById('globalBackBtn').classList.add('show'); 
@@ -679,7 +690,7 @@ function triggerSignAnimation() {
 function switchTerminalAtt(term, isInitialOpen = false) {
   if (currentTerminal === term && document.getElementById('view-attendance').classList.contains('active') && !isInitialOpen) { triggerSignAnimation(); return; }
   currentTerminal = term; Storage.set('selected_terminal', term);
-  staff = []; branches = []; lastSelectedBranch = "";
+  staff = []; branches = []; lastSelectedBranch = ""; lastValidatedId = "";
   document.getElementById('branch').innerHTML = '<option value="">Loading...</option>';
   
   document.getElementById('attSuccessScreen').style.display = 'none';
@@ -713,9 +724,15 @@ function fetchFromServer(action, data) {
 function populateBranches(list) {
   if (!Array.isArray(list)) return;
   const select = document.getElementById('branch');
-  const currentVal = select.value;
+  const currentVal = select.value || Storage.get('last_branch_' + currentTerminal);
   const options = '<option value="">Choose Branch</option>' + list.map(b => `<option value="${b[0]}">${b[0]}</option>`).join('');
-  if (select.innerHTML !== options) { select.innerHTML = options; if (currentVal) select.value = currentVal; }
+  
+  // FIX: Force visual update
+  if (select.innerHTML !== options) { select.innerHTML = options; }
+  if (currentVal) { 
+    select.value = currentVal; 
+    lastSelectedBranch = currentVal;
+  }
   clearMsg('branchMsg'); 
 }
 
@@ -726,12 +743,11 @@ function restoreUserState() {
   
   const savedStaffID = Storage.get('last_staff_id_' + currentTerminal);
   const staffEl = document.getElementById('staffID');
-  if (savedStaffID && staff.length > 0 && staffEl.value === '') { staffEl.value = savedStaffID; handleStaffInput.call(staffEl); } 
-  else if (staffEl.value !== '') { handleStaffInput.call(staffEl); }
+  if (savedStaffID && staff.length > 0 && staffEl.value === '') { staffEl.value = savedStaffID; handleStaffInput(); } 
 }
 
 function initAppAtt() {
-  purgeCacheAtMidnight(); // Boot cache check inside Attendance
+  purgeCacheAtMidnight(); 
 
   const myId = ++activeFetchId;
   const cacheKey = currentTerminal + '_portal_data';
@@ -747,7 +763,14 @@ function initAppAtt() {
     const changed = JSON.stringify(branches) !== JSON.stringify(data.branches) || JSON.stringify(staff) !== JSON.stringify(data.staff);
     staff = data.staff || []; branches = data.branches || [];
     try { Storage.set(cacheKey, JSON.stringify({staff, branches})); } catch(e) {}
-    if (!cached || changed) { populateBranches(branches); restoreUserState(); } else { restoreUserState(); } 
+    
+    // FIX: Do not blindly call restoreUserState if the user is already interacting with the form!
+    if (!cached || changed) { 
+      populateBranches(branches); 
+      if (!document.getElementById('staffID').value) {
+        restoreUserState(); 
+      }
+    } 
   }).catch(() => {
     if (myId === activeFetchId && branches.length === 0) document.getElementById('branch').innerHTML = '<option value="">Offline — waiting for connection</option>';
   });
@@ -756,7 +779,7 @@ function initAppAtt() {
 function activateStep(n) { document.getElementById('step'+n).classList.add('activeStep'); }
 function resetStepsFrom(n) {
   for (let i = n; i <= 4; i++) { const el = document.getElementById('step'+i); if (el) el.classList.remove('activeStep'); }
-  if (n <= 2) { staffName = ''; clearMsg('staffMsg'); staffRestrictionError = null; }
+  if (n <= 2) { staffName = ''; clearMsg('staffMsg'); staffRestrictionError = null; lastValidatedId = ""; }
   if (n <= 3) { coords = null; clearMsg('gpsMsg'); }
   if (n <= 4) { photo = null; stopCamera(); clearMsg('cameraMsg'); document.getElementById('successPhoto').src = ''; }
 }
@@ -793,16 +816,21 @@ function handleBranchChange(isInit = false) {
   if (lastSelectedBranch !== val && !isInit) { if (document.getElementById('step2').classList.contains('activeStep') && document.getElementById('staffID').value !== '') { resetStepsFrom(2); } }
   lastSelectedBranch = val;
   if (!document.getElementById('step2').classList.contains('activeStep')) { activateStep(2); }
-  const staffEl = document.getElementById('staffID'); if (staffEl.value.length >= 2) { handleStaffInput.call(staffEl); }
+  const staffEl = document.getElementById('staffID'); if (staffEl.value.length >= 2) { handleStaffInput(); }
 }
 document.getElementById('branch').addEventListener('change', () => handleBranchChange(false));
 
 function handleStaffInput() {
-  const val = this.value.trim(); staffRestrictionError = null; 
-  if (val.length < 2) { resetStepsFrom(3); clearMsg('staffMsg'); return; }
+  const val = document.getElementById('staffID').value.trim(); 
+  staffRestrictionError = null; 
+  if (val.length < 2) { lastValidatedId = ""; resetStepsFrom(3); clearMsg('staffMsg'); return; }
   
   const match = staff.find(s => s.id === val);
   if (match) {
+    // FIX: If the user is just typing the same valid ID, DO NOT reset their GPS/Camera!
+    const isSameUser = (lastValidatedId === val);
+    lastValidatedId = val;
+    
     staffName = match.name;
     let lastAction = match.status; 
     const lastTime = match.lastTime;
@@ -824,9 +852,15 @@ function handleStaffInput() {
     const msgEl = document.getElementById('staffMsg'); msgEl.style.opacity = '1';
     showSuccess('staffMsg', `Welcome ${staffName}`);
     
-    if (document.getElementById('step4').classList.contains('activeStep')) resetStepsFrom(4);
-    if (!document.getElementById('step3').classList.contains('activeStep')) activateStep(3);
-  } else { resetStepsFrom(3); showError('staffMsg','Invalid Staff ID. Please check.'); }
+    if (!isSameUser) {
+      if (document.getElementById('step4').classList.contains('activeStep')) resetStepsFrom(4);
+      if (!document.getElementById('step3').classList.contains('activeStep')) activateStep(3);
+    }
+  } else { 
+    lastValidatedId = ""; 
+    resetStepsFrom(3); 
+    showError('staffMsg','Invalid Staff ID. Please check.'); 
+  }
 }
 document.getElementById('staffID').oninput = handleStaffInput;
 
