@@ -216,7 +216,7 @@ th:first-child, td.flavor-name { position: sticky; left: 0; background: var(--bg
 
 /* SUCCESS SCREENS */
 #attSuccessScreen { display:none;flex-direction:column;align-items:center; justify-content:center; padding:10px 4px;text-align:center;width:100%; }
-.success-photo{ width: 120px; height: 120px; object-fit: cover; border-radius: 50%; box-shadow: 0 0 0 4px var(--success-color); margin-bottom: 20px; animation: bounceIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); transition: opacity 0.2s ease; cursor: zoom-in; position: relative; z-index: 10; -webkit-tap-highlight-color: transparent; }
+.success-photo{ width: 120px; height: 120px; object-fit: cover; border-radius: 50%; box-shadow: 0 0 0 4px var(--success-color); margin-bottom: 20px; animation: bounceIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); cursor: zoom-in; position: relative; z-index: 10; -webkit-tap-highlight-color: transparent; }
 .success-badge{ background:var(--dynamic-primary);color:#fff;font-size:14px;font-weight:800; text-transform:uppercase;padding:8px 24px;border-radius:999px; margin-bottom:24px;display:inline-block;box-shadow:0 4px 10px rgba(0,0,0,0.1); animation:bounceIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.05s backwards; }
 .success-card{ background:var(--success-card-bg);border:1px solid var(--success-card-border); border-radius:20px;padding:24px 20px;width:100%;margin-bottom:20px; animation:bounceIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s backwards; }
 .success-name{font-size:26px;font-weight:800;color:var(--dynamic-primary);margin-bottom:8px}
@@ -236,7 +236,8 @@ th:first-child, td.flavor-name { position: sticky; left: 0; background: var(--bg
   object-fit: cover; 
   box-shadow: 0 0 0 1.5px var(--success-color), 0 25px 60px rgba(0,0,0,0.6);
   z-index: 20001;
-  /* Transitions are injected dynamically via JS */
+  cursor: zoom-out;
+  /* Transitions injected dynamically via JS */
 }
 </style>
 </head>
@@ -252,7 +253,6 @@ var Storage = {
   remove:function(k){try{localStorage.removeItem(k)}catch(e){}} 
 };
 
-// PURGE CACHE DAILY
 function purgeCacheAtMidnight() {
   var today = new Date().toDateString(); 
   if (Storage.get('cache_date') !== today) {
@@ -409,9 +409,12 @@ function purgeCacheAtMidnight() {
   </div>
 </div>
 
-<!-- Flawless Geometric Morphing Zoom Overlay -->
-<div id="photoZoomOverlay" class="glass-overlay" onclick="closeZoom()">
-  <img id="zoomedImage" src="" />
+<!-- Flawless Decoupled Morphing Zoom Overlay -->
+<div id="photoZoomContainer" style="display:none; position:fixed; inset:0; z-index:20000; pointer-events:none;">
+  <!-- Only the background fades in/out -->
+  <div id="photoZoomBg" class="glass-overlay" onclick="closeZoom()"></div>
+  <!-- The image scales and morphs independently on top -->
+  <img id="zoomedImage" src="" onclick="closeZoom()" />
 </div>
 
 <!-- Order Confirmation Modal -->
@@ -646,7 +649,7 @@ function processOrder(e) {
     let flavorKey = flavor; if (["TREE TOMATO", "HIBISCUS", "TAMARIND", "BEETROOT", "TANGERINE", "CARROT"].includes(flavor)) { flavorKey = activeStore === 'chandarana' ? `${flavor} ` : flavor; } 
     let val5 = document.querySelector(`.juice-input[data-flavor="${flavor}"][data-vol="5L"]`)?.getAttribute('data-val') || "0"; let val3 = document.querySelector(`.juice-input[data-flavor="${flavor}"][data-vol="3L"]`)?.getAttribute('data-val') || "0"; let qty = val5 !== "0" ? val5 : (val3 !== "0" ? val3 : "0"); 
     
-    // ADDED " Litres" SUFFIX TO PAYLOAD HERE
+    // Writes "15 Litres" to payload
     if(qty !== "0") { payload[(activeStore==='chandarana'?"JUICE (5 LITRES/3 LITRES)":"JUICE (5 ITRES / 3 LITRES)") + ` [${flavorKey}]`] = qty + " Litres"; hasJuices = true; juiceHtml += `<li style="margin-bottom:4px;">${flavor} - ${qty} L</li>`; } 
   });
   juiceHtml += `</ul></div>`; if(hasJuices) html += juiceHtml;
@@ -820,7 +823,6 @@ function resetAttForm() {
   document.getElementById('attSuccessScreen').style.display='none';
   document.getElementById('attMainForm').style.display='block';
   document.getElementById('attMainContainer').style.overflow = 'hidden';
-  document.getElementById('successPhoto').style.opacity = '1';
   
   document.getElementById('staffID').value = ''; 
   resetStepsFrom(3); 
@@ -832,62 +834,66 @@ function showSuccess(id,txt){ const e=document.getElementById(id); e.innerHTML=`
 function showError(id,txt)  { const e=document.getElementById(id); e.innerText=txt; e.className='msg error'; }
 function clearMsg(id)       { const e=document.getElementById(id); e.innerText=''; e.className='msg'; }
 
-// PERFECT GEOMETRIC FLIP ANIMATION FOR PHOTO ZOOM
+// PERFECT GEOMETRIC FLIP ANIMATION FOR PHOTO ZOOM (DECOUPLED FROM BACKGROUND)
 function openZoom() {
-  const overlay = document.getElementById('photoZoomOverlay');
+  const container = document.getElementById('photoZoomContainer');
+  const bg = document.getElementById('photoZoomBg');
   const overlayImg = document.getElementById('zoomedImage');
   const sourceImg = document.getElementById('successPhoto');
 
-  // Step 1: Get exact coordinates of the circle image on the screen
+  // 1. Get exact position of original photo
   const rect = sourceImg.getBoundingClientRect();
-  
   overlayImg.src = sourceImg.src;
   
-  // Step 2: Set overlay image to perfectly mimic the small circle's state
-  overlayImg.style.transition = 'none'; 
+  // 2. Map overlay image precisely to original circle (No animation yet)
+  overlayImg.style.transition = 'none';
   overlayImg.style.left = rect.left + 'px';
   overlayImg.style.top = rect.top + 'px';
   overlayImg.style.width = rect.width + 'px';
   overlayImg.style.height = rect.height + 'px';
   overlayImg.style.borderRadius = '50%';
   
-  overlay.style.display = 'block'; // Make overlay visible
-  void overlay.offsetWidth; // Force Reflow (crucial for transition to work)
+  // 3. Make container visible, hide original source image
+  container.style.display = 'block';
+  void container.offsetWidth; // Force Reflow
+  sourceImg.style.opacity = '0'; 
   
-  sourceImg.style.opacity = '0'; // Hide original image
-  
-  // Step 3: Animate the overlay image into the large square center state
-  overlayImg.style.transition = 'all 0.5s cubic-bezier(0.25, 1, 0.4, 1)';
-  
+  // 4. Trigger morph to big square
+  overlayImg.style.transition = 'all 0.4s cubic-bezier(0.25, 1, 0.4, 1)';
   const targetW = Math.min(window.innerWidth * 0.85, 400); // 85% width or max 400px
+  
   overlayImg.style.left = ((window.innerWidth - targetW) / 2) + 'px';
   overlayImg.style.top = ((window.innerHeight - targetW) / 2) + 'px';
   overlayImg.style.width = targetW + 'px';
   overlayImg.style.height = targetW + 'px';
   overlayImg.style.borderRadius = '24px';
   
-  overlay.classList.add('show');
+  // 5. Fade in background blur
+  bg.classList.add('show');
 }
 
 function closeZoom() {
-  const overlay = document.getElementById('photoZoomOverlay');
+  const container = document.getElementById('photoZoomContainer');
+  const bg = document.getElementById('photoZoomBg');
   const overlayImg = document.getElementById('zoomedImage');
   const sourceImg = document.getElementById('successPhoto');
   
   const rect = sourceImg.getBoundingClientRect();
   
-  // Animate back to original circle position
+  // 1. Morph back exactly to the source circle's coordinates
   overlayImg.style.left = rect.left + 'px';
   overlayImg.style.top = rect.top + 'px';
   overlayImg.style.width = rect.width + 'px';
   overlayImg.style.height = rect.height + 'px';
   overlayImg.style.borderRadius = '50%';
   
-  overlay.classList.remove('show');
+  // 2. Fade out background completely independent of the image
+  bg.classList.remove('show');
   
+  // 3. Wait for animation to finish, then swap visibility
   setTimeout(() => { 
-    overlay.style.display = 'none'; 
-    sourceImg.style.opacity = '1'; // Unhide original
+    container.style.display = 'none'; 
+    sourceImg.style.opacity = '1'; // Show original circle again perfectly!
   }, 400);
 }
 
