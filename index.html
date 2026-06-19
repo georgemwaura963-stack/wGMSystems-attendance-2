@@ -52,9 +52,7 @@
   }
 }
 
-/* =========================================
-   SCROLLBAR REMOVAL (System-wide)
-========================================= */
+/* SCROLLBAR REMOVAL */
 ::-webkit-scrollbar { display: none; }
 * { -ms-overflow-style: none; scrollbar-width: none; box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color: transparent; }
 
@@ -68,11 +66,7 @@ body {
   transition: background-color 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 input, textarea, select { -webkit-user-select: auto; user-select: auto; font-family: inherit;}
-
-/* Prevent text selection only on non-input UI elements */
-.view-section, .btn-primary, .btn-secondary, .pill-btn, .back-pill, .menu-card, .hanging-sign, .chip-span, .order-group-title {
-  -webkit-user-select: none; user-select: none;
-}
+.view-section, .btn-primary, .btn-secondary, .pill-btn, .back-pill, .menu-card, .hanging-sign, .chip-span, .order-group-title { -webkit-user-select: none; user-select: none; }
 
 /* THEME HANDLING */
 body::before { content: ""; position: fixed; inset: 0; background: linear-gradient(135deg, #059669 0%, #2563eb 100%); opacity: 0; visibility: hidden; z-index: -1; transition: opacity 0.3s ease; pointer-events: none; }
@@ -91,8 +85,7 @@ body.theme-carrefour {--dynamic-primary:var(--theme-carr);--success-color:#3b82f
 /* Back Button */
 .back-pill { 
   position: fixed; bottom: 24px; left: 24px; z-index: 9999; 
-  background: var(--dynamic-primary); 
-  color: #fff; font-weight: 800; font-size: 15px; 
+  background: var(--dynamic-primary); color: #fff; font-weight: 800; font-size: 15px; 
   padding: 14px 26px; border-radius: 50px; 
   box-shadow: 0 10px 25px rgba(0,0,0,0.35), inset 0 1px 1px rgba(255,255,255,0.2);
   border: 1px solid rgba(255,255,255,0.3);
@@ -107,22 +100,12 @@ body.theme-carrefour {--dynamic-primary:var(--theme-carr);--success-color:#3b82f
 .hub-logo { font-size: 36px; font-weight: 900; color: #fff; text-shadow: 0 4px 10px rgba(0,0,0,0.2); margin-bottom: 6px; }
 .menu-subtitle { color: rgba(255,255,255,0.9); font-weight: 700; font-size: 16px; margin-bottom: 30px; }
 .menu-cards { width: 100%; display: flex; flex-direction: column; gap: 20px; }
-
-/* HUB MENU ANIMATIONS */
-.menu-card { 
-  display: flex; align-items: center; background: var(--bg-primary); 
-  border-radius: 24px; padding: 22px; gap: 20px; width: 100%; 
-  box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: 1px solid var(--border-color); 
-  cursor: pointer; opacity: 0; 
-}
+.menu-card { display: flex; align-items: center; background: var(--bg-primary); border-radius: 24px; padding: 22px; gap: 20px; width: 100%; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: 1px solid var(--border-color); cursor: pointer; opacity: 0; }
 .menu-card:active { transform: scale(0.96) !important; transition: transform 0.2s; }
-
 #view-menu.active .menu-card:nth-child(1) { animation: slideInLeft 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; animation-delay: 0.05s; }
 #view-menu.active .menu-card:nth-child(2) { animation: slideInRight 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; animation-delay: 0.1s; }
-
 @keyframes slideInLeft { from { opacity: 0; transform: translateX(-60px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes slideInRight { from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); } }
-
 .mc-icon { font-size: 40px; background: var(--button-secondary-bg); width: 76px; height: 76px; display: flex; align-items: center; justify-content: center; border-radius: 20px; flex-shrink: 0;}
 .mc-content h3 { margin: 0 0 6px; font-size: 24px; font-weight: 900; color: var(--text-primary); text-transform: uppercase;}
 .mc-content p { margin: 0; font-size: 15px; font-weight: 700; color: var(--text-secondary); }
@@ -157,7 +140,6 @@ body.theme-carrefour .ui-input:focus, body.theme-carrefour .ui-select:focus {box
 .section-card { border: 1px solid var(--border-color); border-radius: 18px; padding: 14px; background: var(--bg-primary); margin-bottom: 15px; }
 #o-id { color: var(--dynamic-primary); font-weight: 900; font-size: 18px; }
 #o-id::placeholder { color: var(--text-tertiary); opacity: 0.8; font-weight: 700; }
-
 .locked-form { opacity: 0.4; pointer-events: none; transition: 0.4s; }
 .locked-form.unlocked { opacity: 1; pointer-events: auto; }
 .order-group { border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 12px; background: var(--bg-primary); overflow: hidden; }
@@ -178,7 +160,8 @@ th:first-child, td.flavor-name { position: sticky; left: 0; background: var(--bg
 .chip-label input:checked + .chip-span { background: var(--dynamic-primary); color: #fff; border-color: var(--dynamic-primary); transform: translateY(-2px); }
 
 /* ATTENDANCE SPECIFIC */
-.app-wrapper { position: relative; width: 100%; max-width: 420px; display: flex; flex-direction:column; align-items: center; justify-content: center; padding-top:20px; z-index: 1;}
+/* Added margin-bottom to physically raise the attendance block away from browser lower bars */
+.app-wrapper { position: relative; width: 100%; max-width: 420px; display: flex; flex-direction:column; align-items: center; justify-content: center; padding-top:20px; margin-bottom: 10vh; z-index: 1;}
 
 .hanging-sign-wrapper { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: -5px; perspective: 800px; z-index: 10; width: 240px; pointer-events: none; }
 .chain { position: absolute; top: -30px; width: 5px; height: 34px; background: linear-gradient(to right, #9ca3af, #f3f4f6, #9ca3af); border-radius: 3px; box-shadow: inset 0 0 3px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2); z-index: 1; pointer-events: none; }
@@ -200,7 +183,7 @@ th:first-child, td.flavor-name { position: sticky; left: 0; background: var(--bg
 .msg .dot{ display:inline-flex;justify-content:center;align-items:center; width:16px;height:16px;background:var(--success-color);border-radius:50%; margin-right:8px;flex-shrink:0;position:relative; margin-top: 2px; }
 .msg .dot::after{ content:'';position:absolute;top:45%;left:50%; width:3.5px;height:7px; border-right:2px solid #fff;border-bottom:2px solid #fff; transform:translate(-50%,-50%) rotate(45deg); }
 
-/* PERFECT FLAWLESS GLASS OVERLAYS (No Bleeding, No Shifting) */
+/* PERFECT FLAWLESS GLASS OVERLAYS */
 .glass-overlay { 
   position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
   width: 100vw; height: 100vh; height: 100dvh;
@@ -208,28 +191,24 @@ th:first-child, td.flavor-name { position: sticky; left: 0; background: var(--bg
   backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); 
   margin: 0; padding: 0; z-index: 10000; 
   opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
-  transform: translateZ(0); /* Hardware acceleration for clean blur */
+  transform: translateZ(0);
 }
 .glass-overlay.show { opacity: 1; pointer-events: auto; }
 
-/* Camera View perfectly masked to prevent corner bleeding */
 #videoContainerWrapper{ 
   position:fixed; top: 50%; left: 50%; 
-  width: 85%; max-width: 380px; 
-  aspect-ratio: 3 / 4; 
-  border-radius: 28px; 
-  overflow: hidden; 
+  width: 85%; max-width: 380px; aspect-ratio: 3 / 4; 
+  border-radius: 28px; overflow: hidden; 
   z-index: 10001; background-color: #000; 
   box-shadow: 0 25px 60px rgba(0,0,0,0.6);
   transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.25, 1, 0.4, 1); 
   transform: translate(-50%, -50%) scale(0.95); opacity: 0; pointer-events: none; 
-  -webkit-mask-image: -webkit-radial-gradient(white, black); /* Fixes Safari border radius bleed */
+  -webkit-mask-image: -webkit-radial-gradient(white, black); 
 }
 #videoContainerWrapper.expanded{ pointer-events:auto; opacity:1; transform: translate(-50%, -50%) scale(1); }
 
 #cameraVideo{ position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; display:block; transform: scaleX(-1); opacity: 0; transition: opacity 0.4s ease; }
 #cameraVideo.live { opacity: 1; }
-
 .camera-ui{ position:absolute;bottom:0;left:0;right:0; padding:24px; background:linear-gradient(to top,rgba(0,0,0,0.8) 0%,transparent 100%); display:flex;align-items:center;justify-content:center; z-index:3; }
 #captureBtn{ width:68px;height:68px;border-radius:50%; background:rgba(255,255,255,0.3);border:4px solid rgba(255,255,255,0.95); cursor:pointer;display:flex;align-items:center;justify-content:center; transition:transform 0.1s;-webkit-tap-highlight-color:transparent; }
 #captureBtn::after{content:'';width:50px;height:50px;background:#fff;border-radius:50%;transition:transform 0.1s}
@@ -411,7 +390,6 @@ function purgeCacheAtMidnight() {
 
 <!-- =========================
      GLOBAL MODALS & OVERLAYS 
-     (Placed at the absolute bottom to prevent Layout Shifts & Stacking Context Traps)
 ========================== -->
 
 <!-- Flawless Camera Overlay -->
@@ -423,9 +401,9 @@ function purgeCacheAtMidnight() {
   </div>
 </div>
 
-<!-- Flawless Dedicated Photo Zoom Overlay (Zero layout shifts!) -->
+<!-- Flawless Dedicated Photo Zoom Overlay -->
 <div id="photoZoomOverlay" class="glass-overlay" style="display:none; justify-content:center; align-items:center; z-index:20000; cursor:zoom-out;" onclick="closeZoom()">
-  <img id="zoomedImage" src="" style="width:85%; max-width:400px; border-radius:24px; box-shadow: 0 0 0 1.5px var(--success-color), 0 25px 60px rgba(0,0,0,0.6); object-fit:cover; aspect-ratio:1/1; transform:scale(0.8); transition: transform 0.4s cubic-bezier(0.25, 1, 0.4, 1);" />
+  <img id="zoomedImage" src="" style="width:85%; max-width:400px; border-radius:50%; box-shadow: 0 0 0 1.5px var(--success-color), 0 25px 60px rgba(0,0,0,0.6); object-fit:cover; aspect-ratio:1/1; transform:scale(0.3); transition: transform 0.4s cubic-bezier(0.25, 1, 0.4, 1), border-radius 0.4s cubic-bezier(0.25, 1, 0.4, 1);" />
 </div>
 
 <!-- Order Confirmation Modal -->
@@ -683,7 +661,6 @@ function downloadReceipt(btn) {
   content.style.boxShadow = 'none'; content.style.border = '2px solid #e5e7eb'; content.style.margin = '0'; content.style.fontSize = '15px'; content.style.borderRadius = '12px'; content.style.padding = '24px'; content.style.pageBreakInside = 'avoid'; 
   tempDiv.appendChild(content);
 
-  // Added Date.now() timestamp to completely prevent OS "Overwrite File?" prompts!
   const uniqueName = 'Order_' + document.getElementById('o-id').value + '_' + Date.now() + '.pdf';
 
   const opt = { margin: 0.3, filename: uniqueName, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
@@ -754,7 +731,6 @@ function switchTerminalAtt(term, isInitialOpen = false) {
   document.getElementById('a-btn-carrefour').classList.toggle('active',  currentTerminal === 'carrefour');
   updatePillSlider('a-terminal-wrapper', 'a-pill-slider');
   
-  // Clear steps but crucially re-activate the Branch Select (Step 1) so it's not blocked
   resetStepsFrom(1);
   document.getElementById('step1').classList.add('activeStep');
   document.getElementById('staffID').value = ''; 
@@ -846,25 +822,35 @@ function showSuccess(id,txt){ const e=document.getElementById(id); e.innerHTML=`
 function showError(id,txt)  { const e=document.getElementById(id); e.innerText=txt; e.className='msg error'; }
 function clearMsg(id)       { const e=document.getElementById(id); e.innerText=''; e.className='msg'; }
 
-// NEW Photo Zoom Logic - Fully decoupled to prevent shifts/blur bugs
+// SMOOTH MORPHING ZOOM LOGIC
 function openZoom() {
   const overlay = document.getElementById('photoZoomOverlay');
   const overlayImg = document.getElementById('zoomedImage');
   const sourceImg = document.getElementById('successPhoto');
   
+  // Set the image and start state (Circular and small)
   overlayImg.src = sourceImg.src;
+  overlayImg.style.borderRadius = '50%';
+  overlayImg.style.transform = 'scale(0.3)';
+  
   overlay.style.display = 'flex';
-  void overlay.offsetWidth; // Force Reflow
+  void overlay.offsetWidth; // Force Reflow before applying transitions
+  
+  // Morph into large square
   overlay.classList.add('show');
   overlayImg.style.transform = 'scale(1)';
+  overlayImg.style.borderRadius = '24px';
 }
 
 function closeZoom() {
   const overlay = document.getElementById('photoZoomOverlay');
   const overlayImg = document.getElementById('zoomedImage');
   
+  // Morph back to small circle
   overlay.classList.remove('show');
-  overlayImg.style.transform = 'scale(0.8)';
+  overlayImg.style.transform = 'scale(0.3)';
+  overlayImg.style.borderRadius = '50%';
+  
   setTimeout(() => { overlay.style.display = 'none'; }, 400);
 }
 
